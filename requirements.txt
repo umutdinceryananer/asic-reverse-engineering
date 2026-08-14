@@ -1,0 +1,4 @@
+# GDS reading and analysis. Both ship wheels for Windows, Linux and macOS, so
+# the same venv definition works on every machine used for this project.
+gdstk==1.0.1
+klayout==0.30.10

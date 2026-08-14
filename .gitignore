@@ -1,0 +1,17 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Extraction, simulation and analysis artifacts
+out/
+
+# Simulation products
+*.vvp
+*.vcd
+*.fst
+
+# Editor and OS
+.vscode/
+.DS_Store
+Thumbs.db
