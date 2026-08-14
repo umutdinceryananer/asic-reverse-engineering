@@ -15,3 +15,6 @@ out/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Downloaded PDK cell library, fetched by tools/fetch_pdk.py
+pdk/

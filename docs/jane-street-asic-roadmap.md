@@ -15,9 +15,15 @@ Three deliverables in order.
 2. An account of what the circuit computes
 3. The input that drives the `success` signal high, and the string it yields
 
-A warm up example ships with the puzzle. It is a binary adder distributed with
-its Verilog source, its synthesized netlist and its GDS. It exists to calibrate
-the extraction flow before touching the real layout.
+A warm up example ships with the puzzle. It is two shift registers feeding an
+adder and a comparator, raising success when the two operands sum to 496, and it
+is distributed with its Verilog source, its synthesized netlist and its GDS. It
+exercises both combinational and sequential extraction, so a flow calibrated
+against it is calibrated against the real thing.
+
+The repository also carries an annotated hint image and `example_inputs.vcd`, a
+waveform of sample inputs driven into the puzzle design. The inputs in that file
+are not the ones that raise success. Surfer or any VCD viewer opens it.
 
 Starting point is no prior hardware background. The plan compensates by
 front loading tooling and by calibrating every step against a circuit whose
@@ -64,6 +70,8 @@ prefer scripted headless flows and reserve the GUI for visual inspection only.
 |---|---|---|
 | OSS CAD Suite | Yosys, nextpnr, Icarus Verilog, solvers, in one archive | Single tarball, no build step |
 | KLayout | GDS inspection and the Python scripting API | Also provides the LVS netlist extractor |
+| TinyTapeout online GDS viewer | Browser based first look at the layout | No local memory cost, useful for orientation |
+| Surfer | VCD waveform viewing for `example_inputs.vcd` | Any VCD viewer works |
 | Magic VLSI | Second opinion on extraction | Optional, useful when KLayout output looks wrong |
 | gdstk | Programmatic GDS reading from Python | Lighter than driving KLayout for batch work |
 | Verilator | Faster simulation than Icarus on large netlists | Optional |
@@ -154,8 +162,10 @@ scratch. Emit the result as structural Verilog with named nets.
 Deliverable. `tools/extract_nets.py`, `tools/emit_verilog.py`,
 `docs/02-connectivity.md`.
 
-Verification. Simulate the recovered warm up netlist in Icarus Verilog against an
-exhaustive or randomized vector set and confirm it behaves as a binary adder.
+Verification. Simulate the recovered warm up netlist in Icarus Verilog and
+confirm it raises success exactly when the two shift register operands sum to
+496. This exercises flip flop and clock extraction as well as combinational
+correctness.
 
 Exit criterion. Recovered warm up netlist is functionally equivalent to the
 reference.
@@ -292,7 +302,7 @@ Buffer 2 to 3 September. Deadline 4 September.
 ## Risks
 
 Extraction defects that pass the warm up but fail on the puzzle layout. The warm
-up is a small combinational circuit and will not exercise sequential extraction.
+up covers sequential structure, so the residual risk is scale rather than kind.
 Treat Phase 3 sample vector failures as extraction bugs first.
 
 Phase 5 has no lower bound on effort. The five day budget is an allocation, not

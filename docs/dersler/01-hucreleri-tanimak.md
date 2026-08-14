@@ -124,7 +124,7 @@ Yaptığımız şey: ayak izinin dört köşesini dönüşümden geçir, sonra e
 en küçük y'yi al. Bu, yerleştirilmiş halin sol alt köşesi. Artık DEF ile aynı
 dili konuşuyoruz.
 
-Bunu koda döktüm, [tools/extract_cells.py](../../tools/extract_cells.py).
+Bunu koda döktüm, [tools/stage1_cells.py](../../tools/stage1_cells.py).
 
 ---
 
@@ -151,7 +151,7 @@ Sonuç:
 
 ```
 DEF declares 230 components, parsed 230
-GDS yields  230 components
+stage 1 gives 230 instances
 
 exact matches      230/230  (100.00%)
 wrong cell type    0
@@ -213,22 +213,96 @@ hash'le.
 Kaydırma önemli, çünkü aynı hücre farklı orijinlerle çizilmiş olabilir.
 Yuvarlama da önemli, çünkü iki özdeş hücre kayan nokta hatasıyla ayrışmasın.
 
-Döndürmeye karşı bağışıklığa gerek yok — hücre **tanımları** hiç döndürülmez,
-sadece yerleşimleri döndürülür.
+Peki döndürme? Hücre **tanımları** hiç döndürülmez, sadece yerleşimleri
+döndürülür — yani bizim dosyalarımızda buna gerek yok. Yine de parmak izlerini
+**sekiz yönelimin hepsi için** indeksliyoruz, çünkü kütüphane döndürülmüş
+saklanmış olsaydı da çalışmalı. Bunun bir bedeli var: bir tanım, kütüphanedeki
+hücrenin döndürülmüş hali olarak eşleşirse, o yerleşimin gerçek yönelimi ikisinin
+**bileşkesi** olur. Sekiz dönüşüm bir grup oluşturduğu için bileşke iyi tanımlı;
+kodda 2x2 matris çarpımıyla yapıyorum, çünkü sekiz elemanlı bir grup için elle
+yazılmış vaka tablosu sessiz hata üretmenin güvenilir bir yoludur.
+
+### Referans kütüphane
+
+Parmak izini neyle karşılaştıracağız? Cevap: **PDK'nın kendi hücre GDS'leriyle.**
+sky130 kütüphanesindeki 437 hücrenin her biri ayrı bir GDS dosyası olarak
+yayınlanmış, toplam 4 MB. `tools/fetch_pdk.py` bunları indiriyor.
+
+Bir ayrıntı önemli: indirme **belirli bir commit'e sabitlenmiş**. Sabitlenmezse
+kütüphane ileride bir hücreyi yeniden çizdiğinde pipeline'ın neyi tanıdığı
+sessizce değişirdi. Tekrar üretilebilirlik iddiası varsa girdiler de sabit
+olmalı.
 
 ### Test
 
-Yöntem gerçekten çalışıyor mu? Şöyle test ettik: warm-up'ın hücre tanımlarını
-referans kütüphane yap, puzzle'daki hücrelere **isimlerine hiç bakmadan** isim
-vermeye çalış.
+Yöntem çalışıyor mu? Warm-up'ta 230 yerleşimin **hepsi** yalnızca geometriden
+tanındı, ve çıktının en önemli satırı şu:
 
 ```
-identified 26, unidentified 54
+cross check against surviving hierarchy names
+  every geometric identification matches the name in the layout
 ```
 
-Ortak olan 26 hücrenin **hepsi** doğru isme çözüldü, tek yanlış eşleşme yok.
-Kalan 54 tanesi warm-up'ta hiç kullanılmayan tipler; onları adlandırmak için
-sky130 kütüphanesinin kendi GDS'i gerekir.
+Yani geometriden verdiğimiz her isim, dosyadaki isimle aynı. İki hedefte toplam
+1848 yerleşim, sıfır uyuşmazlık.
+
+---
+
+## 6b. Gerçek dünyadan bir sürpriz: PDK sürüm kayması
+
+Puzzle'da çalıştırınca 22 yerleşim eşleşmedi. Ama `INTERNAL_*` gibi sahte
+hücreler değil, düzgün isimli üç gerçek kütüphane hücresi: `o211a_2` (12 adet),
+`conb_1` (6), `and4b_2` (4).
+
+Dosyalar PDK'da vardı. Yani **geometri gerçekten farklıydı.** Hangi katmanda
+farklı olduğuna baktım:
+
+| Hücre | Farklı olan katmanlar |
+|---|---|
+| `o211a_2` | `poly`, `licon1` |
+| `conb_1` | `npc` |
+| `and4b_2` | `poly` |
+
+Ve hepsinde `nwell`, `diff`, `li1`, `mcon`, implantlar, pin katmanları **aynen
+tutuyordu**.
+
+Bu şu demek: puzzle'ı çizen PDK sürümü, bizim indirdiğimizle tam aynı değil.
+Fark küçük ve tipik bir DRC düzeltmesine benziyor — birkaç şekil rötuşlanmış.
+Elektriksel yapı aynı.
+
+Gerçek tersine mühendislikte bu **sürekli** başına gelir. Elindeki referans
+kütüphane, incelediğin çipin üretildiği sürüm olmayabilir. Exact hash bunu
+affetmez.
+
+### Çözüm: iki katmanlı eşleştirme
+
+**Katman 1, exact.** Bütün poligonların hash'i. En güçlü, kesin kimlik.
+
+**Katman 2, structural.** Sadece `nwell`, `diff`, `li1`, `mcon` üzerinden hash,
+artı pin isimleri kümesi, artı transistör sayısı.
+
+Katman seçimi tesadüfi değil. `poly`'yi dışarıda bırakmak gate şekillerini
+kaybettirir — ama `diff` ile `li1` birlikte **hangi transistörün seri hangisinin
+paralel** bağlandığını hâlâ kodluyor, ki bir kapıyı dualinden ayıran tam olarak
+bu. Ders 0'da gördüğümüz o "hiçbir yere bağlanmayan mor iç düğüm" hatırlıyor
+musun? İşte o bilgi `li1`'de duruyor.
+
+Ölçtüm: bu hash tek başına 437 hücrenin 427'sini benzersiz ayırıyor. Kalan 10
+çift ise `lpflow_*` izolasyon hücreleri — bunlar zaten mantık eşdeğerleriyle
+**birebir aynı layout**, sadece farklı amaçla adlandırılmışlar (`and2_1` ile
+`lpflow_inputiso0n_1` gibi). Pin isimleri ve transistör sayısı eklenince hepsi
+ayrışıyor, kütüphanede tek bir belirsiz parmak izi kalmıyor.
+
+Bir kural daha koydum: **iki farklı hücreye denk gelen bir parmak izi
+kullanılmaz, indeksten atılır.** İki hücreye uyan bir imza, kimlik tespiti
+değildir. Rastgele birini seçmek, hatayı sessizleştirmek olur.
+
+Sonuç: puzzle'da 1596 exact + 22 structural = 1618, ve structural olanların
+hepsi de dosyadaki isimle uyuşuyor.
+
+Buradaki asıl ders yöntemden çok tavırla ilgili: **eşleşmeyen her şeyi kaydet ve
+bak.** Sessizce atsaydım, 22 mantık hücresi netlist'ten eksik çıkacaktı ve bunu
+Faz 2'de anlamak neredeyse imkânsız olacaktı.
 
 ---
 
@@ -286,12 +360,15 @@ yok**.
 ## 8. Puzzle'da ne bulduk
 
 ```
-placements 9875
-  logic     728      ← anlamamız gereken gerçek devre
-  physical  890      ← dolgu, kuyu bağlantısı, decap, diyot
-  via      8221      ← routing
-  other      36      ← layer 200/0'daki Morse satırı
+placements  9875
+identified  1618      ← 1596 exact + 22 structural
+  logic     728       ← anlamamız gereken gerçek devre
+  physical  890       ← dolgu, kuyu bağlantısı, decap, diyot
+unmatched   8257      ← 8221 routing via + 36 marker (Morse satırı)
 ```
+
+Sonuç `out/puzzle/instances.json` dosyasına yazılıyor. Bu dosya Stage 2'nin
+girdisi — her aşama bir öncekinin çıktısını okuyor, GDS'e geri dönmüyor.
 
 Yönelim dağılımı: 624 `N`, 546 `FS`, 233 `S`, 215 `FN`. Sıraların dönüşümlü
 çevrildiğini burada da görüyorsun.
@@ -308,17 +385,18 @@ ama çıkışları gerçek netleri sürüyor, yani devrenin parçalar.
 ## 9. Kendin dene
 
 ```bash
+# Bir kez: PDK hucre kutuphanesini indir (~4 MB, commit'e sabitli)
+python tools/fetch_pdk.py
+
 # Warm-up'i cevap anahtariyla dogrula, 230/230 gormelisin
-python tools/extract_cells.py puzzle/warmup/04_final.gds
-python tools/compare_def.py puzzle/warmup/04_final.gds \
-                            puzzle/warmup/03_post_place_and_route.def
+python tools/stage1_cells.py warmup
+python tools/compare_def.py warmup
 
-# Hucrelerin transistor sayilarini cikar
+# Puzzle: 1596 exact + 22 structural bekle
+python tools/stage1_cells.py puzzle
+
+# Hucre profilleri ve imza cakismalari
 python tools/cell_signature.py puzzle/warmup/04_final.gds
-
-# Isimsiz tanima testi
-python tools/cell_signature.py puzzle/puzzle.gds \
-       --match puzzle/warmup/04_final.gds
 ```
 
 Denemen için iki soru. Önce kendin düşün, cevaplar aşağıda.
