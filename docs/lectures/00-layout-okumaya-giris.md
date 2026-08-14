@@ -92,14 +92,59 @@ katmanın **kesişmesinden doğuyor**. Bunu göremezsen layout okuyamazsın.
 
 İki tip MOSFET var:
 
-- **NMOS** — gate'e 1 verince iletir. Sıfırı (GND'yi) iyi aktarır.
-    aslında tam olarak doğrusal hareket eder. 1->1 / 0->0 şeklinde ilerler.
-- **PMOS** — gate'e 0 verince iletir. Biri (VDD'yi) iyi aktarır.
-    nmos'un tersi şekilde çalışır. 1->0 ve 0->1
-      PMOS'un böyle zıt şekilde davranması da aslıda poly (gate) kısmında bulunan bir deliktir.
+- **NMOS** — gate'e **1** verince iletir, 0 verince kesilir.
+- **PMOS** — gate'e **0** verince iletir, 1 verince kesilir.
 
-Her biri sadece bir tarafta iyi. NMOS ile 1 üretmeye çalışırsan zayıf bir 1
-alırsın, PMOS ile 0 üretirsen zayıf bir 0 alırsın.
+Aralarındaki tek fark bu: hangi gate seviyesinde açıldıkları.
+
+> ### Dikkat: transistör terslemez
+>
+> Buraya bir yanılgı çok kolay yerleşiyor, ve yerleşirse bir NAND kapısını
+> okuyamaz hale gelirsin. Şöyle düşünmek cazip geliyor: "NMOS 1'i 1 yapıyor,
+> PMOS 0'ı 1 yapıyor, yani PMOS tersleyici."
+>
+> **Değil.** İkisi de sadece birer **anahtar**. Bir anahtarın girişi ve çıkışı
+> yoktur; açıktır ya da kapalıdır. Üzerinden geçen sinyali çevirmez, çünkü
+> zaten bir sinyal taşımıyor — sadece iki ucu birbirine **bağlıyor**.
+>
+> Peki invertör nasıl tersliyor? **Bağlantı düzeninden.** Şuna dikkat et:
+> PMOS'un bir ucu VDD'ye, NMOS'un bir ucu GND'ye sabitlenmiş. Girişe 1
+> verdiğinde NMOS açılır ve çıkışı **GND'ye** bağlar; 0 verdiğinde PMOS açılır
+> ve çıkışı **VDD'ye** bağlar. Tersleme, transistörün içinde değil, **hangi
+> anahtarın hangi raya bağlı olduğunda**.
+>
+> Bunun kanıtı NAND kapısıdır: aynı iki transistör tipi, farklı bağlantı
+> düzeni, farklı fonksiyon. Transistör terseleseydi düzeni değiştirmek bir şeyi
+> değiştirmezdi.
+
+Peki "iyi aktarma" meselesi nedir? Bir transistörü anahtar olarak kullanıp
+üzerinden sinyal geçirmeye kalkarsan (buna *pass transistor* denir), NMOS 0'ı
+temiz geçirir ama 1'i eksik geçirir — çıkışta tam VDD değil, eşik voltajı kadar
+düşüğünü alırsın. PMOS'ta tam tersi: 1'i temiz, 0'ı eksik geçirir.
+
+Bu yüzden CMOS'ta her biri **yalnızca iyi olduğu işte** kullanılır: çıkışı
+VDD'ye çekmek gerekiyorsa PMOS, GND'ye çekmek gerekiyorsa NMOS. Kapının üst
+yarısı (pull-up) hep PMOS, alt yarısı (pull-down) hep NMOS olmasının sebebi bu.
+
+### Peki "delik" nerede
+
+PMOS'ta kanaldaki yük taşıyıcıları **delik** (hole), NMOS'ta **elektron**.
+Delik, bir elektronun bulunmadığı boş bağın adı; komşu elektronlar sırayla
+kaydıkça boşluk ters yönde ilerliyormuş gibi görünür, ve bu boşluğu pozitif
+yüklü bir taşıyıcı gibi hesaba katarız.
+
+İki şeyi karıştırmamak lazım:
+
+- Delik **poly'de değil**, poly'nin altındaki **yarı iletken kanalda**. Poly
+  sadece kapı; kanal onun altında, nwell'in içinde oluşuyor.
+- Delik, PMOS'un "ters çalışmasının" sebebi **değil** — zaten ters
+  çalışmıyor. Deliğin açıkladığı şey **hız**: delikler elektronlardan daha
+  yavaş hareket eder, o yüzden aynı boyda bir PMOS daha az akım verir.
+
+Ve bunun layout'ta doğrudan görünen bir sonucu var. Bölüm 6'da iki yeşil
+dikdörtgene bakacağız: üstteki (PMOS) alttakinden (NMOS) belirgin şekilde daha
+kalın olacak. Sebebi tam olarak bu — aynı akımı verebilmesi için daha geniş
+çizilmesi gerekiyor.
 
 Çözüm **CMOS**: ikisini birlikte kullan. Çıkışı VDD'ye bağlaman gerektiğinde
 PMOS'u aç, GND'ye bağlaman gerektiğinde NMOS'u aç. Hiçbir zaman ikisi birden
@@ -110,8 +155,9 @@ Ama bir sorun var. PMOS'un source/drain bölgeleri **p tipi** katkılı olmalı 
 altında **n tipi** bir taban gerekiyor. Wafer'ın kendisi p tipi. Dolayısıyla
 PMOS'ları koyabilmek için önce n tipi bir havuz kazmak gerekiyor.
 
-O havuza **nwell** deniyor. @inv2-device'ta gördüğün büyük açık renkli lila bölge budur:
-**PMOS'ların içinde oturduğu havuz.**
+O havuza **nwell** deniyor. Birazdan Bölüm 6'da bakacağımız
+[inv2-device.svg](img/inv2-device.svg) çiziminde gördüğün büyük açık lila bölge
+budur: **PMOS'ların içinde oturduğu havuz.**
 
 Bu yüzden her standard cell'in üst yarısı PMOS, alt yarısı NMOS olur. nwell
 üstte olduğu için.
@@ -233,13 +279,33 @@ Ama invertörü iki transistörle kurmuştuk. Neden dört tane var?
 Cevap kırmızının **tek parça** olmasında. İki çubuk birbirine köprüyle bağlı
 olduğu için elektriksel olarak **aynı düğüm**ler — ikisi de aynı anda açılıp
 kapanıyor. Aynı işi yapan iki transistörü paralel bağlamak, tek transistörün iki
-katı akım vermek demek. iki katı akım verildiği zaman sinyal gecikmesi engellenmiş olur.
-kısacası 0 dan 1'e geçiş demek kapasitörlerin elektrik ile dolması demektir. bunu da ne kadar hızlı yaparsak o kadar iyi olur.
+katı akım vermek demek.
 
-Hücrenin adındaki `_2` işte bu: **drive strength 2**. Uzun bir teli veya çok
-sayıda girişi sürmesi gereken bir kapı, daha güçlü versiyonundan seçilir. Aynı
-mantık kapısının `_1`, `_2`, `_4`, `_8` versiyonları kütüphanede yan yana durur;
-mantıkları aynı, sürme güçleri farklıdır.
+### Akımın neden önemi var
+
+Dijital devreyi "0 ve 1 taşıyan teller" diye düşünmek kolay, ama fiziksel
+olarak olan şey bu değil. Bir çıkışı 0'dan 1'e çıkarmak demek, o tele bağlı her
+şeyin **kapasitansını doldurmak** demek: telin kendisi, ve sürdüğü bütün
+gate'ler. Kapasitör dolana kadar voltaj yükselmez.
+
+Bir kapasitörü ne kadar hızlı doldurursun? Ne kadar çok akım verirsen. Bağıntı
+kabaca şu:
+
+```
+gecikme  ≈  (yük kapasitansı × voltaj) / akım
+```
+
+Yani akımı iki katına çıkarmak gecikmeyi kabaca yarıya indirir. Paralel iki
+transistör tam olarak bunu yapıyor.
+
+Buradan da şu çıkıyor: bir kapının "gücü" mantığıyla ilgili değil, **ne kadar
+yük sürmesi gerektiğiyle** ilgili. Kısa bir tele bağlı tek bir gate'i süren kapı
+zayıf olabilir; çipin öbür ucuna giden uzun bir teli süren kapı güçlü olmalı.
+
+Hücrenin adındaki `_2` işte bu: **drive strength 2**. Aynı mantık kapısının
+`_1`, `_2`, `_4`, `_8` versiyonları kütüphanede yan yana durur; mantıkları
+birebir aynı, sürme güçleri farklıdır. Sentez aracı mantığı seçer, yerleştirme
+aracı ise telin ne kadar uzadığını görüp gücü ayarlar.
 
 Ve buradaki asıl kazanç şu: Bölüm 5'teki şemada "iki transistörün gate'i
 ortak" demiştik. Şimdi bunu **göz kararı doğrulayabiliyorsun**, çünkü tek parça
