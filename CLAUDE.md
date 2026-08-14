@@ -94,7 +94,7 @@ passes on a target with ground truth.**
 
 One document per stage in `docs/`, numbered to match. Do not merge them.
 
-`docs/dersler/` holds step-by-step lessons in Turkish, written for someone with
+`docs/lectures/` holds step-by-step lessons in Turkish, written for someone with
 no hardware background, numbered to match the phase they accompany. These are
 a deliverable of every phase, not an afterthought: explain what is being done
 and why while doing it, and build up from first principles rather than assuming

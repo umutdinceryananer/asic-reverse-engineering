@@ -93,7 +93,10 @@ katmanın **kesişmesinden doğuyor**. Bunu göremezsen layout okuyamazsın.
 İki tip MOSFET var:
 
 - **NMOS** — gate'e 1 verince iletir. Sıfırı (GND'yi) iyi aktarır.
+    aslında tam olarak doğrusal hareket eder. 1->1 / 0->0 şeklinde ilerler.
 - **PMOS** — gate'e 0 verince iletir. Biri (VDD'yi) iyi aktarır.
+    nmos'un tersi şekilde çalışır. 1->0 ve 0->1
+      PMOS'un böyle zıt şekilde davranması da aslıda poly (gate) kısmında bulunan bir deliktir.
 
 Her biri sadece bir tarafta iyi. NMOS ile 1 üretmeye çalışırsan zayıf bir 1
 alırsın, PMOS ile 0 üretirsen zayıf bir 0 alırsın.
@@ -230,7 +233,8 @@ Ama invertörü iki transistörle kurmuştuk. Neden dört tane var?
 Cevap kırmızının **tek parça** olmasında. İki çubuk birbirine köprüyle bağlı
 olduğu için elektriksel olarak **aynı düğüm**ler — ikisi de aynı anda açılıp
 kapanıyor. Aynı işi yapan iki transistörü paralel bağlamak, tek transistörün iki
-katı akım vermek demek.
+katı akım vermek demek. iki katı akım verildiği zaman sinyal gecikmesi engellenmiş olur.
+kısacası 0 dan 1'e geçiş demek kapasitörlerin elektrik ile dolması demektir. bunu da ne kadar hızlı yaparsak o kadar iyi olur.
 
 Hücrenin adındaki `_2` işte bu: **drive strength 2**. Uzun bir teli veya çok
 sayıda girişi sürmesi gereken bir kapı, daha güçlü versiyonundan seçilir. Aynı
