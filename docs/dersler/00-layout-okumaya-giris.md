@@ -107,7 +107,7 @@ Ama bir sorun var. PMOS'un source/drain bölgeleri **p tipi** katkılı olmalı 
 altında **n tipi** bir taban gerekiyor. Wafer'ın kendisi p tipi. Dolayısıyla
 PMOS'ları koyabilmek için önce n tipi bir havuz kazmak gerekiyor.
 
-O havuza **nwell** deniyor. Layout'ta gördüğün büyük açık renkli bölge budur:
+O havuza **nwell** deniyor. @inv2-device'ta gördüğün büyük açık renkli lila bölge budur:
 **PMOS'ların içinde oturduğu havuz.**
 
 Bu yüzden her standard cell'in üst yarısı PMOS, alt yarısı NMOS olur. nwell
@@ -155,62 +155,92 @@ python tools/render_cell.py puzzle/puzzle.gds sky130_fd_sc_hd__inv_2 \
        docs/dersler/img/inv2-device.svg --layers device
 ```
 
-Bu görüntüde sadece üç katman var, ve toplam **dört şekil**. Gerçek
-koordinatlarıyla:
+Bu görüntüde sadece **üç renk** var, çünkü sadece üç katman çizdirdim. Toplam
+dört şekil.
 
-| Katman | Konum (µm) | Ne olduğu |
+| Renk | Katman | Şekil olarak ne görünüyor |
 |---|---|---|
-| nwell | y 1.305 .. 2.910 | üst yarıyı kaplayan havuz |
-| diff | y 0.235 .. 0.885, yükseklik **0.650** | alt şerit → NMOS |
-| diff | y 1.485 .. 2.485, yükseklik **1.000** | üst şerit → PMOS |
-| poly | x 0.405..0.555 ve 0.825..0.975, genişlik **0.150** | iki dikey parmak |
+| soluk lila | `nwell` | üst yarıyı kaplayan, sağdan ve soldan hücrenin dışına taşan büyük dikdörtgen |
+| yeşil | `diff` | iki yatay dikdörtgen, biri üstte biri altta, aynı genişlikte |
+| kırmızı | `poly` | sola doğru kuyruğu olan bir **"H"** |
 
-Şimdi bu tabloyu birlikte okuyalım. Üç şey söylüyor.
+Renkler benim seçimim, `tools/render_cell.py` içindeki `STYLE` tablosundan
+geliyorlar. KLayout kendi varsayılanlarında başka renkler kullanır, o yüzden
+renge değil **katman numarasına** güven; renk sadece göz için bir kolaylık.
 
-### Üst diff PMOS, alt diff NMOS
+### Soluk lila dikdörtgen — nwell
 
-Çünkü nwell y 1.305'ten başlıyor ve üst diff (1.485..2.485) tam onun içinde
-kalıyor. Alt diff (0.235..0.885) ise nwell'in tamamen dışında.
+Resmin üst yarısını kaplıyor. Dikkat et: **sağdan ve soldan hücrenin dışına
+taşıyor.** Bu bir çizim hatası değil. Hücreler yan yana dizildiğinde her birinin
+lila bölgesi komşusununkiyle birleşsin diye kasten taşırılmış — havuzun sürekli
+olması gerekiyor, aralarında boşluk kalmamalı.
 
-Bunu bağımsız olarak doğrulayan iki katman daha var: **psdm** (P+ katkı maskesi)
-y 1.355..2.910 aralığında, yani üstte. **nsdm** (N+ katkı maskesi) y
-−0.190..1.015 aralığında, yani altta. Üstteki diff p tipi katkılanmış, alttaki
-n tipi. Tam beklediğimiz gibi.
+Bölüm 4'ü hatırla: PMOS'lar n tipi bir havuzun içinde oturmak zorunda. İşte
+havuz bu. Buradan tek cümlelik bir kural çıkıyor:
 
-Bu, layout okumanın tipik hissi: aynı olguyu birbirinden bağımsız üç katman
-doğruluyor. Bir yorumun doğruluğunu böyle test edersin.
+> Lila bölgenin **içinde** kalan her şey PMOS tarafı, **dışında** kalan her şey
+> NMOS tarafı.
 
-### PMOS neden daha kalın
+Bu kural tek başına, tanımadığın herhangi bir CMOS hücresinde üst/alt ayrımını
+yapmanı sağlar.
 
-Alt diff 0.650 µm yüksekliğinde, üst diff 1.000 µm. Yaklaşık 1.5 katı.
+### İki yeşil dikdörtgen — diff
 
-Sebebi fizik: PMOS'ta akımı taşıyan yük taşıyıcıları (delikler), NMOS'takilerden
-(elektronlar) daha yavaş hareket eder. Aynı genişlikte bir PMOS, NMOS'tan daha
-az akım verir. Yükselen kenar ile düşen kenarın aynı hızda olmasını istiyorsan
-PMOS'u daha geniş çizmen gerekir.
+Aynı genişlikteler ama **üstteki gözle görülür biçimde daha kalın**. Ölçersen
+1.000 µm'ye karşı 0.650 µm, yaklaşık 1.5 katı.
 
-Yani ekrandaki bu boyut farkı estetik bir tercih değil, **yarı iletken
-fiziğinin çizime yansımış hali**. Bundan sonra baktığın her CMOS hücresinde üst
-şeridin daha kalın olduğunu göreceksin.
+Az önceki kuralı uygula: üstteki lila havuzun içinde kalıyor → **PMOS**.
+Alttaki tamamen dışında → **NMOS**.
 
-### Neden iki parmak var, tek değil
+Peki üstteki neden daha kalın? Sebebi fizik. PMOS'ta akımı taşıyan yük
+taşıyıcıları (delikler), NMOS'takilerden (elektronlar) daha yavaş hareket eder.
+Aynı boyda bir PMOS, NMOS'tan daha az akım verir. Çıkışın 0'dan 1'e çıkma
+süresiyle 1'den 0'a inme süresinin birbirine yakın olmasını istiyorsan PMOS'u
+daha geniş çizmen gerekir.
 
-Poly tek bir bağlantılı şekil ama iki dikey parmağı var (x 0.405..0.555 ve
-0.825..0.975), ortada y 0.995..1.325 seviyesinde yatay bir köprüyle
-birleşiyorlar.
+Yani ekranda gördüğün bu boyut farkı estetik bir tercih değil, **yarı iletken
+fiziğinin çizime yansımış hali.** Bundan sonra baktığın her CMOS hücresinde üst
+yeşil şeridin daha kalın olduğunu göreceksin. Görmüyorsan, ya baktığın şey
+standart bir CMOS hücresi değildir ya da resmi ters çevirmişsindir.
 
-İki parmak, her diff şeridini iki kez kesiyor. Yani aslında **4 transistör** var:
-2 NMOS altta, 2 PMOS üstte. Gate'leri ortak olduğu için ikişerli paralel
-çalışıyorlar, ve paralel iki transistör tek transistörün iki katı akım verir.
+### Kırmızı "H" — poly
 
-Hücrenin adındaki `_2` işte bu: **drive strength 2**. Daha uzun bir teli veya
-daha çok girişi sürmesi gereken bir kapı, daha güçlü versiyonundan seçilir.
-Aynı mantık kapısının `_1`, `_2`, `_4`, `_8` versiyonları kütüphanede yan yana
-durur; mantığı aynı, sürme gücü farklıdır.
+Tek parça, bağlantılı bir şekil. Üç bileşeni var:
 
-Parmak genişliği 0.150 µm. Bu, sky130'un çizilebilir en dar poly genişliği.
-Ufak bir not: proses adı "130 nm" ama çizilen gate 150 nm — proses isimleri
-doğrudan bir ölçüye karşılık gelmez, pazarlama ve tarihsel süreklilik taşır.
+- **İki dikey çubuk**, birbirine paralel, ve ikisi de yukarıdan aşağı **her iki
+  yeşil dikdörtgeni de baştan sona kesiyor**
+- Ortada, iki yeşil şeridin arasındaki boşlukta, bu iki çubuğu birleştiren
+  **yatay bir köprü**
+- Köprüden **sola uzanan kısa bir kuyruk**
+
+Çubukların genişliği 0.150 µm — sky130'da çizilebilecek en dar poly. (Ufak not:
+proses adı "130 nm" ama çizilen gate 150 nm. Proses isimleri doğrudan bir ölçüye
+karşılık gelmez, tarihsel isimlendirmedir.)
+
+### Şimdi kesişimleri say
+
+Dersin en önemli cümlesi neydi: *poly'nin diff'i kestiği her yerde bir
+transistör vardır.*
+
+Say bakalım. İki kırmızı çubuk × iki yeşil dikdörtgen = **dört kesişim.**
+Yani bu hücrede dört transistör var: alt yeşilde iki NMOS, üst yeşilde iki PMOS.
+
+Ama invertörü iki transistörle kurmuştuk. Neden dört tane var?
+
+Cevap kırmızının **tek parça** olmasında. İki çubuk birbirine köprüyle bağlı
+olduğu için elektriksel olarak **aynı düğüm**ler — ikisi de aynı anda açılıp
+kapanıyor. Aynı işi yapan iki transistörü paralel bağlamak, tek transistörün iki
+katı akım vermek demek.
+
+Hücrenin adındaki `_2` işte bu: **drive strength 2**. Uzun bir teli veya çok
+sayıda girişi sürmesi gereken bir kapı, daha güçlü versiyonundan seçilir. Aynı
+mantık kapısının `_1`, `_2`, `_4`, `_8` versiyonları kütüphanede yan yana durur;
+mantıkları aynı, sürme güçleri farklıdır.
+
+Ve buradaki asıl kazanç şu: Bölüm 5'teki şemada "iki transistörün gate'i
+ortak" demiştik. Şimdi bunu **göz kararı doğrulayabiliyorsun**, çünkü tek parça
+kırmızı = tek elektriksel düğüm. Kuyruk da o ortak düğüme dışarıdan bağlanılacak
+yer — birazdan üstünde bir temas göreceğiz.
 
 ---
 
@@ -252,18 +282,109 @@ parçasına bağlı, oradan hangi pine iniyor. Bunu bulunca netlist elimizde olu
 
 ![invertörün tüm katmanları](img/inv2-full.svg)
 
-`li1` şekillerini koordinatlarıyla okuyalım — hikâyenin tamamı burada:
+İlk bakışta kalabalık görünüyor, ama sistematik. Renkleri dört gruba ayırırsan
+karmaşa dağılıyor.
 
-| li1 şekli | Ne olduğu |
+#### Grup 1 — soluk zeminler: yapı değil, işaret
+
+| Renk | Katman | Şekli |
+|---|---|---|
+| soluk pembe | `nsdm` | alt bölgeyi kaplayan geniş dikdörtgen |
+| soluk mavi | `psdm` | üst bölgeyi kaplayan geniş dikdörtgen |
+| şeftali | `hvtp` | üst bölgeyi kaplayan bir dikdörtgen daha |
+| açık gri | `areaid.sc` | hücrenin tam sınırını çizen dikdörtgen |
+
+Bunlar iletken değil, üzerlerinde akım akmıyor. Üretim sırasında "şu bölgeye şu
+katkı maddesini uygula" diyen maskeler. `nsdm` altta N+ katkı, `psdm` üstte P+
+katkı yapılacağını söylüyor.
+
+Ve işte sana bedava bir doğrulama: Bölüm 6'da lila havuza bakıp "üstteki yeşil
+PMOS" demiştik. Şimdi soluk mavi `psdm` de üstte duruyor, yani üstteki yeşil
+p tipi katkılanacak — PMOS'un source/drain'i p tipi olmalıydı. **Aynı sonucu
+birbirinden tamamen bağımsız iki maske söylüyor.**
+
+Layout okumanın hissi tam olarak budur: bir yorum üretirsin, sonra onu
+doğrulayan başka bir katman ararsın. İki bağımsız katman aynı şeyi söylüyorsa
+yorumun doğrudur. Söylemiyorsa, yorumun yanlıştır.
+
+Açık gri dikdörtgen ise hücrenin resmi ayak izi: 1.380 × 2.720 µm. Lila havuzun
+bundan taştığını, kırmızı ve mor şekillerin ise içinde kaldığını fark et.
+
+#### Grup 2 — hardal renkli yatay bant: npc
+
+Tam ortada, iki yeşil şeridin arasındaki boşlukta, hücreyi baştan sona kesen
+ince bir bant. Adı `npc`, "nitride poly cut".
+
+Neden tam orada olduğunu birazdan anlayacaksın: poly'ye temas edilecek tek yer
+orası, ve poly'ye temas edebilmek için önce üstündeki nitrür tabakasının
+kesilmesi gerekiyor. Yani bu bant "burada poly'ye dokunacağız" demek.
+
+#### Grup 3 — siyah ve turuncu kareler: temaslar
+
+Hepsi aynı boyutta küçük kareler, 0.170 µm. İki renk var ve ayrımı önemli:
+
+**Siyah kareler (`licon1`)** aşağı iner — diff'e veya poly'ye dokunur. Resimde
+**üç dikey sütun** halinde diziliyorlar. Şimdi kırmızı çubuklarla birlikte
+soldan sağa oku:
+
+```
+■   ▮   ■   ▮   ■
+sütun  gate  sütun  gate  sütun
+```
+
+Temas sütunları ile gate'ler **sırayla** diziliyor. Bu tesadüf değil, zorunluluk:
+her transistörün source'u ve drain'i gate'in iki yanında olmak zorunda. Gate'in
+üstüne temas koyamazsın, orası kanal.
+
+Buradan doğrudan okunuyor ki:
+- **Ortadaki sütun** iki gate'in arasında kalıyor → iki transistörün **ortak
+  drain**'i
+- **Dıştaki iki sütun** → **source**'lar
+
+Ve bir tane fazladan siyah kare var: solda, iki yeşil şeridin arasındaki
+boşlukta, **kırmızı kuyruğun üstünde**. Bu diff'e değil **poly'ye** dokunuyor —
+gate kontağı. Hardal bandın tam onun etrafını sarmasının sebebi bu.
+
+**Turuncu kareler (`mcon`)** yukarı çıkar — li1'den met1'e. Sadece **en üst ve
+en alt kenarda**, üçer tane. Yani yukarı çıkan tek şey besleme rayları.
+
+#### Grup 4 — mor şekiller: li1, hikâyenin tamamı
+
+Dört tane mor şekil var. Şekilleriyle:
+
+| Görünüm | Ne olduğu |
 |---|---|
-| x 0.000..1.380, y 1.495..2.805 | üst besleme rayı, PMOS source'larını VPWR'a bağlar |
-| x 0.000..1.380, y −0.085..0.905 | alt besleme rayı, NMOS source'larını VGND'ye bağlar |
-| x 0.525..0.855, y 0.255..2.465 | **çıkış Y** — alttan üste uzanıp iki drain'i birleştiriyor |
-| x 0.105..0.435, y 1.075..1.325 | **giriş A** — gate'e giden küçük ped |
+| En üstte tam genişlikte yatay bar, ondan **aşağı sarkan iki bacak** | VPWR besleme rayı |
+| En altta aynı şeyin aynadaki hali, **yukarı uzanan iki bacak** | VGND besleme rayı |
+| Ortada, aşağıdan yukarı uzanan **uzun dikey şerit** | çıkış **Y** |
+| Solda ortada **küçük bir dikdörtgen** | giriş **A** |
 
-Bölüm 5'teki şemayla birebir örtüşüyor. Ortadaki dikey şerit, NMOS drain'i ile
-PMOS drain'ini birleştirip çıkışı oluşturuyor. Dış kenarlardaki iki temas sütunu
-source'ları beslemeye bağlıyor.
+Şimdi bu dört şekli az önceki siyah sütunlarla üst üste koy ve devreyi oku:
+
+- Üst ray'ın iki bacağı, **üstteki yeşilin dış siyah sütunlarına** iniyor
+  → PMOS source'ları VPWR'a bağlandı
+- Alt ray'ın iki bacağı, **alttaki yeşilin dış siyah sütunlarına** iniyor
+  → NMOS source'ları VGND'ye bağlandı
+- Ortadaki dikey şerit, hem alttaki hem üstteki yeşilin **orta sütununu** örtüyor
+  → iki drain birbirine bağlandı, ve bu düğüm dışarı çıkıyor
+- Soldaki küçük ped, kırmızı kuyruğun üstündeki **tek siyah kareyi** örtüyor
+  → giriş, iki transistörün ortak gate'ine bağlandı
+
+Şimdi Bölüm 5'teki şemaya geri dön. PMOS source'u VDD'de, NMOS source'u GND'de,
+drain'ler ortak ve çıkış oradan, gate'ler ortak ve giriş oradan.
+
+**Birebir aynı devre.** Sadece biri çizgilerle, diğeri üretilecek malzemeyle
+anlatılmış. Bir layout'u "okumak" tam olarak bu çeviriyi yapabilmek demek.
+
+#### Grup 5 — soluk küçük kareler: pin işaretleri
+
+Mor pedlerin üstünde duran biraz daha açık renkli küçük kareler `li1.pin`,
+besleme raylarındakiler `met1.pin`. Bunlar geometri değil **bildirim**: "bu
+hücreye dışarıdan tam olarak buradan bağlanabilirsin."
+
+Yerleştirme ve routing araçlarının bakacağı yer burasıdır. Bizim için de değerli
+olacaklar — Faz 2'de bir teli takip ederken hangi noktanın gerçekten bir pin
+olduğunu bunlardan bileceğiz.
 
 Ve hücre bunu bize **söylüyor** da: geometrinin üstünde metin etiketleri var.
 
@@ -383,9 +504,59 @@ python tools/render_cell.py puzzle/puzzle.gds sky130_fd_sc_hd__nand2_2 \
        out/nand2.svg --layers device
 ```
 
-Bakarken sorman gereken sorular: kaç poly parmağı var, kaç diff şeridi var,
-kesişim sayısı kaç? Bir NAND2'de seri bağlı iki NMOS ve paralel iki PMOS olması
-gerekir — bunu çizimde görebiliyor musun?
+![NAND2 hücresi](img/nand2-full.svg)
+
+NAND2'nin mantığı `Y = NOT(A AND B)`. Bunun CMOS'taki karşılığı şu: çıkışı
+GND'ye çeken NMOS'lar **seri** bağlanır (ikisi de açıksa yol tamamlanır),
+çıkışı VDD'ye çeken PMOS'lar **paralel** bağlanır (biri bile açıksa yol açılır).
+
+Soru şu: bunu resimde görebilir misin?
+
+Sırayla bak, koordinata değil renge ve şekle:
+
+1. **Kaç tane kırmızı şekil var?** İnvertörde tek parça kırmızı vardı, çünkü tek
+   girişi vardı ve iki gate'i ortaktı. Burada iki ayrı kırmızı şekil göreceksin
+   — çünkü iki bağımsız giriş var. Tek parça kırmızı = tek düğüm kuralını
+   hatırla. "Kaç girişi var" sorusunun layout'taki cevabı budur.
+2. **Kaç kesişim var?** Her kırmızı şeklin iki parmağı var, iki yeşili de
+   kesiyorlar → 8 transistör. 4 NMOS altta, 4 PMOS üstte. Yine drive strength 2,
+   yani her mantıksal transistör iki kez konmuş.
+3. **Yeşil dikdörtgenler.** İnvertördekiyle aynı yükseklikte, sadece daha geniş.
+   Üstteki hâlâ daha kalın. Fizik değişmedi.
+4. **Asıl soru: seri ile paralel farkını mor şekillerden okuyabilir misin?**
+
+Dördüncüsünün cevabı şöyle, ve bu dersin en faydalı tek gözlemi:
+
+**Üst yarıda (PMOS):** üstteki mor besleme rayından **aşağı sarkan bacaklar**
+var, ve çıkış şeridi de yukarı uzanıyor. Temas sütunlarına sırayla bak —
+bir sütuna ray iniyor, sonrakine çıkış geliyor, sonrakine yine ray. Yani
+**her PMOS'un bir ucu doğrudan VPWR'da, diğer ucu doğrudan Y'de.** Hepsi
+birbirinden bağımsız birer köprü. Paralel olmak tam olarak bu demek.
+
+**Alt yarıda (NMOS):** durum farklı. Alttaki besleme rayından yukarı çıkan
+**tek bir ince çıkıntı** var, sadece bir sütuna dokunuyor. Çıkış şeridi de alta
+inip yalnızca bir sütuna dokunuyor. Geriye kalan sütunlar ise **kendi
+aralarında, ortada duran ayrı bir mor şekille** birbirine bağlanmış.
+
+İşte o mor şekle dikkat et: **ne besleme rayına değiyor, ne çıkışa, ne de
+üstünde bir pin işareti var.** Hücrenin dışından ona ulaşmanın hiçbir yolu yok.
+
+Bu, seri bağlantının iç düğümüdür. Devre şöyle diziliyor:
+
+```
+   Y ──[ A ]── (o mor şekil) ──[ B ]── VGND
+```
+
+Y ile VGND arasında yol açılması için **hem A hem B**'nin açık olması gerekiyor.
+NAND'ın tanımı bu.
+
+> **Genel kural:** dışarıya hiçbir yere bağlanmayan, üstünde pin işareti olmayan
+> bir mor şekil gördüğünde, o bir **iç düğüm**dür ve orada seri bağlı
+> transistörler vardır. Layout'ta seri/paralel ayrımını böyle yaparsın.
+
+Bu kuralı bir kez gördüğünde `nor2`, `a21o`, `o21ai` gibi daha karmaşık
+hücreleri de çözebilirsin — hepsi seri ve paralel yığınların birleşimi.
+Deneyerek bak, kütüphanede hepsi var.
 
 ---
 

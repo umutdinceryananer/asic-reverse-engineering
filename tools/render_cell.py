@@ -16,28 +16,44 @@ import sys
 import gdstk
 
 # (layer, datatype) -> (readable name, fill colour)
+#
+# Colours are chosen so that layers you have to tell apart by eye never share
+# one. In particular the contacts are all different: licon1 reaches down to
+# diff or poly, mcon reaches up to met1, and the vias climb from there. Giving
+# them one colour makes a cell unreadable.
+#
+# These are our colours, not a standard. KLayout ships its own sky130 layer
+# properties file and picks differently.
 STYLE = {
-    (64, 20): ("nwell", "#d9d2e9"),
-    (65, 20): ("diff", "#00a000"),
-    (65, 44): ("tap", "#006000"),
-    (66, 20): ("poly", "#d00000"),
-    (66, 44): ("licon1", "#000000"),
-    (67, 20): ("li1", "#8000c0"),
-    (67, 44): ("mcon", "#000000"),
-    (68, 20): ("met1", "#0060d0"),
-    (68, 44): ("via", "#000000"),
+    (64, 20): ("nwell", "#d9d2e9"),       # soluk lila
+    (64, 16): ("nwell.pin", "#b0a0c8"),
+    (65, 20): ("diff", "#00a000"),        # yesil
+    (65, 44): ("tap", "#006000"),         # koyu yesil
+    (66, 20): ("poly", "#d00000"),        # kirmizi
+    (66, 44): ("licon1", "#000000"),      # siyah
+    (67, 20): ("li1", "#8000c0"),         # mor
+    (67, 16): ("li1.pin", "#c898e8"),
+    (67, 44): ("mcon", "#c05000"),        # koyu turuncu
+    (68, 20): ("met1", "#0060d0"),        # mavi
+    (68, 16): ("met1.pin", "#80b0e8"),
+    (68, 44): ("via", "#003070"),
     (69, 20): ("met2", "#e000a0"),
-    (69, 44): ("via2", "#000000"),
+    (69, 44): ("via2", "#700050"),
     (70, 20): ("met3", "#00b0b0"),
+    (70, 16): ("met3.pin", "#80d8d8"),
+    (70, 44): ("via3", "#006060"),
     (71, 20): ("met4", "#b08000"),
+    (71, 44): ("via4", "#604000"),
     (72, 20): ("met5", "#808080"),
-    (93, 44): ("nsdm", "#ffd0d0"),
-    (94, 20): ("psdm", "#d0d0ff"),
-    (95, 20): ("npc", "#a0a000"),
-    (78, 44): ("hvtp", "#ffe0b0"),
-    (81, 4): ("areaid.sc", "#cccccc"),
-    (235, 4): ("prBndry", "#404040"),
+    (78, 44): ("hvtp", "#ffe0b0"),        # seftali
+    (81, 4): ("areaid.sc", "#cccccc"),    # acik gri
+    (93, 44): ("nsdm", "#ffd0d0"),        # soluk pembe
+    (94, 20): ("psdm", "#d0d0ff"),        # soluk mavi
+    (95, 20): ("npc", "#a0a000"),         # hardal
+    (122, 16): ("pwell.pin", "#a0a0a0"),
     (200, 0): ("marker", "#ff8000"),
+    (235, 4): ("prBndry", "#404040"),
+    (236, 0): ("236/0, PDK tablosunda yok", "#999999"),
 }
 
 GROUPS = {
