@@ -9,7 +9,8 @@ The commit is pinned rather than tracked so that a clean clone reproduces the
 same fingerprints. If the upstream library ever changes a cell, an unpinned
 fetch would silently change what the pipeline recognises.
 
-Downloads about 5 MB of cell GDS and LEF into `pdk/sky130_fd_sc_hd/`,
+Downloads about 9 MB of cell GDS, LEF and Verilog models into
+`pdk/sky130_fd_sc_hd/`,
 which is gitignored. Re-running skips whatever is already present.
 
 Usage:
@@ -48,7 +49,13 @@ def wanted(path):
         return True
     if path.endswith(".magic.lef"):
         return False
-    return path.endswith(".lef")
+    if path.endswith(".lef"):
+        return True
+    # Verilog cell models for the stage 2 simulation gate. The per-strength
+    # wrappers `include their base model by bare filename, so flattening every
+    # .v into one directory and pointing the simulator at it with -I resolves
+    # them; the files carry include guards, so duplicates are harmless.
+    return path.endswith(".v") and not path.endswith(".tb.v")
 
 
 def cell_paths():
@@ -78,8 +85,10 @@ def main(verify_only=False):
         have = os.listdir(DEST)
         gds = [f for f in have if f.endswith(".gds")]
         lef = [f for f in have if f.endswith(".lef")]
+        ver = [f for f in have if f.endswith(".v")]
         total = sum(os.path.getsize(os.path.join(DEST, f)) for f in have)
-        print(f"{len(gds)} GDS and {len(lef)} LEF in {DEST}, {total / 1e6:.2f} MB")
+        print(f"{len(gds)} GDS, {len(lef)} LEF and {len(ver)} Verilog in {DEST}, "
+              f"{total / 1e6:.2f} MB")
         print(f"pinned to {REPO}@{COMMIT[:12]}")
         return 0
 
