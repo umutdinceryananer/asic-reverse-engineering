@@ -157,11 +157,53 @@ Signal nets touching fewer than two cell pins are the primary ports, whose other
 end is the die boundary rather than another cell. In the puzzle that set is the
 eight `O` bits, `clk`, and one `conb_1` `HI` output that nothing consumes.
 
+## Verilog emission
+
+The layout says which pins are connected, not which one drives. Verilog needs
+that, and guessing from names would mostly work in this library, `X`, `Y` and
+`Q` being outputs. "Mostly" is how a netlist ends up structurally plausible and
+functionally wrong, so directions come from the PDK's LEF abstract views
+instead. `tools/fetch_pdk.py` now takes the 437 `.lef` files alongside the GDS,
+same pinned commit; `tools/common/lef.py` parses them. All 437 macros parse with
+no pin of unknown direction, and the `SIZE` they declare matches the footprints
+measured off the GDS in stage 1.
+
+One trap there. Filtering pins on `USE SIGNAL` looks right and is not: 69 pins
+across the library are `USE CLOCK`, so that filter drops every flip-flop clock
+connection, silently. The rule is to exclude supplies rather than to include
+signals.
+
+Ports are the named nets at the top level. Labels inside cells stay inside their
+own circuit, so the only labels landing on top level nets are the ones on the
+die's own pin geometry. A port's direction follows from what it reaches: if any
+pin on the net is an output the die drives outward, otherwise every pin is
+listening and the die is driven.
+
+| | warm up | puzzle |
+|---|---|---|
+| Ports | 6 | 13 |
+| Inputs | `A`, `B`, `clk`, `en`, `rst_n` | `I`, `clk`, `enable`, `rst_n` |
+| Outputs | `S` | `success`, `O[7:0]` |
+| Instances emitted | 79 | 738 |
+
+The warm up port list and directions match `00_source.v` exactly. Bus bits are
+regrouped, so the puzzle declares `output [7:0] O`.
+
+Instance counts against the reference netlist, cell type by cell type: identical
+on all 79 logic instances, no differences. Physical only cells are dropped,
+having no functional pins; the reference netlist carries them with empty
+connection lists.
+
+The puzzle's 738 emitted instances are the 728 logic cells plus 10 `diode_2`
+antenna diodes. Those exist to bleed charge during manufacturing and compute
+nothing, but they really are attached to a net, so they are emitted rather than
+hidden. Stage 3 should filter them by role.
+
+Power pins are left off the instances. The sky130 models only expose them under
+`USE_POWER_PINS`, and the warm up's own reference netlist omits them too.
+
 ## Not done yet
 
-- `netlist.v`. Emitting Verilog needs pin directions, which the layout does not
-  carry. The plan is to take them from the PDK LEF files rather than guess from
-  pin names.
 - The simulation gate: the recovered warm up netlist raising success exactly
   when the two shift register operands sum to 496. That needs Icarus, so it
   waits on the stage 3 Docker image.

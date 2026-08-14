@@ -24,6 +24,7 @@ Usage:
 
 import json
 import os
+import re
 import sys
 from collections import Counter
 
@@ -31,7 +32,8 @@ import klayout.db as db
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common.gds import DEF_NAME
-from stage1_cells import TARGETS
+from common.lef import functional_pins, load as load_lef
+from stage1_cells import PDK_DIR, TARGETS
 
 # The conductor stack, bottom to top. Each entry is a routing layer; the entry
 # after it is the via that reaches the next one up.
@@ -65,6 +67,81 @@ LABELS = [
 ]
 
 POWER = {"VPWR", "VGND", "VPB", "VNB"}
+
+BUS_BIT = re.compile(r"^(?P<base>.+)\[(?P<index>\d+)\]$")
+
+
+def verilog_identifier(name):
+    """Verilog needs an escaped identifier for anything not [A-Za-z_][\\w$]*."""
+    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_$]*", name):
+        return name
+    return "\\" + name + " "
+
+
+def write_verilog(path, top_name, nets, ports, lef):
+    """Structural Verilog from the recovered nets.
+
+    Power pins are left off the instances. The sky130 cell models only expose
+    them when compiled with USE_POWER_PINS, and the reference netlist shipped
+    with the warm up omits them too, so this matches what a simulator expects.
+    """
+    net_of = {}
+    for index, net in enumerate(nets):
+        if net["kind"] == "power":
+            net_of[net["name"]] = net["name"]
+        else:
+            net_of[net["name"]] = net["name"] if net["named"] else f"n{index:05d}"
+
+    # Group bus bits so O[0]..O[7] is declared once as a vector.
+    buses = {}
+    scalars = []
+    for name, direction in sorted(ports.items()):
+        match = BUS_BIT.match(name)
+        if match:
+            base = match.group("base")
+            entry = buses.setdefault(base, {"direction": direction, "bits": []})
+            entry["bits"].append(int(match.group("index")))
+        else:
+            scalars.append((name, direction))
+
+    lines = []
+    header = sorted([n for n, _ in scalars] + list(buses))
+    lines.append(f"module {top_name} ({', '.join(header)});")
+    for name, direction in scalars:
+        lines.append(f"  {direction} {verilog_identifier(name)};")
+    for base, entry in sorted(buses.items()):
+        lines.append(f"  {entry['direction']} [{max(entry['bits'])}:"
+                     f"{min(entry['bits'])}] {base};")
+    lines.append("")
+
+    port_names = set(ports)
+    wires = sorted(net_of[n["name"]] for n in nets
+                   if n["kind"] != "power" and n["name"] not in port_names)
+    for wire in wires:
+        lines.append(f"  wire {verilog_identifier(wire)};")
+    lines.append("")
+
+    connections_by_instance = {}
+    for net in nets:
+        for connection in net["connections"]:
+            connections_by_instance.setdefault(connection["instance"], {})[
+                connection["pin"]] = net_of[net["name"]]
+
+    for instance in sorted(connections_by_instance):
+        pins = connections_by_instance[instance]
+        cell = next(c["cell"] for n in nets for c in n["connections"]
+                    if c["instance"] == instance)
+        allowed = functional_pins(lef[cell]) if cell in lef else {}
+        wired = [f".{pin}({verilog_identifier(pins[pin])})"
+                 for pin in sorted(pins) if pin in allowed]
+        if not wired:
+            continue
+        lines.append(f"  {cell} {instance} ({', '.join(wired)});")
+
+    lines.append("endmodule")
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines) + "\n")
+    return len([l for l in lines if l.startswith("  sky130")])
 
 
 def extract(gds_path):
@@ -190,8 +267,37 @@ def run(target):
         for net in lonely[:10]:
             print(f"    {net['name']}: {net['connections']}")
 
+    # --- ports and their directions ----------------------------------------
+    #
+    # A named net at the top level is a port: labels inside cells stay inside
+    # their own circuit, so the only labels landing on top level nets are the
+    # ones on the die's own pin geometry.
+    #
+    # The direction follows from what the port drives. If any pin it reaches is
+    # an output, the die is driving outward; otherwise every pin it reaches is
+    # listening, so the die is being driven.
+    lef = load_lef(PDK_DIR)
+    ports = {}
+    for net in nets:
+        if net["kind"] == "power" or not net["named"]:
+            continue
+        drives = any(
+            functional_pins(lef.get(c["cell"], {"pins": {}})).get(c["pin"]) == "output"
+            for c in net["connections"]
+        )
+        ports[net["name"]] = "output" if drives else "input"
+
+    print(f"\nports ({len(ports)}):")
+    for name, direction in sorted(ports.items()):
+        print(f"  {direction:<6} {name}")
+
     out_dir = os.path.join("out", target)
     os.makedirs(out_dir, exist_ok=True)
+
+    verilog_path = os.path.join(out_dir, "netlist.v")
+    emitted = write_verilog(verilog_path, top_name, nets, ports, lef)
+    print(f"\nwrote {verilog_path} with {emitted} instances")
+
     out_path = os.path.join(out_dir, "netlist.json")
     with open(out_path, "w", encoding="utf-8") as handle:
         json.dump({

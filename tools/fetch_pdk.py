@@ -1,13 +1,15 @@
 """Fetch the sky130 standard cell GDS library, pinned to one commit.
 
 Stage 1 identifies cells by geometry, which needs a reference library to match
-against. That library is the PDK's own per cell GDS files.
+against; that library is the PDK's own per cell GDS files. Stage 2 needs pin
+directions to emit Verilog, and those come from the LEF abstract views rather
+than from guessing at pin names.
 
 The commit is pinned rather than tracked so that a clean clone reproduces the
 same fingerprints. If the upstream library ever changes a cell, an unpinned
 fetch would silently change what the pipeline recognises.
 
-Downloads about 4 MB across roughly 440 files into `pdk/sky130_fd_sc_hd/`,
+Downloads about 5 MB of cell GDS and LEF into `pdk/sky130_fd_sc_hd/`,
 which is gitignored. Re-running skips whatever is already present.
 
 Usage:
@@ -36,12 +38,24 @@ def get(url, binary=False):
     return data if binary else data.decode("utf-8")
 
 
-def gds_paths():
+def wanted(path):
+    """Cell geometry for stage 1, and the abstract views for pin directions.
+
+    The `.magic.lef` variants are skipped: they are the same cells written for
+    Magic, and taking both would put two macros of the same name in the index.
+    """
+    if path.endswith(".gds"):
+        return True
+    if path.endswith(".magic.lef"):
+        return False
+    return path.endswith(".lef")
+
+
+def cell_paths():
     tree = json.loads(get(TREE_URL))
     if tree.get("truncated"):
         sys.exit("the tree listing came back truncated, fetch needs paging")
-    return sorted(entry["path"] for entry in tree["tree"]
-                  if entry["path"].endswith(".gds"))
+    return sorted(entry["path"] for entry in tree["tree"] if wanted(entry["path"]))
 
 
 def fetch_one(path):
@@ -61,15 +75,17 @@ def main(verify_only=False):
     os.makedirs(DEST, exist_ok=True)
 
     if verify_only:
-        have = [f for f in os.listdir(DEST) if f.endswith(".gds")]
+        have = os.listdir(DEST)
+        gds = [f for f in have if f.endswith(".gds")]
+        lef = [f for f in have if f.endswith(".lef")]
         total = sum(os.path.getsize(os.path.join(DEST, f)) for f in have)
-        print(f"{len(have)} cell GDS files in {DEST}, {total / 1e6:.2f} MB")
+        print(f"{len(gds)} GDS and {len(lef)} LEF in {DEST}, {total / 1e6:.2f} MB")
         print(f"pinned to {REPO}@{COMMIT[:12]}")
         return 0
 
     print(f"listing {REPO}@{COMMIT[:12]}")
-    paths = gds_paths()
-    print(f"{len(paths)} cell GDS files to reconcile")
+    paths = cell_paths()
+    print(f"{len(paths)} cell files to reconcile")
 
     with ThreadPoolExecutor(max_workers=16) as pool:
         results = list(pool.map(fetch_one, paths))
