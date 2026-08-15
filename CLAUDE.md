@@ -152,6 +152,9 @@ input twice and refuse to continue if the results differ.
 
 ## Traps already paid for
 
+The full register, with symptoms, root causes and whether each fix is understood
+or only worked around, is `docs/problems.md`. The ones most likely to bite again:
+
 - **Position alone is not a placement key.** A GDS origin is where the cell's
   own origin landed, so a flipped cell extends left and down from it: the warm
   up's 230 instances share only 178 origins. Key on position *and* orientation.
