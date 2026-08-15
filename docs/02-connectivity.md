@@ -38,6 +38,46 @@ Layers deliberately excluded: `poly`, `diff`, `licon1`, and the wells. Those are
 inside the cells, and cells are being treated as black boxes with pins. Tracing
 them would extract devices rather than a gate level netlist.
 
+## Is the declared stack right?
+
+Writing the stack out explicitly only helps if what is written is correct, and
+"it looks correct" is not evidence. `tools/stack_sensitivity.py` measures it:
+drop one routing layer, re-extract, and count how many nets change. Nets are
+compared as sets of (placement, pin).
+
+```
+full stack: 86 nets carrying a cell pin
+same stack extracted twice: identical, so the key is stable
+
+dropped    nets  unchanged   broken
+met5         86         86        0
+met4        121         82        4
+met3        111         75       11
+met2        287          7       79
+met1        529          4       82
+li1          90          2       84
+```
+
+Damage grows monotonically downward, which is what a correct stack should do:
+the lower layers sit closer to the cells and everything above routes over them.
+A rising net count is the signature of a net being cut into pieces, not of extra
+information — `met1` removed yields six times the nets.
+
+Dropping `li1` breaks 84 of 86. The two survivors are `VPWR` and `VGND`, which
+still reach cells over the met1 rails, and the pins that remain lose their names,
+since the pin labels are on 67/5.
+
+`met5` carries no signal connectivity in the warm up at all. That is a stack
+wider than this layout needs, which is the safe direction to be wrong in: an
+over-wide stack inspects a layer for nothing, an under-wide one silently cuts a
+wire. The puzzle is a larger design and may use it.
+
+The identity run matters as much as the table. The first version of this
+measurement keyed nets on the extractor's own `subcircuit.id()`, which is
+assigned per run and is not stable across two runs, so it reported 67 of 86 nets
+as changed when nothing had changed. The tool now extracts the unmodified stack
+twice and refuses to print anything if the two disagree.
+
 ## Net names
 
 Text layers are attached so nets carry real names instead of `$1`, `$2`:
@@ -148,10 +188,20 @@ The warm up's 8 named nets are its six ports plus the two rails. The puzzle's 15
 are `clk`, `rst_n`, `enable`, `I`, `success`, `O[0]` through `O[7]`, and the two
 rails, which is the full port list from the layout labels.
 
-Nets with no cell pin at all are not netlist entries. In the warm up all three
-are the Jane Street logo, drawn in met2 and connected to nothing; it accounts
-for 1366 of the layout's met2 shapes. The puzzle also has three, not yet
-examined.
+Nets with no cell pin at all are not netlist entries. In both targets all three
+are the Jane Street emblem, drawn in met2 and connected to nothing. Measured
+rather than eyeballed, and the two layouts carry the identical artwork:
+
+| | warm up | puzzle |
+|---|---|---|
+| Top cell's own met2 shapes | 1366 | 1366 |
+| Distinct shape sizes | 1, all 0.3 x 0.3 um | 1, all 0.3 x 0.3 um |
+| Extent | 17.10 x 17.10 um | 17.10 x 17.10 um |
+| Placed at | x 65.90, y 66.20 | x 34.90, y 35.20 |
+| Die | 100 x 100 um | 200 x 353 um |
+
+Uniform pixels confined to one small square are not routing: real wires vary in
+size and span the die. Nothing in either layout's pin-less nets is unexplained.
 
 Signal nets touching fewer than two cell pins are the primary ports, whose other
 end is the die boundary rather than another cell. In the puzzle that set is the

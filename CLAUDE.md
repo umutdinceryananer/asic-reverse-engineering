@@ -23,8 +23,8 @@ case.
 | 6, inversion | not started |
 | 7, output extraction | not started |
 
-Lessons written: `docs/lectures/00`, `01`. **Ders 2 is owed** — stage 2 is
-finished and gated, so it can be written from verified facts now.
+Lessons written: `docs/lectures/00`, `01`, `02`. The next one is owed when stage
+3's gate passes; lessons are written after the gates, never before.
 
 ## Rules that bind this repository
 
@@ -82,6 +82,7 @@ python tools/stage1_cells.py warmup       # -> out/warmup/instances.json
 python tools/stage2_nets.py  warmup       # -> out/warmup/netlist.{json,v}
 python tools/compare_def.py  warmup       # gate: 230/230 cells, 84/84 nets
 python tools/sim/run.py      warmup       # gate: 65536 pairs, 0 mismatches
+python tools/stack_sensitivity.py warmup  # not a gate: justifies the layer stack
 
 python tools/stage1_cells.py puzzle
 python tools/stage2_nets.py  puzzle
@@ -131,6 +132,23 @@ register leaves reset holding a non-zero value.
 
 **`VIA_*` placements are routing constructs, not components.** `INTERNAL_3` and
 `INTERNAL_7` are marker rectangles on layer 200/0 with no devices.
+
+**Routing lives inside placements, not in the top cell.** The top cell owns
+almost nothing on the routing layers: in the warm up 1 met1, 9 met3, 6 met4,
+5 met5, plus 1366 met2 shapes that are the emblem. Summed over placements it is
+1778 li1, 991 met1, 508 met2, 200 met3. Each `VIA_*` cell holds one via stack —
+`VIA_M1M2_PR` is exactly one met1, one via, one met2. Anything that flattens or
+reads only the top cell will conclude the design has no routing.
+
+**Both layouts carry the same emblem.** 1366 identical 0.3 x 0.3 um met2 squares
+spanning 17.10 x 17.10 um, at (65.90, 66.20) in the warm up and (34.90, 35.20) in
+the puzzle. It explains all three pin-less nets in each target.
+
+**KLayout's `subcircuit.id()` is not stable across runs.** Keying a comparison
+on it reported 67 of 86 nets as changed when nothing had changed. Key on
+(position, orientation, cell) instead — the same rule stage 2 already needs for
+mapping. Any tool comparing two extractions should first extract the unchanged
+input twice and refuse to continue if the results differ.
 
 ## Traps already paid for
 
