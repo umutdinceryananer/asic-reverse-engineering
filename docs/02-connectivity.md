@@ -202,12 +202,72 @@ hidden. Stage 3 should filter them by role.
 Power pins are left off the instances. The sky130 models only expose them under
 `USE_POWER_PINS`, and the warm up's own reference netlist omits them too.
 
+## Simulation gates
+
+Both pass. `tools/sim/run.py <target>` compiles the recovered netlist against
+the PDK's own cell models inside the container and runs it.
+
+**Warm up.** Every one of the 65536 operand pairs, not a sample, because an
+extraction defect that only shows on one carry pattern would survive a spot
+check and the whole run costs seconds.
+
+```
+pairs checked    65536
+success asserted 15
+mismatches       0
+RESULT: pass
+```
+
+Fifteen is the right number: `a + b == 496` with both operands at most 255
+needs `a` between 241 and 255.
+
+**Puzzle.** `example_inputs.vcd` replayed against the recovered netlist. The
+VCD records what was driven in *and* what came back, so this is a functional
+check on the real target rather than a smoke test.
+
+```
+cycles replayed      312
+cycles compared on O 312
+mismatches           0
+cycles with success  0
+RESULT: pass
+```
+
+The recovered netlist reproduces the published waveform byte for byte, both
+`TRY AGAIN` responses included, and never raises success on those inputs.
+
+## Four traps on the way to a working simulation
+
+Worth recording, because each one produced a wrong answer that looked like a
+different problem.
+
+**Docker BuildKit could not reach the network.** `apt-get` failed inside
+`docker build` while the identical command succeeded under `docker run`. The
+build works with `DOCKER_BUILDKIT=0`. The image is also split into a `sim`
+target with only Icarus and an `eda` target adding Yosys and z3, so a flaky
+link cannot cost the gates that are ready to run.
+
+**Cell models default to the behavioural view.** Without `-DFUNCTIONAL` the
+wrappers include the behavioural models, which carry specify blocks and timing
+checks and hold `x` without a timing annotated run. Every output stayed `x` and
+the netlist looked broken. It was not: running the *reference* netlist through
+the same testbench failed identically, which is what identified the harness
+rather than the extraction as the problem. `-DFUNCTIONAL -DUNIT_DELAY=#1` fixes
+it.
+
+**Bus bits were escaped instead of selected.** The emitter declared
+`output [7:0] O` but wrote connections as `\O[0]`, which Verilog reads as a
+scalar unrelated to the vector. The bus had nothing driving it and simulated as
+`z`. A bit of a declared vector has to be written as a select.
+
+**The expected output stream was one cycle early.** The VCD is a zero delay
+dump and at a rising edge timestamp the output change is listed *before* the
+clock change, so snapshotting on the edge already captures the output that edge
+produced. Sampling the next snapshot instead, which reads as the intuitive
+choice, shifted every byte and made the netlist look one cycle slow when the
+byte sequence was already exactly right.
+
 ## Not done yet
 
-- The simulation gate: the recovered warm up netlist raising success exactly
-  when the two shift register operands sum to 496. That needs Icarus, so it
-  waits on the stage 3 Docker image.
-- The puzzle gate: driving the recovered puzzle netlist with
-  `example_inputs.vcd` and requiring `TRY AGAIN` on `O` with `success` low.
-- The union find fallback the spec asks for, in case the extractor misbehaves.
-  It has not been needed; the per net gate passes exactly.
+The union find fallback the spec asks for, in case the extractor misbehaves. It
+has not been needed: the per net gate matches exactly and both simulations pass.

@@ -51,6 +51,9 @@ def wanted(path):
         return False
     if path.endswith(".lef"):
         return True
+    # UDP primitives that the sequential and mux cell models depend on.
+    if path.startswith("models/") and path.endswith(".v"):
+        return not path.endswith(".tb.v")
     # Verilog cell models for the stage 2 simulation gate. The per-strength
     # wrappers `include their base model by bare filename, so flattening every
     # .v into one directory and pointing the simulator at it with -I resolves
@@ -65,8 +68,22 @@ def cell_paths():
     return sorted(entry["path"] for entry in tree["tree"] if wanted(entry["path"]))
 
 
+def local_path(path):
+    """Where a repository path lands under DEST.
+
+    GDS and LEF are flattened, because stage 1 and the LEF reader glob one
+    directory. Verilog keeps its repository layout: the cell models `include
+    their UDP primitives by relative path, `../../models/...`, which only
+    resolves if cells stay two levels deep with models beside them.
+    """
+    if path.endswith(".v"):
+        return os.path.join(DEST, *path.split("/"))
+    return os.path.join(DEST, os.path.basename(path))
+
+
 def fetch_one(path):
-    target = os.path.join(DEST, os.path.basename(path))
+    target = local_path(path)
+    os.makedirs(os.path.dirname(target), exist_ok=True)
     if os.path.exists(target) and os.path.getsize(target) > 0:
         return "skipped"
     try:
@@ -82,11 +99,13 @@ def main(verify_only=False):
     os.makedirs(DEST, exist_ok=True)
 
     if verify_only:
-        have = os.listdir(DEST)
+        have = []
+        for root, _, files in os.walk(DEST):
+            have.extend(os.path.join(root, f) for f in files)
         gds = [f for f in have if f.endswith(".gds")]
         lef = [f for f in have if f.endswith(".lef")]
         ver = [f for f in have if f.endswith(".v")]
-        total = sum(os.path.getsize(os.path.join(DEST, f)) for f in have)
+        total = sum(os.path.getsize(f) for f in have)
         print(f"{len(gds)} GDS, {len(lef)} LEF and {len(ver)} Verilog in {DEST}, "
               f"{total / 1e6:.2f} MB")
         print(f"pinned to {REPO}@{COMMIT[:12]}")

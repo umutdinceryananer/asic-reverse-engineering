@@ -104,6 +104,19 @@ def write_verilog(path, top_name, nets, ports, lef):
         else:
             scalars.append((name, direction))
 
+    def reference(name):
+        """How a net is written where it is used.
+
+        A bit of a declared vector must be written as a select, `O[0]`. Passing
+        it through the escaping rule instead yields `\\O[0] `, which Verilog
+        reads as a scalar of its own with no relation to the vector: the bus
+        then has nothing driving it and simulates as z.
+        """
+        match = BUS_BIT.match(name)
+        if match and match.group("base") in buses:
+            return name
+        return verilog_identifier(name)
+
     lines = []
     header = sorted([n for n, _ in scalars] + list(buses))
     lines.append(f"module {top_name} ({', '.join(header)});")
@@ -118,7 +131,7 @@ def write_verilog(path, top_name, nets, ports, lef):
     wires = sorted(net_of[n["name"]] for n in nets
                    if n["kind"] != "power" and n["name"] not in port_names)
     for wire in wires:
-        lines.append(f"  wire {verilog_identifier(wire)};")
+        lines.append(f"  wire {reference(wire)};")
     lines.append("")
 
     connections_by_instance = {}
@@ -132,7 +145,7 @@ def write_verilog(path, top_name, nets, ports, lef):
         cell = next(c["cell"] for n in nets for c in n["connections"]
                     if c["instance"] == instance)
         allowed = functional_pins(lef[cell]) if cell in lef else {}
-        wired = [f".{pin}({verilog_identifier(pins[pin])})"
+        wired = [f".{pin}({reference(pins[pin])})"
                  for pin in sorted(pins) if pin in allowed]
         if not wired:
             continue
