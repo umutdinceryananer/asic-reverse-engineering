@@ -269,5 +269,19 @@ byte sequence was already exactly right.
 
 ## Not done yet
 
-The union find fallback the spec asks for, in case the extractor misbehaves. It
-has not been needed: the per net gate matches exactly and both simulations pass.
+**The union find fallback is not implemented.** `docs/solver-pipeline.md` asks
+for one: union find over touching polygons per layer, merged across layers
+through via overlap, for the case where the extractor misbehaves. It has not
+been needed, since the per net gate matches exactly and both simulations pass.
+
+That is a reason to defer it, not a reason to call it satisfied, and it is
+recorded here as a gap rather than left to look like a completed requirement.
+There is a second argument for building it anyway: every real defect in this
+stage surfaced through an *independent* check, and a second extractor written
+against different assumptions is exactly that kind of check.
+
+**The BuildKit failure is worked around, not understood.** `apt-get` cannot
+reach the network inside `docker build` under BuildKit while the identical
+command succeeds under `docker run`. Building with `DOCKER_BUILDKIT=0` produces
+the same image and is what the documented commands use, but the cause was never
+diagnosed.
