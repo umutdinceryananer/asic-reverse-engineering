@@ -177,12 +177,15 @@ them either.
 | | warm up | puzzle |
 |---|---|---|
 | Instances linked to stage 1 | 230 | 1618 |
-| Nets carrying a cell pin | 86 | 726 |
-| signal | 84 | 724 |
+| Nets carrying a cell pin | 86 | 725 |
+| signal | 84 | 723 |
 | power | 2 | 2 |
 | named by a label | 8 | 15 |
 | Nets with no cell pin | 3 | 3 |
 | Max fanout | 16 | 88 |
+
+The puzzle's signal count is one lower than the extractor first reported; see
+the union find fallback below for the connection that was being lost.
 
 The warm up's 8 named nets are its six ports plus the two rails. The puzzle's 15
 are `clk`, `rst_n`, `enable`, `I`, `success`, `O[0]` through `O[7]`, and the two
@@ -317,18 +320,134 @@ produced. Sampling the next snapshot instead, which reads as the intuitive
 choice, shifted every byte and made the netlist look one cycle slow when the
 byte sequence was already exactly right.
 
-## Not done yet
+## The union find fallback
 
-**The union find fallback is not implemented.** `docs/solver-pipeline.md` asks
-for one: union find over touching polygons per layer, merged across layers
-through via overlap, for the case where the extractor misbehaves. It has not
-been needed, since the per net gate matches exactly and both simulations pass.
+`tools/stage2_unionfind.py`, the second extractor the spec asks for: union find
+over touching polygons per layer, merged across layers through via overlap.
 
-That is a reason to defer it, not a reason to call it satisfied, and it is
-recorded here as a gap rather than left to look like a completed requirement.
-There is a second argument for building it anyway: every real defect in this
-stage surfaced through an *independent* check, and a second extractor written
-against different assumptions is exactly that kind of check.
+It exists because on the puzzle there is no answer key. The DEF gate and the
+warm up simulation both need ground truth; the only evidence available on the
+real target is a second extraction, written against different assumptions, that
+agrees. So it shares as little as possible with the primary path:
+
+| | primary | fallback |
+|---|---|---|
+| Geometry library | klayout | gdstk |
+| Structure | hierarchical, cells stay cells | flat, absolute coordinates |
+| Connectivity | the extractor's own solver | own union find |
+| Pin identity | resolved by the extractor | cell labels placed by hand |
+
+Two measured facts about these layouts make an exact implementation cheap.
+Every polygon on a conductor layer is rectilinear, so slicing it into rectangles
+along its own vertex y coordinates is lossless; and every coordinate is on the
+1 nm grid, so integer arithmetic is exact and no tolerance has to be invented.
+The warm up's 10318 conductor polygons become 13970 rectangles, the puzzle's
+73683 become 103450.
+
+Bounding boxes would not do. Sixteen percent of the shapes are not rectangles,
+reaching twenty vertices, and comparing boxes would connect shapes that never
+touch, which is the "overly permissive connectivity rule" the spec warns about.
+
+Within a layer, shapes sharing an edge of positive length are one conductor.
+Contact at a single corner is not treated as a connection and is counted
+separately rather than assumed either way: the warm up has 2056 of them.
+
+## What the fallback found
+
+On the warm up the two extractions agree exactly, 86 nets out of 86.
+
+On the puzzle they did not, and the disagreement was a real defect in the
+primary netlist.
+
+**Symptom.** Net `$1415` held `nor3_2.C`, `and2_2.X` and a pin the extractor had
+invented a name for, `a31oi_2.$7`. Separately, net `$1447` held `a31oi_2.A1` and
+`a311o_2.A1` — two inputs and **no driver at all**.
+
+**Cause.** A cell input is a transistor gate, and a gate can be contacted from
+li1 in more than one place. `a31oi_2` has its A1 gate contacted twice: the LEF
+declares one pad as the pin, at (1.955, 0.995)-(2.665, 1.615), and the other, at
+(2.905, 0.995)-(3.075, 1.325), is not offered as a pin at all. The router landed
+a via stack on the undeclared one.
+
+Our connectivity starts at li1 and excludes poly, so the two pads look like two
+unrelated nets. The signal that really drives those `A1` inputs sat in the other
+net, and the netlist carried an undriven wire.
+
+This is the "floating pins from an overly strict connectivity rule" failure
+mode, and it is worth noting what did *not* catch it: the puzzle simulation
+passed 312 cycles with zero mismatches both before and after the repair. One
+input vector exercising the design is not a proof that its structure is right.
+
+**The obvious fix, rejected.** Extending the ladder down through licon1 to poly
+does repair this, and leaves the warm up bit for bit identical. It also
+dissolves `conb_1`: that cell ties its constant outputs to the rails through
+poly, so `LO` merges into `VGND` and `HI` into `VPWR`, and the extractor starts
+reporting pins called `LO,VGND`. Measured, it moved 16 nets to fix one. A gate
+level netlist needs `conb_1` to remain a cell with outputs.
+
+**The fix taken.** `tools/common/cellnodes.py` reads from the PDK which li1
+shapes of a cell are the same terminal — grouped through gate contacts only,
+never through diffusion, since joining source and drain would conduct through
+transistors — and matches each group against the LEF's declared PORT geometry.
+The rule is narrow, and its guard is the important half:
+
+> Two li1 shapes joined by a poly gate are the same terminal.
+> Two **declared** pins of one cell are never the same net. If the grouping says
+> they are, the model has reached inside the cell and the group is discarded.
+
+That guard is what protects `conb_1`, and it only works with transitive
+grouping and exact geometry. Both were wrong in the first version: grouping one
+poly at a time missed chains through a shared li1 shape, and testing pin
+membership by bounding box assigned `conb_1`'s L shaped ground shape to `HI`,
+whose rectangle its box overlaps and its polygon does not. Either error hid the
+conflict and would have let the repair rewrite a cell output into a rail.
+
+Applied to the two targets:
+
+| | warm up | puzzle |
+|---|---|---|
+| Cell types used | 18 | 69 |
+| Cells with an undeclared pad | 0 | 1, `a31oi_2` for `A1` |
+| Cells rejected by the guard | 0 | 1, `conb_1` (`LO/VGND`, `HI/VPWR`) |
+| Connections reattached | 0 | 1 |
+| Nets before, after | 86, 86 | 726, 725 |
+
+The risk surface is much wider than the one occurrence: 66 of the cell types in
+the puzzle have a device node reached by disjoint li1 shapes. Only one had
+routing land on the undeclared side, but that is a property of this layout, not
+a guarantee.
+
+## The check that needs no answer key
+
+The defect above left a net with two loads and nothing driving it. That is
+detectable without any ground truth, and `stage2_nets.py` now does it: every
+internal signal net must have exactly one pin driving it. None means a
+connection was lost, more than one means two outputs are shorted.
+
+Input ports are excluded — they are driven from outside the die, so having no
+internal driver is exactly what they should look like.
+
+```
+warm up: driver check,  79 internal signal nets: 0 undriven with a load, 0 with two drivers
+puzzle:  driver check, 719 internal signal nets: 0 undriven with a load, 0 with two drivers
+```
+
+Before the repair the puzzle reported one undriven net. This is the check that
+would have found the defect without a second extractor, and it costs nothing.
+
+## Remaining difference between the two extractors
+
+On the puzzle the fallback lists 15 nets the primary does not, each a single
+`clkbuf_4` `X` output. Those outputs have no `mcon` on them at all: they reach
+no metal and drive nothing. Working flat, the fallback sees a component of one
+pin; working hierarchically, the primary gives that pin no top level net and so
+omits it. Both are saying the terminal is unconnected.
+
+The comparison classifies this rather than counting it as a disagreement, and
+only after confirming the pin is genuinely absent from the other netlist rather
+than sitting in some other net.
+
+## Still open
 
 **The BuildKit failure is worked around, not understood.** `apt-get` cannot
 reach the network inside `docker build` under BuildKit while the identical

@@ -44,8 +44,14 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 18 | Every simulation output stayed `x` | simulation | understood |
 | 19 | The 8-bit output bus simulated as `z` | simulation | understood |
 | 20 | The expected output stream was one cycle out | simulation | understood |
+| 21 | Routing landed on a cell terminal the LEF does not declare | extraction | understood |
+| 22 | The first repair for 21 dissolved `conb_1` into the rails | extraction | understood |
+| 23 | The guard protecting 22 did not fire, twice | extraction | understood |
 
 Two remain unresolved: **1** and **4**.
+
+Entry **21** is the only defect so far found in a *shipped* artifact rather than
+during development, and the only one a passing test did not catch.
 
 ---
 
@@ -453,9 +459,87 @@ line itself looks arbitrary.
 
 ---
 
+## Extraction: a defect that survived every passing test
+
+### 21. Routing landed on a cell terminal the LEF does not declare
+
+**Symptom.** None, for a while. All four stage 2 gates passed. It surfaced only
+when the union find fallback was built and disagreed with the KLayout extraction
+on the puzzle: one extractor reported a net holding `nor3_2.C`, `and2_2.X` and a
+pin it had invented a name for, `a31oi_2.$7`; a separate net held `a31oi_2.A1`
+and `a311o_2.A1`, **two inputs and no driver at all**.
+
+**Cause.** A cell input is a transistor gate, and a gate can be contacted from
+li1 in more than one place. `a31oi_2` has two contacts on its A1 gate. The LEF
+declares one as the pin; the other is not offered as a pin, and the router
+landed a via stack on it anyway. Our connectivity starts at li1 and excludes
+poly, so the two contacts look like two unrelated nets, and the signal that
+really drives those inputs ended up in the wrong one.
+
+**Fix.** `tools/common/cellnodes.py` reads from the PDK which li1 shapes of a
+cell are the same terminal, through gate contacts only, and matches them against
+the LEF's declared PORT geometry. Both extractors use it. See
+`docs/02-connectivity.md` for the rule and its guard.
+
+**Verdict: understood.** The uncomfortable part is what did not catch it. The
+puzzle simulation replays 312 cycles of the published waveform and reproduces it
+byte for byte — before the repair and after. A functional test on one input
+vector says nothing about whether the structure is right, and this project had
+been treating that gate as its strongest evidence.
+
+### 22. The first repair dissolved `conb_1` into the rails
+
+**Symptom.** The obvious fix for 21 is to extend the connectivity ladder down
+through licon1 to poly, so two contacts on one gate merge. Tried, and it does
+repair the defect while leaving the warm up bit for bit identical.
+
+Measured on the puzzle it also moved 16 nets to fix one. `conb_1` ties its
+constant outputs to the rails through poly, so `LO` merged into `VGND` and `HI`
+into `VPWR`, and the extractor began reporting pins named `LO,VGND`.
+
+**Cause.** Extending the stack is a global change to the connectivity model, and
+the model's job is to treat cells as black boxes. Reaching through poly reaches
+inside every cell, not only the one with the problem.
+
+**Fix.** Rejected the stack change. The repair is per cell and carries a guard:
+two *declared* pins of one cell are never the same net, and a grouping that says
+they are gets discarded.
+
+**Verdict: understood.** Worth recording as a near miss: the rejected fix passed
+the warm up gate perfectly, which is exactly how it would have got in.
+
+### 23. The guard did not fire, twice
+
+**Symptom.** With the guard written, `conb_1` still came back with two
+"undeclared pads" to be rewritten — the guard that was supposed to protect it
+reported no conflict at all.
+
+**Cause, first time.** The grouping ran one poly shape at a time. A single li1
+shape can sit on two gates and tie them together, so the real groups are the
+transitive closure and taking each gate alone misses the chain that joins
+`conb_1`'s output to its rail.
+
+**Cause, second time.** With transitive grouping in place it still did not fire,
+and now reported the *wrong* conflict, `HI/LO`. Pin membership was being tested
+against bounding boxes. `conb_1`'s ground shape is L shaped; its box reaches up
+into `HI`'s rectangle while the polygon itself stays clear. The rail shapes were
+being assigned to the wrong pin, or to none, and either way the conflict stayed
+invisible.
+
+**Fix.** Transitive grouping through a union find over li1 shapes, and exact
+polygon intersection for pin membership with bounding boxes used only to skip
+pairs that cannot meet.
+
+**Verdict: understood.** The lesson is about safety mechanisms specifically: a
+guard that has never fired has not been tested. Both faults were found by
+checking that the guard fired on the one case known to need it, rather than by
+observing that nothing had gone wrong.
+
+---
+
 ## The shapes these fall into
 
-Twenty problems, five recurring shapes.
+Twenty-three problems, five recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9. A README sentence, a plausible generalisation, a memory of what a file
@@ -477,6 +561,13 @@ happened.
 at 14. Each looked like a defect in the thing being measured and was a defect in
 the measuring.
 
+A sixth shape appears once problems 21 to 23 are in: **a check that passes
+without having been exercised.** The puzzle simulation passed with a defect in
+the netlist, and the guard in 23 reported no conflict because it could not see
+the case it existed for. In both, a green result was read as evidence when it
+was only silence. The remedy is the same in both: make the check fail on
+purpose, once, against a case known to be bad.
+
 ### What actually caught these
 
 Not care, and not review. Every real defect surfaced through one of three
@@ -493,10 +584,16 @@ mechanisms, all of which are cheap and mechanical:
 3. **An expected thing being absent.** A flip-flop with no clock. A bus with no
    driver. Knowing what must be there is what makes absence visible.
 
-The corollary is the argument for building stage 2's union-find fallback even
-though the existing extractor has never misbehaved: a second implementation
+The corollary was the argument for building stage 2's union find fallback even
+though the existing extractor had never misbehaved: a second implementation
 written against different assumptions is mechanism 1, applied to the stage that
 carries the most risk.
+
+It was built, and it found problem 21 within minutes of first running on the
+puzzle — a defect four passing gates had not. That is the strongest evidence in
+this document for the whole approach, so it is worth stating plainly: **the
+fallback was not redundant work, and the reasoning that nearly skipped it was
+"the primary path has never misbehaved."**
 
 ---
 
@@ -512,6 +609,6 @@ Neither blocks anything. Both are listed so that "we build with
 `DOCKER_BUILDKIT=0`" reads as an unexplained workaround rather than a
 preference.
 
-Separately, and not a defect but a skipped requirement: `docs/solver-pipeline.md`
-specifies a union-find fallback extractor for stage 2 and it is **not
-implemented**. Recorded in `docs/02-connectivity.md` as a gap.
+The union find fallback that `docs/solver-pipeline.md` specifies for stage 2,
+previously listed here as a skipped requirement, is now implemented:
+`tools/stage2_unionfind.py`.

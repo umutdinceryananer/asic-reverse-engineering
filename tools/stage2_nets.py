@@ -26,11 +26,12 @@ import json
 import os
 import re
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 
 import klayout.db as db
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from common import cellnodes
 from common.gds import DEF_NAME
 from common.lef import functional_pins, load as load_lef
 from stage1_cells import PDK_DIR, TARGETS
@@ -157,6 +158,87 @@ def write_verilog(path, top_name, nets, ports, lef):
     return len([l for l in lines if l.startswith("  sky130")])
 
 
+def repair_cell_nodes(nets, pads, lef):
+    """Reattach routing that landed on a cell node the LEF does not declare.
+
+    A cell input is a transistor gate, and a gate can be contacted from li1 in
+    more than one place while the LEF offers only some of those contacts as the
+    pin. Our stack starts at li1 and excludes poly, so the undeclared contact
+    looks like a net of its own; the extractor invents a pin named `$n` for it.
+
+    On the puzzle this cost a real connection: net `$1447` reached two `A1`
+    inputs and had no driver, because the signal that drives them had landed on
+    `a31oi_2`'s second A1 pad. `common/cellnodes.py` works out from the PDK
+    which undeclared pads are really which pin; here that knowledge is applied.
+
+    Deliberately conservative. The rewrite happens only where the cell has
+    exactly one undeclared terminal and the instance shows exactly one
+    undeclared pin, so there is no choice to get wrong. Anything else is left
+    alone and reported.
+    """
+    declared = {name: set(entry["pins"]) for name, entry in lef.items()}
+    undeclared = defaultdict(list)
+    for index, net in enumerate(nets):
+        for connection in net["connections"]:
+            if connection["pin"] not in declared.get(connection["cell"], set()):
+                undeclared[connection["instance"]].append((index, connection))
+
+    net_of = {}
+    for index, net in enumerate(nets):
+        for connection in net["connections"]:
+            net_of[(connection["instance"], connection["pin"])] = index
+
+    parent = list(range(len(nets)))
+
+    def find(item):
+        while parent[item] != item:
+            parent[item] = parent[parent[item]]
+            item = parent[item]
+        return item
+
+    repaired, skipped = [], []
+    for instance, entries in undeclared.items():
+        cell = entries[0][1]["cell"]
+        targets = {entry["pin"] for entry in pads.get(cell, [])}
+        if len(entries) != 1 or len(targets) != 1:
+            skipped.append((instance, cell, [c["pin"] for _, c in entries],
+                            sorted(targets)))
+            continue
+        index, connection = entries[0]
+        pin = targets.pop()
+        other = net_of.get((instance, pin))
+        if other is None:
+            skipped.append((instance, cell, [connection["pin"]], [pin]))
+            continue
+        parent[find(index)] = find(other)
+        repaired.append((instance, cell, connection["pin"], pin))
+
+    if not repaired:
+        return nets, repaired, skipped
+
+    merged = {}
+    for index, net in enumerate(nets):
+        root = find(index)
+        if root not in merged:
+            merged[root] = {"name": net["name"], "named": net["named"],
+                            "kind": net["kind"], "connections": []}
+        target = merged[root]
+        if net["named"] and not target["named"]:
+            target["name"], target["named"] = net["name"], True
+        if net["kind"] == "power":
+            target["kind"] = "power"
+        target["connections"].extend(net["connections"])
+
+    out = []
+    for net in merged.values():
+        keep = [c for c in net["connections"]
+                if c["pin"] in declared.get(c["cell"], set())]
+        net["connections"] = sorted(keep, key=lambda c: (c["instance"], c["pin"]))
+        if net["connections"]:
+            out.append(net)
+    return out, repaired, skipped
+
+
 def extract(gds_path):
     layout = db.Layout()
     layout.read(gds_path)
@@ -263,6 +345,30 @@ def run(target):
             "connections": sorted(connections, key=lambda c: (c["instance"], c["pin"])),
         })
 
+    # --- reattach routing that landed on an undeclared cell terminal ---------
+    lef = load_lef(PDK_DIR)
+    used = {record["cell"] for record in stage1["instances"]}
+    pads, clashes = cellnodes.build(used, PDK_DIR, lef)
+    if pads or clashes:
+        print("\ncell terminal map:")
+        for name, entries in sorted(pads.items()):
+            print(f"  {name}: undeclared pads for "
+                  f"{sorted({entry['pin'] for entry in entries})}")
+        for name, clash in sorted(clashes.items()):
+            print(f"  {name}: node spans declared pins {clash}, left as declared")
+
+    nets, repaired, skipped = repair_cell_nodes(nets, pads, lef)
+    if repaired:
+        print(f"\nreattached {len(repaired)} connection(s) that landed on an "
+              f"undeclared terminal:")
+        for instance, cell, was, now in repaired:
+            print(f"  {instance} {cell.split('__')[-1]}: {was} -> {now}")
+    if skipped:
+        print(f"\nUNDECLARED PINS LEFT UNRESOLVED: {len(skipped)}")
+        for instance, cell, seen, targets in skipped:
+            print(f"  {instance} {cell.split('__')[-1]}: pins {seen}, "
+                  f"candidates {targets}")
+
     signal = [n for n in nets if n["kind"] == "signal"]
     power = [n for n in nets if n["kind"] == "power"]
 
@@ -289,7 +395,6 @@ def run(target):
     # The direction follows from what the port drives. If any pin it reaches is
     # an output, the die is driving outward; otherwise every pin it reaches is
     # listening, so the die is being driven.
-    lef = load_lef(PDK_DIR)
     ports = {}
     for net in nets:
         if net["kind"] == "power" or not net["named"]:
@@ -303,6 +408,40 @@ def run(target):
     print(f"\nports ({len(ports)}):")
     for name, direction in sorted(ports.items()):
         print(f"  {direction:<6} {name}")
+
+    # --- a sanity check that needs no answer key ----------------------------
+    #
+    # An internal signal net should have exactly one pin driving it. Zero means
+    # a connection was lost, more than one means two outputs are shorted. This
+    # cannot be checked against a DEF on the puzzle, because there is no DEF,
+    # and it is the defect class a wrong layer stack produces.
+    #
+    # It is how the a31oi_2 terminal defect would have been found without a
+    # second extractor: it left a net holding two `A1` inputs and no driver.
+    #
+    # Input ports are excluded: they are driven from outside the die, so having
+    # no driver inside it is what they are supposed to look like.
+    inputs = {name for name, direction in ports.items() if direction == "input"}
+    undriven, contended = [], []
+    for net in signal:
+        if net["name"] in inputs:
+            continue
+        outputs = [c for c in net["connections"]
+                   if functional_pins(lef.get(c["cell"], {"pins": {}}))
+                   .get(c["pin"]) == "output"]
+        if not outputs and len(net["connections"]) > 1:
+            undriven.append((net, outputs))
+        elif len(outputs) > 1:
+            contended.append((net, outputs))
+
+    print(f"\ndriver check, {len(signal) - len(inputs)} internal signal nets: "
+          f"{len(undriven)} undriven with a load, {len(contended)} with two drivers")
+    for net, _ in undriven[:10]:
+        print(f"  UNDRIVEN {net['name']}: "
+              f"{[(c['instance'], c['pin']) for c in net['connections']][:8]}")
+    for net, outputs in contended[:10]:
+        print(f"  TWO DRIVERS {net['name']}: "
+              f"{[(c['instance'], c['pin']) for c in outputs]}")
 
     out_dir = os.path.join("out", target)
     os.makedirs(out_dir, exist_ok=True)

@@ -724,8 +724,8 @@ bir anahtarla ölçülen fark, ölçüm değil gürültüdür.
 | | warm-up | puzzle |
 |---|---|---|
 | Stage 1'e bağlanan yerleşim | 230 | 1618 |
-| Hücre pini taşıyan net | 86 | 726 |
-| bunlardan sinyal | 84 | 724 |
+| Hücre pini taşıyan net | 86 | 725 |
+| bunlardan sinyal | 84 | 723 |
 | etiketten isim alan | 8 | 15 |
 | Hiç pin taşımayan net | 3 | 3 |
 | En büyük fanout | 16 | 88 |
@@ -741,7 +741,10 @@ Küçük bir güzellik: puzzle'da `rst_n` neti 88 pine gidiyor — 84 tane `RESE
 artı 4 tane `SET_B`. Stage 1 puzzle'da 84 `dfrtp_2` ve 4 `dfstp_2` saymıştı.
 İki aşama, iki bağımsız yöntem, aynı sayı.
 
-### Dört kapı da geçiyor
+Puzzle'ın sinyal net sayısı, çıkarıcının ilk verdiği rakamdan bir eksik. Neden
+eksildiğini bir sonraki bölüm anlatıyor.
+
+### Beş kapı da geçiyor
 
 | Kapı | Sonuç |
 |---|---|
@@ -749,25 +752,286 @@ artı 4 tane `SET_B`. Stage 1 puzzle'da 84 `dfrtp_2` ve 4 `dfstp_2` saymıştı.
 | Netler, DEF'e karşı | 84/84, bağlantı bağlantı |
 | Warm-up simülasyonu | 65536 çift, 15 başarı, 0 uyuşmazlık |
 | Puzzle simülasyonu | 312 çevrim, 0 uyuşmazlık |
+| İki çıkarıcı arasında | warm-up 86/86, puzzle 725/725 |
 
-### Bitmeyen bir iş
-
-`docs/solver-pipeline.md` Stage 2 için bir **yedek çıkarıcı** istiyor: katman
-başına değen poligonları union-find ile birleştiren, katmanlar arasını via
-örtüşmesinden geçiren bağımsız bir uygulama.
-
-Yazılmadı. Şu ana kadar ihtiyaç olmadı — net kapısı birebir tutuyor ve iki
-simülasyon da geçiyor. Ama bu, ertelemek için bir sebep; **yapılmış saymak için
-değil.** Boşluk olarak kayıtlı.
-
-Aslında yapmak için ikinci bir gerekçe daha var, ve bu dersin tamamı onu
-gösteriyor: bu aşamadaki her gerçek hata **bağımsız bir kontrol** sayesinde
-ortaya çıktı. Farklı varsayımlarla yazılmış ikinci bir çıkarıcı, tam olarak o
-tür bir kontrol.
+Sonuncusu bu dersi yazarken eklendi, ve eklenme hikâyesi bir sonraki bölüm.
 
 ---
 
-## 14. Kendin dene
+## 14. Yedek çıkarıcı, ve bulduğu şey
+
+Bu bölümü en sona bırakıyorum çünkü bu dersin en önemli kısmı, ve yukarıdaki her
+şeyi bir kez daha sınıyor.
+
+`docs/solver-pipeline.md` Stage 2 için bir **yedek çıkarıcı** istiyor: katman
+başına değen poligonları union-find ile birleştiren, katmanlar arasını via
+örtüşmesinden geçiren, bağımsız bir ikinci uygulama.
+
+Bunu yazmamak için çok makul bir gerekçe vardı: dört kapının dördü de geçiyordu.
+Net kapısı DEF'e karşı birebir tutuyordu, iki simülasyon da temizdi. "Birincil
+yol hiç yanlış davranmadı" diye düşünüp atlayabilirdim.
+
+Bu gerekçenin neden yanlış olduğunu göreceğiz.
+
+### Yedek neden gerçekten bağımsız olmalı
+
+İkinci bir uygulama, birincisiyle aynı varsayımları paylaşıyorsa hiçbir şey
+kanıtlamaz — ikisi de aynı hatayı yapar. O yüzden mümkün olan her yerde farklı:
+
+| | birincil | yedek |
+|---|---|---|
+| Geometri kütüphanesi | klayout | gdstk |
+| Yapı | hiyerarşik, hücreler hücre kalıyor | **düz**, her şey mutlak koordinatta |
+| Bağlantı | çıkarıcının kendi çözücüsü | kendi union-find'ım |
+| Pin kimliği | çıkarıcı çözüyor | etiketleri elle yerleştiriyorum |
+
+**Aynı bıraktığım tek şey bağlantı modeli** — aynı katman merdiveni. Bu bilinçli:
+modeli de değiştirirsem, çıkan farklar "hangi uygulama hatalı" değil "hangi model
+farklı" sorusunu cevaplar ki bu işime yaramaz.
+
+### Union-find nedir
+
+Basit ve güzel bir fikir. Elinde binlerce parça var, hangileri aynı gruba ait
+bulman gerekiyor.
+
+Her parçaya kendi kutusunu ver. İki parçanın değdiğini görünce kutularını
+birleştir. Sonunda kalan her kutu bir net.
+
+Tek incelik verimlilik: her birleştirmede bütün elemanları dolaşmamak için her
+kutunun bir "temsilcisi" olur, ve birleştirirken sadece temsilciler bağlanır.
+Bulma işlemi zincirini takip ederken yolu da kısaltır. 100 bin dikdörtgende
+farkı hissedilir.
+
+### Dokunma testi: burada bir tuzak var
+
+"İki poligon değiyor mu?" sorusunun ucuz cevabı sınırlayıcı kutulara bakmaktır.
+Ölçtüm: **şekillerin %16'sı dikdörtgen değil**, 20 köşeye kadar çıkıyorlar. L
+şeklindeki iki parçanın kutuları çakışabilir ama kendileri hiç değmiyor olabilir.
+
+Kutulara güvenmek "fazla cömert bağlantı kuralı" demek — bölüm 2'deki ilk satır.
+
+Çözüm ölçümden geldi. İki şeyi doğruladım:
+
+```
+iletken poligonların hepsi dik açılı (eğik kenar yok)
+bütün koordinatlar 1 nm ızgarasında
+```
+
+Bu ikisi doğruysa her poligonu **kendi köşe y'lerinden yatay dilimlere kesip**
+dikdörtgenlere ayırabilirsin, ve bu kayıpsız olur. Sonra tam sayı aritmetiğiyle
+kesin dokunma testi yaparsın — yuvarlama toleransı uydurmana gerek kalmaz.
+
+Warm-up'ın 10 318 poligonu 13 970 dikdörtgene, puzzle'ın 73 683'ü 103 450'ye
+iniyor.
+
+Bir karar daha: **sadece köşeden değen iki şekil bağlı sayılmıyor.** Warm-up'ta
+2056 böyle temas var. Bunu varsaymak yerine ayrıca sayıp raporluyorum.
+
+### Warm-up: tam mutabakat
+
+```
+KLayout    86 net
+union find 86 net
+identical  86
+RESULT: the two extractions agree exactly
+```
+
+Güzel. Ama warm-up'ta zaten cevap anahtarı vardı. Asıl soru puzzle.
+
+### Puzzle: uyuşmuyorlar
+
+```
+only union find: 16
+only KLayout:    1
+    [only KLayout]  3 pins: i06976.C, i06991.$7, i07317.X
+```
+
+`$7` ne? Bir **isimsiz pin**. KLayout, `a31oi_2` hücresinde bildirilmemiş bir
+terminal bulmuş ve ona uydurma bir isim vermiş.
+
+Peşine düştüm. Sırayla:
+
+1. `$7`'nin geometrik yeri bulundu: hücre koordinatlarında
+   (2.905, 0.995)-(3.075, 1.325)'te küçük bir li1 dikdörtgeni.
+2. O şeklin **hücre tanımının kendisine ait** olduğu doğrulandı — sonradan
+   eklenmiş bir yönlendirme pedi değil.
+3. Altında ne var diye bakıldı: bir `licon1`, ve o da **`poly`ye** değiyor. Yani
+   bir transistör kapısı kontağı.
+4. LEF'e bakıldı — birincil kaynak. `a31oi_2`'nin bütün pinlerinin geometrisi
+   orada yazılı. Bu dikdörtgen **hiçbirinin içinde değil**.
+5. Son adım: hücredeki her li1 şekli, değdiği poly'ye göre gruplandı.
+
+```
+li1 (1.955, 0.995)..(2.665, 1.615)  LEF pin: A1    -> poly#2
+li1 (2.905, 0.995)..(3.075, 1.325)  LEF pin: yok   -> poly#2
+```
+
+**Aynı poly.** Yani aynı kapı, yani **aynı sinyal.** O isimsiz ped, elektriksel
+olarak A1'in ta kendisi.
+
+### Neden bunu göremiyoruz
+
+Bölüm 2'yi hatırla: merdiven `li1`'den başlıyor, `poly` bilerek dışarıda. Çünkü
+hücreler kara kutu.
+
+Ama bu şu demek: bir kapının iki ayrı li1 kontağı varsa, biz onların aynı düğüm
+olduğunu **göremeyiz**. İkisi ayrı net gibi görünür.
+
+Ve yönlendirici tam da bildirilmemiş olanın üstüne bir via yığını koymuş.
+
+### Bedeli
+
+```
+net $1415: i06976.C, i06991.$7, i07317.X   -> and2_2 sürüyor
+net $1447: i06991.A1, i07091.A1            -> iki giriş, SÜRÜCÜ YOK
+```
+
+Netlist'te **sürücüsüz bir tel** vardı. `n00268`'i gerçekte `and2_2.X` sürüyor,
+bizim netlist bunu kaybetmiş.
+
+Spec bu hata sınıfını isimle sayıyor: *"floating pins from an overly strict
+connectivity rule."*
+
+### Ve şimdi bu dersin en rahatsız edici cümlesi
+
+Puzzle simülasyonu, 312 çevrimlik yayınlanmış dalga formunu bayt bayt yeniden
+üretiyor — **düzeltmeden önce de, sonra da.**
+
+Yani bölüm 10'da "asıl sınav" dediğim test, bu hatayı görmedi.
+
+> Tek bir girdi vektörüyle geçen işlevsel bir test, yapının doğru olduğunu
+> kanıtlamaz. Sadece o vektörde farkın görünmediğini gösterir.
+
+Bu proje o kapıyı en güçlü kanıtı sayıyordu. Doğru değilmiş.
+
+### Bariz düzeltme, ve neden reddedildi
+
+Akla gelen ilk çözüm: merdiveni `licon1` üzerinden `poly`ye kadar uzat, iki
+kontak birleşsin.
+
+Denedim. **Çalışıyor**, ve warm-up'ı zerre değiştirmiyor — yani DEF kapısı
+korunuyor. Kabul etmek için fazlasıyla ikna edici.
+
+Ama puzzle'da ne yaptığına baktım:
+
+```
+VGND  1618 -> 1624 pin   (5 conb_1 LO çıkışını yuttu)
+VPWR  1618 -> 1619 pin   (1 conb_1 HI çıkışını yuttu)
+$1415    3 -> 4 pin      <- istediğimiz tek düzeltme
+```
+
+`conb_1` sabit üreten hücre; çıkışlarını poly üzerinden raylara bağlıyor.
+Merdiven poly'ye inince `LO` `VGND`'ye karışıyor, `HI` `VPWR`'ye. Çıkarıcı
+`LO,VGND` diye pin isimleri üretmeye başlıyor.
+
+**Bir neti düzeltmek için 16 neti bozuyor.**
+
+Sebep basit: merdiveni uzatmak *küresel* bir değişiklik. Poly'ye uzanmak sadece
+sorunlu hücrenin değil, **her hücrenin** içine uzanmak demek.
+
+> Warm-up kapısını mükemmel geçen bir düzeltmeydi. İçeri sızma yolu da tam
+> olarak buydu.
+
+### Alınan düzeltme, ve asıl önemli olan yarısı
+
+Kural hücre bazında ve dar:
+
+> İki li1 şekli aynı poly kapısına bağlıysa aynı terminaldir.
+> Ama bir hücrenin iki **bildirilmiş** pini asla aynı net olamaz. Gruplama öyle
+> diyorsa, model hücrenin içine fazla girmiştir ve o grup **atılır.**
+
+İkinci cümle bir güvenlik mekanizması, ve `conb_1`'i koruyan şey o.
+
+Diffüzyon kontakları da hiç kullanılmıyor, sadece kapılar. Source/drain'leri
+birleştirmek transistörün içinden akım geçirmek olurdu ve bütün devreyi
+birbirine kısa devre ederdi.
+
+### Güvenlik mekanizması iki kez sessiz kaldı
+
+Ve burada öğrenilecek asıl şey var.
+
+Guard'ı yazdım. `conb_1`'i çalıştırdım. **Hiçbir çakışma raporlamadı** — yani
+korumak için var olduğu tek vakada susuyordu.
+
+**Birinci sebep.** Grupları her poly için ayrı ayrı kuruyordum. Ama bir li1
+şekli iki farklı kapıya birden değebilir ve onları birbirine bağlar. Yani
+gerçek gruplar **geçişli kapanış**, ve tek tek poly'lere bakmak zinciri
+kaçırıyor. `conb_1`'in çıkışını rayına bağlayan şey tam olarak öyle bir zincir.
+
+**İkinci sebep.** Geçişli gruplamayı ekledim, hâlâ ateşlemedi — ve şimdi
+**yanlış** çakışmayı raporluyordu (`HI/LO`). Pin üyeliğini sınırlayıcı kutuyla
+test ediyordum. `conb_1`'in toprak şekli L biçiminde: kutusu `HI`'nin
+dikdörtgenine giriyor, poligonun kendisi hiç değmiyor.
+
+İkisi de düzeltildikten sonra:
+
+```
+sky130_fd_sc_hd__a31oi_2: bildirilmemiş ped -> A1
+sky130_fd_sc_hd__conb_1:  düğüm iki bildirilmiş pini kapsıyor
+                          [['LO','VGND'], ['HI','VPWR']], olduğu gibi bırakıldı
+```
+
+> **Hiç ateşlememiş bir güvenlik mekanizması, test edilmemiş bir mekanizmadır.**
+> "Bir sorun çıkmadı" ile "kontrol çalışıyor" aynı şey değil. İkisini ayırmanın
+> tek yolu, kontrolü bilerek kötü olan bir vakada çalıştırmak.
+
+### Cevap anahtarı gerektirmeyen kontrol
+
+Şimdi bölüm 14'ün üçüncü egzersizine geri dön — orada "her sinyal netinde tam
+olarak bir çıkış pini olmalı" diye bir kontrolden bahsetmiştim ve "şu an kodda
+yok" demiştim.
+
+O kontrol bu hatayı yakalardı. Sürücüsüz bir net bırakmıştı.
+
+Artık kodda:
+
+```
+warm up: driver check,  79 internal signal nets: 0 undriven, 0 with two drivers
+puzzle:  driver check, 719 internal signal nets: 0 undriven, 0 with two drivers
+```
+
+Giriş portları hariç tutuluyor — onları çipin dışı sürüyor, içeride sürücüsüz
+görünmeleri normal.
+
+Bu kontrolün değeri şu: **DEF'e ihtiyacı yok.** Puzzle'da cevap anahtarı yok ama
+bu kontrol yine de çalışıyor. Gerçek tersine mühendislikte elinde olan tek
+kontrol türü budur.
+
+### Geriye kalan tek fark
+
+Puzzle'da yedek çıkarıcı, birincilin listelemediği 15 net raporluyor — her biri
+tek pinli, hepsi `clkbuf_4` `X` çıkışı. Baktım: o çıkışlarda **hiç `mcon` yok**,
+yani metale hiç çıkmıyorlar, hiçbir şeyi sürmüyorlar.
+
+Düz çalışan yedek bunu "tek pinli bir bileşen" olarak görüyor. Hiyerarşik
+birincil ise o pine üst seviyede net vermiyor ve hiç yazmıyor. **İkisi de aynı
+şeyi söylüyor:** o terminal bağlı değil.
+
+Bu bir anlaşmazlık değil, listeleme farkı. Karşılaştırma artık ikisini ayırıyor —
+ve ayırmadan önce o pinin gerçekten diğer netlist'te hiç geçmediğini doğruluyor.
+
+```
+=== union find vs KLayout, as partitions of cell pins ===
+KLayout   725 nets
+union find 740 nets
+identical  725
+  unconnected terminals listed by one side only: 15 union find, 0 KLayout
+      15  clkbuf_4
+RESULT: the two extractions agree on every connection
+```
+
+### Bu bölümün özeti
+
+Yedek çıkarıcıyı yazmamak için gerekçem "birincil yol hiç yanlış davranmadı"
+idi. Yazdım, ve puzzle'da ilk çalıştırmasında **dört kapının göremediği gerçek
+bir hata** buldu.
+
+> Bir yolun hiç hata vermemiş olması, hatasız olduğunun kanıtı değildir. Sadece
+> hatayı gösterecek bir şeyin henüz denenmediğinin kanıtıdır.
+
+---
+
+## 15. Kendin dene
 
 ```bash
 # Bagsiz bir venv'de, Docker gerekmeden:
@@ -777,6 +1041,10 @@ python tools/compare_def.py  warmup      # 230/230 ve 84/84 gormelisin
 
 # Merdiven duyarlilik olcumu (bolum 2'deki tablo)
 python tools/stack_sensitivity.py warmup
+
+# Bagimsiz ikinci cikarici, ve iki cikarimin karsilastirmasi
+python tools/stage2_unionfind.py warmup  # 86/86, tam mutabakat
+python tools/stage2_unionfind.py puzzle  # 725/725 + 15 bagli olmayan terminal
 
 # Simulasyon (sim imaji gerekli)
 DOCKER_BUILDKIT=0 docker build --target sim -t gds-teardown-sim -f docker/Dockerfile docker/
@@ -789,7 +1057,7 @@ python tools/sim/run.py warmup           # 65536 cift, 0 uyusmazlik
    bozuluyor — yani met2 ciddi miktarda bağlantı taşıyor. Ama bölüm 7'de üst
    hücrenin **bütün** met2 şekillerinin (1366 tanesinin) logo olduğunu ölçtük.
    Bu bir çelişki değil mi? Taşıyan met2 nerede duruyor?
-2. Warm-up'ta 84 sinyal netinin sadece 6'sı isimli. Puzzle'da 724'ün 13'ü.
+2. Warm-up'ta 84 sinyal netinin sadece 6'sı isimli. Puzzle'da 723'ün 13'ü.
    Oran neden bu kadar düşük, ve daha fazla isim çıkarmanın bir yolu var mı?
 3. Bölüm 7'de `$66` netinin bir `X` ve sekiz `CLK` taşıdığını gördük. Peki bir
    nette **iki tane** çıkış pini görsen ne düşünürdün?
@@ -847,11 +1115,19 @@ Ya da **benim çıkarımım fazla cömert** ve birbirine değmemesi gereken iki 
 birleştirdim. Bölüm 2'deki ilk satır.
 
 İkincisi çok daha muhtemel. Ve bu, netlist'e uygulanabilecek çok ucuz bir sağlık
-kontrolü: *her sinyal netinde tam olarak bir çıkış pini olmalı.* Şu an bu kontrol
-kodda yok; net kapısı DEF'e karşı geçtiği için ihtiyaç duyulmadı. Ama ground
+kontrolü: *her iç sinyal netinde tam olarak bir çıkış pini olmalı.* Ground
 truth'un olmadığı bir hedefte — yani gerçek bir tersine mühendislikte —
 kullanabileceğin en iyi kontrollerden biri budur, çünkü **cevap anahtarı
 gerektirmez.**
+
+Bu ders yazılırken bu soru bir egzersizdi ve cevabında "şu an bu kontrol kodda
+yok" yazıyordu. Bölüm 14'te ne olduğunu gördün: sıfır çıkış pinli bir net gerçek
+bir hatanın belirtisi çıktı. Kontrol artık kodda, ve **sıfır sürücü** durumu en
+az iki sürücü kadar önemli:
+
+```
+driver check, 719 internal signal nets: 0 undriven with a load, 0 with two drivers
+```
 
 ---
 

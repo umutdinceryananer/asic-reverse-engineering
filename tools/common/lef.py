@@ -14,8 +14,17 @@ The subset of LEF that matters here is small:
       PIN <name>
         DIRECTION INPUT | OUTPUT | INOUT ;
         USE SIGNAL | POWER | GROUND ;
+        PORT
+          LAYER li1 ;
+            RECT <x0> <y0> <x1> <y1> ;
+        END
       END <name>
     END <cell>
+
+The PORT rectangles matter as well as the direction: they are the library's
+statement of where a pin may legally be contacted. A cell can carry further
+shapes on the same electrical node that are deliberately not offered as pins,
+and telling the two apart needs this geometry. See `common/cellnodes.py`.
 """
 
 import glob
@@ -27,6 +36,26 @@ PIN = re.compile(r"^\s*PIN\s+(\S+)(.*?)^\s*END\s+\1\s*$", re.M | re.S)
 DIRECTION = re.compile(r"^\s*DIRECTION\s+(\w+)\s*;", re.M)
 USE = re.compile(r"^\s*USE\s+(\w+)\s*;", re.M)
 SIZE = re.compile(r"^\s*SIZE\s+([\d.]+)\s+BY\s+([\d.]+)\s*;", re.M)
+GEOMETRY = re.compile(
+    r"^\s*(?:LAYER\s+(\w+)\s*;"
+    r"|RECT\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*;)", re.M)
+
+
+def parse_ports(body):
+    """Layer -> list of (x0, y0, x1, y1) for one pin.
+
+    RECT statements inherit the LAYER most recently declared above them, so the
+    two have to be read in order rather than matched independently.
+    """
+    ports = {}
+    layer = None
+    for match in GEOMETRY.finditer(body):
+        if match.group(1):
+            layer = match.group(1)
+        elif layer:
+            ports.setdefault(layer, []).append(
+                tuple(float(match.group(index)) for index in range(2, 6)))
+    return ports
 
 
 def parse_macro(text):
@@ -43,6 +72,7 @@ def parse_macro(text):
         pins[name] = {
             "direction": direction.group(1).lower() if direction else "unknown",
             "use": use.group(1).lower() if use else "signal",
+            "ports": parse_ports(body),
         }
 
     size = SIZE.search(text)

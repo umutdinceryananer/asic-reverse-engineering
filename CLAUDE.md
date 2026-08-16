@@ -16,7 +16,7 @@ case.
 | Stage | State |
 |---|---|
 | 1, cell recognition | **done**, gated |
-| 2, connectivity | **done**, all four gates pass |
+| 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | not started, needs the `eda` image |
 | 4, detectors | not started |
 | 5, synthetic corpus | not started, build it *before* stage 4 |
@@ -81,11 +81,14 @@ Every stage takes a target, never a hard coded path.
 python tools/stage1_cells.py warmup       # -> out/warmup/instances.json
 python tools/stage2_nets.py  warmup       # -> out/warmup/netlist.{json,v}
 python tools/compare_def.py  warmup       # gate: 230/230 cells, 84/84 nets
+python tools/stage2_unionfind.py warmup   # gate: second extractor agrees, 86/86
 python tools/sim/run.py      warmup       # gate: 65536 pairs, 0 mismatches
 python tools/stack_sensitivity.py warmup  # not a gate: justifies the layer stack
 
 python tools/stage1_cells.py puzzle
 python tools/stage2_nets.py  puzzle
+python tools/stage2_unionfind.py puzzle   # gate: 725/725, the only check with
+                                          # no ground truth behind it
 python tools/sim/make_puzzle_stimulus.py  # VCD -> per-cycle tables
 python tools/sim/run.py      puzzle       # gate: 312 cycles, 0 mismatches
 ```
@@ -102,6 +105,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | same tool: 84/84 signal nets matched connection by connection | passing |
 | 2 | `sim/run.py warmup`: all 65536 operand pairs, 15 successes, 0 mismatches | passing |
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
+| 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | todo |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
@@ -144,6 +148,17 @@ reads only the top cell will conclude the design has no routing.
 spanning 17.10 x 17.10 um, at (65.90, 66.20) in the warm up and (34.90, 35.20) in
 the puzzle. It explains all three pin-less nets in each target.
 
+**A cell terminal can be contacted where the LEF declares no pin.** `a31oi_2`
+has two li1 contacts on its A1 gate and offers one as the pin; the puzzle's
+router used the other. Since the stack starts at li1 and excludes poly, the two
+looked like separate nets and the netlist carried an undriven wire.
+`common/cellnodes.py` resolves this from the PDK, guarded by the rule that two
+*declared* pins of a cell are never one net (which is what stops `conb_1`'s
+constant outputs being absorbed into the rails). 66 puzzle cell types have the
+same risk; one had routing land on it. Found by the union find fallback, not by
+any gate — **the puzzle simulation passed 312 cycles both before and after the
+repair.**
+
 **KLayout's `subcircuit.id()` is not stable across runs.** Keying a comparison
 on it reported 67 of 86 nets as changed when nothing had changed. Key on
 (position, orientation, cell) instead — the same rule stage 2 already needs for
@@ -170,10 +185,10 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
 
 ## Known gaps
 
-- Stage 2's union-find fallback, which `docs/solver-pipeline.md` asks for, is
-  **not implemented**. The extractor has not misbehaved, but this is a skipped
-  requirement rather than a satisfied one.
 - The BuildKit network failure is worked around, not understood.
+- The fallback lists 15 unconnected `clkbuf_4` outputs the primary omits. Both
+  agree the terminal is unconnected; only the reporting differs. Classified in
+  the comparison, not silently dropped.
 
 ## Working habits this project has already paid for
 
@@ -188,6 +203,10 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
 - **Log what does not match rather than dropping it.** Every real defect this
   session surfaced through an unmatched-items report or an independent
   cross-check.
+- **A passing test that was never able to fail is not evidence.** The puzzle
+  simulation passed with a wrong netlist; the `conb_1` guard reported no
+  conflict because it could not see the case it existed for. Exercise a check
+  against a known-bad input once, or it is only silence.
 
 ## Documentation conventions
 
