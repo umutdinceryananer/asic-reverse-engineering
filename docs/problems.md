@@ -47,6 +47,8 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 21 | Routing landed on a cell terminal the LEF does not declare | extraction | understood |
 | 22 | The first repair for 21 dissolved `conb_1` into the rails | extraction | understood |
 | 23 | The guard protecting 22 did not fire, twice | extraction | understood |
+| 24 | Cell roles derived from the LEF and the cell name, not from liberty | normalisation | **retracted** |
+| 25 | `bool("false")` is true, so every input read as a clock | normalisation | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -537,13 +539,83 @@ observing that nothing had gone wrong.
 
 ---
 
+## Normalisation: reaching for the wrong authority
+
+### 24. Cell roles derived from the LEF and the cell name
+
+**Symptom.** None. Stage 3 was written, the reasoning was written down, and it
+looked sound. It surfaced because the user asked whether I was actually sure of
+it, and whether it would survive a hardware engineer reading it.
+
+**What was claimed.** That the clock could be read from the LEF's `USE CLOCK`
+marker, and that reset versus set could be settled by requiring the pin name
+(`RESET_B`) and the cell name (`dfrtp`) to agree, described as "two independent
+sources".
+
+**What is actually true**, once measured rather than argued:
+
+- The pin name and the cell name are *not* independent. They are two expressions
+  of one naming convention, written by the same people at the same time. And the
+  convention does not decide the question: six cells in this library, `dfbbp_1`
+  among them, carry **both** `RESET_B` and `SET_B`.
+- `USE CLOCK` was fine. It was criticised on the strength of one cell,
+  `lpflow_inputisolatch_1`, which marks `SLEEP_B` as a clock — which looked like
+  a counterexample and is not: that cell is a latch and liberty independently
+  gives it `clocked_on : SLEEP_B`. Compared across the whole library, LEF and
+  liberty agree on the clock for all 429 cells.
+- The real authority was never consulted. Liberty states all of it functionally:
+  `clocked_on`, `next_state`, `clear`, `preset`, and `function` for every
+  combinational output.
+
+**The larger consequence.** Cells had been given to Yosys as blackboxes, on the
+argument that stage 3 only needs connectivity. True for stage 3, and a dead end
+after it: `yosys-smtbmc` cannot export a design of blackboxes to SMT2, because a
+solver has to know what each cell computes. The docstring claimed this path
+carried through to stages 4 and 6. It did not.
+
+**Fix.** `tools/fetch_pdk.py` now also caches one liberty corner,
+`tt_025C_1v80`, from the same pinned commit — 429 files, the corners differing
+only in timing tables, none of which anything here reads.
+`tools/common/liberty.py` reads the functional attributes and the cell
+functions. The naming convention is still consulted, demoted to a cross check
+that reports rather than decides.
+
+**Verdict: retracted.** Recorded because the failure was not in the code, which
+worked, but in stating a justification more confidently than the evidence
+supported — and because no test would have caught it. A question did.
+
+### 25. `bool("false")` is true, so every input read as a clock
+
+**Symptom.** The new liberty reader marked `A1`, `A2`, `B1`, `C1` and `D1` of
+`a2111o_1` as clock pins. Every input of every combinational cell in the library
+came back as a clock.
+
+**Cause.** This library encodes liberty booleans as JSON *strings*:
+`"clock": "false"`. `bool("false")` is `True`, because the string is non-empty.
+
+**How it was found.** Not by inspection. The reader was cross-checked against the
+LEF's own clock marking on the whole library before being used, and that check
+reported 414 cells disagreeing out of 429 — a number too large to be real. After
+the fix it reports zero.
+
+**Fix.** A `boolean()` helper that reads the string, with the failure mode
+written into its docstring.
+
+**Verdict: understood.** Worth keeping as the cleanest example in this document
+of a cross check earning its cost: the defect was silent, produced a valid
+netlist with nonsense annotations, and was caught within a minute of the
+reader's first run by a comparison written for a different purpose.
+
+---
+
 ## The shapes these fall into
 
-Twenty-three problems, five recurring shapes.
+Twenty-five problems, five recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
-7, 8, 9. A README sentence, a plausible generalisation, a memory of what a file
-contains. Every one had a decisive check available costing seconds.
+7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source
+misread, but the primary source never fetched. The liberty data had been sitting
+at the pinned commit the whole time.
 
 **A key that does not identify.** Problems 12, 13, 14. Position without
 orientation; one format's anchor read as another's; a per-run id treated as

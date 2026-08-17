@@ -10,8 +10,13 @@ defines, so `-y` finds `sky130_fd_sc_hd__nand2_2.v` when the netlist
 instantiates `sky130_fd_sc_hd__nand2_2`, and `-I` resolves the `include` each
 of those wrappers makes to its base model.
 
+The netlist under test can be overridden, which is how stage 3's round trip gate
+works: the graph is written back out as Verilog and has to pass the same
+testbench, unchanged, against the same cell models.
+
 Usage:
     python tools/sim/run.py warmup
+    python tools/sim/run.py warmup --netlist out/warmup/graph.v
 """
 
 import glob
@@ -72,8 +77,10 @@ def model_files(netlist_path):
     return cells, files, sorted(includes), missing
 
 
-def run(target):
-    gate = GATES[target]
+def run(target, netlist=None):
+    gate = dict(GATES[target])
+    if netlist:
+        gate["netlist"] = netlist
     for path in (gate["testbench"], gate["netlist"]):
         if not os.path.exists(path):
             sys.exit(f"{path} missing")
@@ -82,6 +89,8 @@ def run(target):
 
     print(f"target {target}")
     print(f"gate   {gate['asks']}")
+    if netlist:
+        print(f"under test: {gate['netlist']} (not the stage 2 default)")
 
     cells, files, includes, missing = model_files(gate["netlist"])
     print(f"cell types instantiated: {len(cells)}, models found: {len(files)}")
@@ -124,6 +133,10 @@ def run(target):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    override = None
+    if len(args) >= 3 and args[1] == "--netlist":
+        override, args = args[2], args[:1]
     if len(args) != 1 or args[0] not in GATES:
-        sys.exit(f"usage: python tools/sim/run.py [{' | '.join(GATES)}]")
-    sys.exit(run(args[0]))
+        sys.exit(f"usage: python tools/sim/run.py [{' | '.join(GATES)}] "
+                 "[--netlist <path>]")
+    sys.exit(run(args[0], override))

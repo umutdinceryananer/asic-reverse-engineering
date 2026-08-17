@@ -1,9 +1,31 @@
-"""Fetch the sky130 standard cell GDS library, pinned to one commit.
+"""Fetch the sky130 standard cell library, pinned to one commit.
 
 Stage 1 identifies cells by geometry, which needs a reference library to match
 against; that library is the PDK's own per cell GDS files. Stage 2 needs pin
 directions to emit Verilog, and those come from the LEF abstract views rather
 than from guessing at pin names.
+
+Stage 3 needs more than directions. It has to say which net is a clock, which is
+a reset and which carries data, and the LEF cannot answer that: `USE CLOCK` is a
+statement about how the router should treat a pin, not about what the pin does.
+The library proves the difference itself -- `lpflow_inputisolatch_1` marks
+`SLEEP_B` as `USE CLOCK`, and `SLEEP_B` is a power gating control.
+
+Liberty is where the functional statements live, per cell:
+
+    dfrtp_2:  clocked_on=CLK  next_state=D  clear=!RESET_B
+    dfstp_2:  clocked_on=CLK  next_state=D  preset=!SET_B
+    nand2_2:  Y function=(!A) | (!B)
+    conb_1:   HI function=1   LO function=0
+
+This library publishes liberty as per cell, per corner JSON rather than as `.lib`
+files, so one corner is taken: `tt_025C_1v80`, typical process at 25C and 1.80V.
+The corner only changes timing numbers, and no stage here reads timing -- the
+functional attributes are identical across corners.
+
+Those `function=` expressions are also what stages 4 and 6 need. A netlist of
+blackboxes can be walked as a graph but cannot be exported to SMT2 or CNF,
+because a solver has to know what each cell computes.
 
 The commit is pinned rather than tracked so that a clean clone reproduces the
 same fingerprints. If the upstream library ever changes a cell, an unpinned
@@ -39,11 +61,19 @@ def get(url, binary=False):
     return data if binary else data.decode("utf-8")
 
 
+CORNER = "tt_025C_1v80"
+
+
 def wanted(path):
-    """Cell geometry for stage 1, and the abstract views for pin directions.
+    """Cell geometry for stage 1, the abstract views for pin directions, and
+    one liberty corner for what the cells actually compute.
 
     The `.magic.lef` variants are skipped: they are the same cells written for
     Magic, and taking both would put two macros of the same name in the index.
+
+    Only one liberty corner is taken. The library ships 6865 of them across
+    process, temperature and voltage; they differ in timing tables and agree on
+    every functional attribute, and nothing in this pipeline reads timing.
     """
     if path.endswith(".gds"):
         return True
@@ -51,6 +81,8 @@ def wanted(path):
         return False
     if path.endswith(".lef"):
         return True
+    if path.endswith(".lib.json"):
+        return path.endswith(f"__{CORNER}.lib.json")
     # UDP primitives that the sequential and mux cell models depend on.
     if path.startswith("models/") and path.endswith(".v"):
         return not path.endswith(".tb.v")
@@ -105,9 +137,10 @@ def main(verify_only=False):
         gds = [f for f in have if f.endswith(".gds")]
         lef = [f for f in have if f.endswith(".lef")]
         ver = [f for f in have if f.endswith(".v")]
+        lib = [f for f in have if f.endswith(".lib.json")]
         total = sum(os.path.getsize(f) for f in have)
-        print(f"{len(gds)} GDS, {len(lef)} LEF and {len(ver)} Verilog in {DEST}, "
-              f"{total / 1e6:.2f} MB")
+        print(f"{len(gds)} GDS, {len(lef)} LEF, {len(lib)} liberty and "
+              f"{len(ver)} Verilog in {DEST}, {total / 1e6:.2f} MB")
         print(f"pinned to {REPO}@{COMMIT[:12]}")
         return 0
 

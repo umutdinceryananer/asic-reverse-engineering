@@ -116,6 +116,23 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 in `docs/00-environment.md`. Pin labels survive in the layouts on li1 (67/5) and
 met1 (68/5), so pin identity need not be inferred.
 
+**Three PDK views, three jobs. Do not substitute one for another.** GDS is
+geometry, for stage 1's fingerprints and `common/cellnodes.py`'s terminal map.
+LEF is the physical abstract: pin directions and PORT rectangles. **Liberty is
+the only functional statement** — `clocked_on`, `next_state`, `clear`, `preset`,
+and `function` per output. Stage 3's roles come from liberty, not from `USE
+CLOCK` plus the cell name. This library publishes liberty as per cell, per
+corner JSON; one corner is cached (`tt_025C_1v80`, 429 files), corners differing
+only in timing.
+
+**Liberty booleans are JSON strings.** `"clock": "false"`, and `bool("false")`
+is true. Use `common/liberty.boolean()`. Getting this wrong marks every
+combinational input as a clock and leaves the netlist valid.
+
+**Cells cannot be blackboxes past stage 3.** A graph can be walked without
+knowing what a cell computes; an SMT2 or CNF export cannot be written. The
+`function` expressions are carried in `graph.json` for stages 4 and 6.
+
 **PDK cache layout matters.** `.gds` and `.lef` are flat in
 `pdk/sky130_fd_sc_hd/`; `.v` keeps the library's directory structure, because
 per-strength wrappers include their base by bare name and the sequential and mux
