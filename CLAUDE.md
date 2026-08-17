@@ -17,14 +17,15 @@ case.
 |---|---|
 | 1, cell recognition | **done**, gated |
 | 2, connectivity | **done** to spec, all five gates pass |
-| 3, normalisation | not started, needs the `eda` image |
+| 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | not started |
 | 5, synthetic corpus | not started, build it *before* stage 4 |
 | 6, inversion | not started |
 | 7, output extraction | not started |
 
-Lessons written: `docs/lectures/00`, `01`, `02`. The next one is owed when stage
-3's gate passes; lessons are written after the gates, never before.
+Lessons written: `docs/lectures/00`, `01`, `02`. **Ders 3 is owed** — stage 3's
+round trip passes on both targets, so it can be written from verified facts now.
+Lessons are written after the gates, never before.
 
 ## Rules that bind this repository
 
@@ -91,6 +92,11 @@ python tools/stage2_unionfind.py puzzle   # gate: 725/725, the only check with
                                           # no ground truth behind it
 python tools/sim/make_puzzle_stimulus.py  # VCD -> per-cycle tables
 python tools/sim/run.py      puzzle       # gate: 312 cycles, 0 mismatches
+
+python tools/stage3_graph.py warmup       # -> out/warmup/graph.{json,v}
+python tools/sim/run.py warmup --netlist out/warmup/graph.v   # gate: round trip
+python tools/stage3_graph.py puzzle
+python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -106,7 +112,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | `sim/run.py warmup`: all 65536 operand pairs, 15 successes, 0 mismatches | passing |
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
 | 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
-| 3 | round trip: graph back to Verilog still passes the stage 2 simulation | todo |
+| 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
 
@@ -150,6 +156,13 @@ It is a real test vector for the puzzle target.
 out. `I` is one bit, so input is serial. 728 logic cells, 92 flip-flops: 84
 `dfrtp`, 4 `dfstp` (**set**, not reset), 4 `dfxtp`. The `dfstp` cells mean some
 register leaves reset holding a non-zero value.
+
+**Puzzle structure, derived by stage 3.** 16 clock branches, each from a
+`clkbuf_8`, twelve carrying six flops and four carrying five: 92 exactly.
+`rst_n` is both the reset net and the set net, clearing 84 and presetting 4.
+12 constant nets, six 1 and six 0, from the 6 `conb_1`. 12 flops hold their
+value through a mux in front of D, all selected by one net. 189 cone roots =
+92 data + 88 async + 9 primary outputs.
 
 **`VIA_*` placements are routing constructs, not components.** `INTERNAL_3` and
 `INTERNAL_7` are marker rectangles on layer 200/0 with no devices.
