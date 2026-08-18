@@ -672,24 +672,87 @@ on one leg. Against circuits that declare an enable, it finds 6 of 24.
 
 **Fix, and the part that is not a fix.** The check was changed from "a hold
 survives as a mux", which is a claim about synthesis, to "the enable reaches the
-data cone of every flop it holds", which is a claim about the circuit and holds
-under all three shapes. The structural count is still reported, and the shapes
-that defeat it are listed by name, so a *new* way of losing a hold fails the
-run rather than blending into a rate.
+data cone of the flops it holds", which is a claim about the circuit and holds
+under every shape. The structural count is still reported, and the shapes that
+defeat it are listed by name, so a *new* way of losing a hold fails the run
+rather than blending into a rate.
+
+**A fourth shape arrived within the hour, and it settles the question.** The
+scale family's held register is `D = en ? (acc ^ lfsr) : outr`, and it maps to a
+single `a21oi`, `Y = !B1 & (!A1 | !A2)`, with `en` on `A1` and `Q` arriving
+through a `nor2` two cells back. The mux is not displaced, it does not exist.
+
+That is not a fourth special case — it is the general one, and the three above
+are the exceptions. A plain register keeps its mux only because the data leg is
+a *port*. Once that leg is something the circuit computes, the mapper folds the
+select into the logic that computes it, which is what a technology mapper is
+for. The run failed on it, as designed, and the shape was written down with a
+measurement behind it rather than a guess.
 
 The real answer is stage 4's: whether a register holds is a question about
 behaviour — is there an input assignment under which D equals Q — and no
-enumeration of patterns closes it. Three shapes from thirteen families is
-evidence enough that the enumeration does not terminate.
+enumeration of patterns closes it.
 
 **Verdict: understood, and deliberately not fully fixed.** Making the structural
-search cleverer would buy a fourth shape and hide the fifth.
+search cleverer would buy a fifth shape and hide the sixth.
+
+---
+
+## Scale, and a number that flattered us
+
+### 29. Every test circuit was an order of magnitude below the target
+
+**Symptom.** None. The corpus reported 4493 cells and 1074 state elements, which
+sounds like plenty, and passed every gate.
+
+**Cause.** The aggregate hid the distribution. Asked circuit by circuit rather
+than in total:
+
+| | flops | cells |
+|---|---|---|
+| largest corpus circuit | 32 | 125 |
+| **median corpus circuit** | **4** | |
+| the puzzle | 92 | 738 |
+
+A detector scored on four-flop circuits says very little about ninety-two, and
+two of the costs are not linear: grouping N flops into registers, and a miter
+whose SAT instance grows with cone depth and width.
+
+**How it was found.** By deliberately attacking our own numbers rather than
+reporting them. Nothing failed; a question was asked that had not been asked.
+
+**Fix.** A `scale_datapath` family that **brackets** the target rather than
+approaching it — 90, 178 and 354 flops against the puzzle's 92, and 280, 561 and
+1136 cells against its 738 — so a scaling problem shows up as a trend rather
+than as one pass or fail. Stage 3 turns out to scale flat: 1.1 s at 280 cells,
+1.4 s at 1136. Stage 4 is the open question.
+
+**Verdict: understood.** The general form: a total is not a distribution, and
+the statistic that matters for a test set is the size of its *hardest* member.
+
+### 30. The scale circuit declared sixteen clock branches and used eight
+
+**Symptom.** `verify_corpus.py` reported the largest scale circuit declaring 16
+distinct clock nets and stage 3 finding 8.
+
+**Cause.** The generator instantiated `branches` clock buffers but had only
+eight independent `always` blocks to drive from them. The other eight buffers
+fanned out to nothing and `opt_clean` removed them, correctly.
+
+**Fix.** The shift register is cut into one segment per spare branch, so the
+tree is used by construction: six fixed blocks plus ten shift segments at the
+largest size. That also buys something the corpus wanted anyway — a single
+logical register spanning ten of sixteen branches, which is the puzzle's shape
+rather than a two-way split in a toy.
+
+**Verdict: understood.** Worth recording because the check was written the day
+before and caught a defect in the circuit written to exercise it.
 
 ---
 
 ## The shapes these fall into
 
-Twenty-eight problems, six recurring shapes.
+Thirty problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

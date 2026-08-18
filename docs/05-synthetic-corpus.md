@@ -27,7 +27,7 @@ absent here can be found unexplained; it cannot be identified.
 **More than one structure per function.** The claim above was untestable while
 every circuit was synthesised exactly once: a detector that had memorised one
 particular mapping of an adder would have scored perfectly. Each circuit is now
-mapped twice from one shared pre-mapping netlist, and 48 of 86 land on genuinely
+mapped twice from one shared pre-mapping netlist, and 51 of 89 land on genuinely
 different cell mixes.
 
 **Negative controls.** A corpus of only positive examples measures sensitivity
@@ -41,7 +41,7 @@ holds blocks feeding each other.
 
 ## The catalogue
 
-86 circuits, 18 families, four groups.
+89 circuits, 19 families, five groups.
 
 | Group | Count | Purpose |
 |---|---|---|
@@ -49,6 +49,7 @@ holds blocks feeding each other.
 | negative | 6 | does it fire where it should not |
 | composed | 4 | does it survive blocks being merged |
 | structure | 5 | shapes the target has that ordinary synthesis does not produce |
+| scale | 3 | is it still true at the size of the target |
 
 Families: register, shift register, counter, accumulator, adder, subtractor,
 comparator, multiplexer, decoder, FSM, LFSR — the spec's list — plus serial
@@ -56,14 +57,17 @@ adder and CRC, because the puzzle's `I` port is one bit wide and textbook corpus
 circuits take their operands in parallel; plus the negative and structure
 families below.
 
-Parameters vary within each family: width 4, 8 and 16, direction, reset style,
-enable, FSM encoding, LFSR taps and style. The FSM appears in both binary and
-one-hot encoding on purpose — the same machine laid out two ways, so a detector
-that only recognises one has learnt the encoding rather than the machine.
+Parameters vary within each family: width 4, 8 and 16 — and 32 and 64 in the
+scale family — direction, reset style, enable, FSM encoding, LFSR taps and
+style. The FSM appears in both binary and one-hot encoding on purpose: the same
+machine laid out two ways, so a detector that only recognises one has learnt the
+encoding rather than the machine.
 
 **Held out.** Every third variant of each family is withheld from development:
-25 for scoring, 61 to work against. The split is a fixed rule rather than a
-random draw, so "held out" means the same thing on every machine and every run.
+26 circuits for scoring, 63 to work against. The split is a fixed rule rather
+than a random draw, so "held out" means the same thing on every machine and
+every run, and it is decided once per circuit so that both mappings of a held
+out circuit stay held out together.
 
 ## Matching the target, measured rather than assumed
 
@@ -90,8 +94,8 @@ the first number it produced was wrong in an instructive way.
 
 | Compared on | Overlap |
 |---|---|
-| Full cell name, `a21oi_2` | 5% |
-| Logic function, `a21oi` | **87%** |
+| Full cell name, `a21oi_2` | 3% |
+| Logic function, `a21oi` | **90%** |
 
 The difference is drive strength: the puzzle is mostly `_2` with `_4`, `_8` and
 `_16` for its clock tree, and the corpus is mostly `_1` because `abc` picks the
@@ -143,6 +147,57 @@ One logical register spread over several clock nets, which is the puzzle's shape
 at a smaller size. A detector that survives these will not be grouping by clock
 net.
 
+## Size
+
+Every family above is an order of magnitude below the target. That was easy to
+miss because the corpus counts looked healthy in aggregate, and it took asking a
+different question to see it:
+
+| | flops | cells |
+|---|---|---|
+| largest circuit in the corpus | 32 | 125 |
+| **median circuit in the corpus** | **4** | |
+| the puzzle | 92 | 738 |
+
+A detector scored on four-flop circuits says very little about ninety-two, and
+two of the costs are not linear: grouping N flops into registers, and a miter
+whose SAT instance grows with cone depth and width.
+
+The `scale_datapath` family answers this by **bracketing the target rather than
+approaching it** — if something breaks between 90 flops and 354, that shows up
+as a trend rather than as a single pass or fail.
+
+| | flops | cells | cone roots | clock nets |
+|---|---|---|---|---|
+| `scale_datapath_w16_b8` | 90 | 280 | 197 | 8 |
+| *the puzzle* | *92* | *738* | *189* | *16* |
+| `scale_datapath_w32_b8` | 178 | 561 | 389 | 8 |
+| `scale_datapath_w64_b16` | 354 | 1136 | 773 | 16 |
+
+What it computes is deliberately ordinary — a serially fed shift register, an
+accumulator summing it, a counter, an LFSR, a held output register, a tag
+register and a small state machine, all feeding each other. Nothing here is
+chosen to resemble the puzzle's function, which is not known. **Only the size
+and the shape are matched**, and both are things the corpus was measurably short
+of.
+
+Two properties are carried over deliberately. The shift register is cut into one
+segment per spare clock branch, so a single logical register spans ten of the
+sixteen branches at the largest size rather than spanning two in a toy. And the
+LFSR resets to a non-zero seed, which puts set flops beside reset flops — an
+LFSR started at zero stays there, so that is the circuit's own requirement and
+not a shape borrowed from the target.
+
+The first version declared sixteen branches and used eight. The other eight
+buffers drove nothing, `opt_clean` removed them, and `verify_corpus.py` caught
+the declared count disagreeing with the netlist. The number of clock domains is
+bounded by the number of independent `always` blocks, so `branches` was never a
+free parameter.
+
+**Stage 3 scales flat.** Building the graph takes 1.1 s at 280 cells and 1.4 s at
+1136. Whether stage 4 does is the open question, and now there is something to
+ask it on.
+
 ## The same function, mapped more than one way
 
 Which knob to turn was measured rather than picked. `abc -D 250`, a delay
@@ -165,12 +220,17 @@ makes the case that detectors must normalise the suffix.
 ## Results
 
 ```
-86 circuits as 172 netlists (base, fast), 0 synthesis failures
-4493 cells, 1074 state elements
-48/86 circuits map to a different cell mix under the second flow, 576 instances
-held out for scoring 25 circuits, available for development 61
-vocabulary by function: 86% of corpus instances are of a kind the puzzle uses
+89 circuits as 178 netlists (base, fast), 0 synthesis failures
+8593 cells, 2318 state elements
+51/89 circuits map to a different cell mix under the second flow
+held out for scoring 26 circuits, available for development 63
+vocabulary by function: 90% of corpus instances are of a kind the puzzle uses
 ```
+
+How far apart the two mappings really are is worth stating separately, because
+"differs at all" is a weak claim. Among the circuits that differ, the median has
+**78% of its cell slots changed**; corpus wide the figure is 63%. Two of the
+comparators are more than completely rewritten.
 
 ## The answer key, checked
 
@@ -185,14 +245,23 @@ way of staying true. **A measurement that is not a program is a measurement that
 happened once.**
 
 ```
-86 circuits as 172 netlists, 580 declared facts checked
-   12  a reset port, with the reset in the logic     112  clock roots
-    4  constant nets                                 112  flops on an inverting clock path
-    6  distinct clock nets                           112  flops under the clock root
-   24  flops whose data cone the enable reaches       64  flops whose reset is a pin
-   56  stateless                                      78  width in flip flops
+89 circuits as 178 netlists, 622 declared facts checked
+   12  a reset port, with the reset in the logic    118  clock roots
+    4  constant nets                                118  flops on an inverting clock path
+    6  declared flip flop count                     118  flops under the clock root
+   12  distinct clock nets                           70  flops whose reset is a pin
+   30  flops whose data cone the enable reaches      78  width in flip flops
+   56  stateless
 RESULT: pass
 ```
+
+**That headline number deserves less credit than it looks like.** There are ten
+rules here, applied across 178 netlists. Four of the ten assert a constant no
+circuit in this corpus could violate — `clock roots` is always 1, `stateless`
+always 0, `flops on an inverting clock path` always 0 because no generator
+writes `negedge clk`. And `clock roots == 1` implies `flops under the clock
+root == all of them`, so those 118 pairs are one fact counted twice. The honest
+summary is **ten rules, four of them constant**, not 622 independent facts.
 
 Every declared fact is checked against **every** mapping of the circuit that
 declared it. That is the structural invariance test, made at the stage 3 level
@@ -217,38 +286,56 @@ emits what it declares, and the check distinguishes the two shapes rather than
 asking whether a reset exists somewhere — which is the weaker question that had
 been passing.
 
-**The structural search for a held register finds 6 of 24 declared enables**, in
-three distinct ways, all measured against ground truth we wrote:
+**The structural search for a held register finds 6 of 30 declared enables**, in
+four distinct ways, all measured against ground truth we wrote:
 
 | Shape | What synthesis did |
 |---|---|
 | `register` | mux survives in front of `D` — found |
 | `counter` | enable folded into the carry chain, `D[0] = q[0] ^ en`. No mux exists |
 | `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and `D` |
+| `scale_datapath` | the mux is factored away entirely |
+
+The fourth came in with the scale family and it is the one that settles the
+question. `D = en ? (acc ^ lfsr) : outr` maps to a single `a21oi`, `Y = !B1 &
+(!A1 | !A2)`, with `en` on `A1` and `Q` arriving through a `nor2` two cells back.
+
+That is not a special case — **it is the general one, and the other three are
+the exceptions.** A plain register keeps its mux only because the data leg is a
+port. Once that leg is something the circuit computes, the mapper folds the
+select into the logic that computes it, which is what a technology mapper is
+for. Any enumeration of hold patterns loses to this.
 
 The rule was changed from "a hold survives as a mux", which is a claim about
-synthesis, to "the enable reaches the data cone of every flop it holds", which
-is a claim about the circuit and holds under all three. The structural count is
-still reported and the shapes that defeat it are listed by name, so a *fourth*
-way of losing a hold fails the run rather than blending into a rate.
+synthesis, to "the enable reaches the data cone of the flops it holds", which is
+a claim about the circuit and holds under all four. The structural count is
+still reported and the shapes that defeat it are listed by name, so a *new* way
+of losing a hold fails the run rather than blending into a rate — which is
+exactly what happened when the scale family arrived, and is why the fourth shape
+above is written down with a measurement behind it instead of a guess.
 
 ## Known gaps
 
-**13 of the puzzle's cell functions never appear**, down from 17 once the second
-mapping was added. They account for 101 of the puzzle's 738 cells, 14%. Three of
-those thirteen do not need naming:
+**12 of the puzzle's cell functions never appear**, down from 17 once the second
+mapping and the scale family were added. Three of those twelve do not need
+naming:
 
 | | | |
 |---|---|---|
 | `inv`, `buf` | 26 cells | transparent; stage 3 walks through them by function, and the corpus's 102 `clkinv` exercise the same code |
 | `diode` | 10 cells | an antenna diode is a manufacturing construct with no function at all |
 
-That leaves **65 of 738 puzzle cells, 9%, of a function the corpus cannot
-name** — the largest being `and2b` at 30. Halved from 18%, and it is a bound on
-*structural* matching only: a miter compares behaviour, and the graph carries
-every cell's liberty function for exactly this reason. It is the number that
-makes the case that **detectors must reason about what a cell computes, not
-about which cell it is.**
+That leaves roughly 9% of the puzzle's cells of a function the corpus cannot
+name — the largest being `and2b` at 30. Halved from 18%.
+
+**This number should not be read as a coverage estimate, and it was presented as
+one for a while.** It measures cell *vocabulary* overlap. The corpus can only
+name a puzzle block if some corpus circuit computes the same function, and
+vocabulary overlap says nothing whatever about that: a block built entirely from
+`nand2` scores 100% here and may still compute something no corpus circuit
+computes. **Functional coverage measured so far is zero — no miter has been
+run.** The real figure comes out of stage 4's residue report, and until then
+this is a lower bound on the problem dressed up as an estimate of it.
 
 **Fewer constants than the target.** Four `conb_1` cells against the puzzle's
 six. The shape exists; the density does not.

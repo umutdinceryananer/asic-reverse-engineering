@@ -45,6 +45,14 @@ WIDTH_IS_FLOPS = {"register", "shift_register", "counter", "lfsr", "clock_tree"}
 #   register + sync  the mux exists, `mux2i` with A0 on Q and S on `en`, but the
 #     reset          synchronous reset's `nor2b` sits between it and D, and the
 #                    search only looks one cell back.
+#   scale_datapath   the mux is factored away entirely. `D = en ? (acc ^ lfsr) :
+#                    outr` maps to one `a21oi`, `Y = !B1 & (!A1 | !A2)`, with
+#                    `en` on A1 and Q arriving through a `nor2` two cells back.
+#                    This is the general case and the other two are the special
+#                    ones: a plain register keeps its mux only because the data
+#                    leg is a port. Once that leg is computed, the mapper folds
+#                    the select into the logic that computes it, which is what a
+#                    technology mapper is for.
 #
 # Three shapes, one conclusion: whether a register holds is a question about
 # behaviour, not about what stands in front of D. Stage 4 answers it with a
@@ -54,6 +62,7 @@ WIDTH_IS_FLOPS = {"register", "shift_register", "counter", "lfsr", "clock_tree"}
 ENABLE_HIDDEN_BY = {
     "counter": "absorbed into the carry chain",
     "register+sync": "displaced from D by the reset logic",
+    "scale_datapath": "factored into an AOI gate, Q entering two cells back",
 }
 
 
@@ -79,13 +88,15 @@ def rules(truth, graph):
         for root, members in graph["clock_roots"].items():
             check("flops under the clock root", len(flops), len(members))
 
-    # The clock tree family writes its own tree, because clkbufmap gives one
+    # A family that writes its own clock tree, because clkbufmap gives one
     # buffer per clock net and cannot split fanout.
-    if family == "clock_tree":
+    if "branches" in truth:
         check("distinct clock nets", truth["branches"], len(graph["clock_nets"]))
 
     if family in WIDTH_IS_FLOPS:
         check("width in flip flops", truth["width"], len(flops))
+    if "flops" in truth:
+        check("declared flip flop count", truth["flops"], len(flops))
 
     # A combinational circuit that grew state means a generator wrote something
     # other than what it declared.
@@ -119,11 +130,16 @@ def rules(truth, graph):
     # disproves. What is invariably true is that the enable reaches the data
     # cone of every flop it holds, and a detector that cannot rely on that has
     # nothing to work with at all.
+    #
+    # How many flops an enable holds is itself declared, because it is not
+    # always all of them: in the scale family the enable gates one register out
+    # of seven, and a rule assuming otherwise would fail on a correct circuit.
     if truth.get("enable") and "en" in graph["ports"]:
         net = graph["ports"]["en"]["bits"][0]
         reached = set(graph["nets"].get(net, {}).get("cones", ()))
         check("flops whose data cone the enable reaches",
-              len(flops), sum(1 for i in flops if f"{i}.data" in reached))
+              truth.get("enable_holds", len(flops)),
+              sum(1 for i in flops if f"{i}.data" in reached))
 
     # Nothing in this corpus is written with an inverted clock, and an inverting
     # path to CLK would make a falling edge flop out of a rising edge one.

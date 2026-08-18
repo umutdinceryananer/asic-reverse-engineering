@@ -405,6 +405,119 @@ endmodule
       "width": width}
 
 
+def scale_datapath(width, branches):
+    """Several interacting blocks, at the size the target actually is.
+
+    Every other circuit here is small: the largest holds 32 flip flops and 125
+    cells against the puzzle's 92 and 738, and the median holds four. Scoring a
+    detector on circuits an order of magnitude below the thing it has to work on
+    says very little, and two of the costs are not linear -- grouping N flops
+    into registers, and a miter whose SAT instance grows with cone depth and
+    width. This family exists so the scores mean something, and its three sizes
+    bracket the target rather than approach it.
+
+    What it computes is deliberately ordinary: a shift register fed one bit at a
+    time, an accumulator summing it, a free running counter, an LFSR, a held
+    output register, a narrow tag register and a small state machine. Nothing
+    here is chosen to resemble the puzzle's function, which is not known. Only
+    the *size* and the *shape* are matched, and both are things the corpus was
+    measurably short of.
+
+    Two properties carry over from the smaller families on purpose:
+
+      the shift register is cut into one segment per spare clock branch, so a
+      single logical register genuinely spans the tree -- ten of the sixteen
+      branches at the largest size -- rather than spanning two in a toy;
+
+      the LFSR resets to a non-zero seed, which forces set flops beside the
+      reset flops. An LFSR started at zero stays there, so this is the circuit's
+      own requirement and not a shape borrowed from the target.
+
+    The number of clock domains is bounded by the number of independent always
+    blocks, so `branches` is not a free parameter: six blocks are fixed and the
+    rest of the tree has to come from segmenting the shift register. Asking for
+    more branches than the RTL can use leaves dead buffers, `opt_clean` removes
+    them, and the declared count then disagrees with the netlist -- which is how
+    the first version of this was caught.
+    """
+    if branches < 8:
+        raise ValueError("scale_datapath needs at least 8 clock branches")
+    name = f"scale_datapath_w{width}_b{branches}"
+    half, top = width // 2, width - 1
+    seed = ("1010110011100001" * 8)[:width]
+    taps = f"lfsr[{top}] ^ lfsr[{top-2}] ^ lfsr[{top-3}] ^ lfsr[{top-5}]"
+    limit = (1 << (width - 8)) - 1
+
+    # The shift register takes every branch the six fixed blocks do not.
+    segments = branches - 6
+    base, spare = divmod(width, segments)
+    sizes = [base + (1 if i < spare else 0) for i in range(segments)]
+
+    lines = [f"module {name} (input clk, input rst_n, input si, input en,",
+             f"  output [{top}:0] result, output done);"]
+    for branch in range(branches):
+        lines.append(f"  wire clk_b{branch};")
+        lines.append(f"  {CLOCK_BUFFER} cb{branch} (.A(clk), .X(clk_b{branch}));")
+
+    for index, size in enumerate(sizes):
+        lines.append(f"  reg [{size-1}:0] sr{index};")
+    lines += [f"  reg [{top}:0] acc, cnt, lfsr, outr;",
+              f"  reg [{half-1}:0] tag;",
+              "  reg [1:0] state;"]
+    joined = ", ".join(f"sr{i}" for i in reversed(range(segments)))
+    lines.append(f"  wire [{top}:0] sr = {{{joined}}};")
+    lines.append("")
+    lines.append(f"  // one logical shift register over {segments} branches")
+    for index, size in enumerate(sizes):
+        feed = "si" if index == 0 else f"sr{index-1}[{sizes[index-1]-1}]"
+        lines.append(f"  always @(posedge clk_b{index} or negedge rst_n)")
+        lines.append(f"    if (!rst_n) sr{index} <= 0;"
+                     f" else sr{index} <= {{sr{index}[{size-2}:0], {feed}}};")
+
+    fixed = segments
+    lines += [
+        "",
+        f"  always @(posedge clk_b{fixed} or negedge rst_n)",
+        "    if (!rst_n) acc <= 0; else acc <= acc + sr;",
+        f"  always @(posedge clk_b{fixed + 1} or negedge rst_n)",
+        "    if (!rst_n) cnt <= 0; else cnt <= cnt + 1'b1;",
+        "",
+        "  // a non-zero seed, because an LFSR started at zero never leaves it",
+        f"  always @(posedge clk_b{fixed + 2} or negedge rst_n)",
+        f"    if (!rst_n) lfsr <= {width}'b{seed};",
+        f"    else lfsr <= {{lfsr[{top-1}:0], {taps}}};",
+        "",
+        f"  always @(posedge clk_b{fixed + 3} or negedge rst_n)",
+        "    if (!rst_n) outr <= 0; else if (en) outr <= acc ^ lfsr;",
+        f"  always @(posedge clk_b{fixed + 4} or negedge rst_n)",
+        f"    if (!rst_n) tag <= 0; else tag <= tag + {{{half-1}'d0, si}};",
+        "",
+        f"  always @(posedge clk_b{fixed + 5} or negedge rst_n)",
+        "    if (!rst_n) state <= 2'd0;",
+        "    else case (state)",
+        "      2'd0: state <= si ? 2'd1 : 2'd0;",
+        f"      2'd1: state <= (cnt == {width}'d{limit}) ? 2'd2 : 2'd1;",
+        "      2'd2: state <= 2'd3;",
+        "      default: state <= 2'd0;",
+        "    endcase",
+        "",
+        "  assign result = outr;",
+        "  assign done = (state == 2'd3) && (tag != 0);",
+        "endmodule"]
+    return "\n".join(lines) + "\n", {
+        "family": "scale_datapath", "width": width, "branches": branches,
+        # Declared rather than derived, so verify_corpus.py has something to
+        # disagree with. Five registers of `width`, a half width tag and a two
+        # bit state; and the enable gates only the output register, unlike the
+        # smaller families where it holds all of them.
+        "flops": 5 * width + half + 2,
+        "enable": True, "enable_holds": width, "reset": "async_reset",
+        "segments": segments,
+        "parts": ["shift_register", "accumulator", "counter", "lfsr",
+                  "register", "fsm"],
+        "note": "the corpus at the size of the target, blocks interacting"}
+
+
 def _sequential(family, name, width, enable, reset, body, ports, truth):
     """Shared skeleton for the clocked generators."""
     declared = ", ".join(
@@ -485,6 +598,14 @@ def catalogue():
         add(clock_tree(width, branches), "structure")
     for width in (8, 16):
         add(tied_outputs(width), "structure")
+
+    # Size. Everything above is an order of magnitude below the target: the
+    # largest holds 32 flops and 125 cells against the puzzle's 92 and 738, and
+    # the median holds four. Two of these bracket the target rather than
+    # approach it, because a detector that works at 90 flops and fails at 180
+    # has a scaling problem worth knowing about before the real run.
+    for width, branches in ((16, 8), (32, 8), (64, 16)):
+        add(scale_datapath(width, branches), "scale")
 
     return items
 
