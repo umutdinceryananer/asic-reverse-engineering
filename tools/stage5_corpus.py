@@ -358,22 +358,98 @@ def clock_tree(width, branches):
         "note": "one logical register spread over several clock nets"}
 
 
-def tied_outputs(width):
+CLOCK_INVERTER = "sky130_fd_sc_hd__clkinv_1"
+
+
+def two_clocks(width):
+    """Two independent clock domains, so "one clock root" is not a tautology.
+
+    Every other circuit in the corpus is single clock, which means the rule
+    `verify_corpus.py` uses to catch a broken root walk -- exactly one clock
+    root -- had only ever been asked to confirm the number 1. That tests
+    under-merging and never over-merging: a walk that collapsed every clock in
+    the design into one root would have passed on all 86 circuits.
+
+    Here it must find two, and the two are genuinely independent ports rather
+    than branches of one tree.
+    """
+    name = f"two_clocks_w{width}"
+    half = width // 2
+    lines = [f"module {name} (input clk_a, input clk_b, input rst_n,",
+             f"  input [{width-1}:0] d, output [{width-1}:0] q);",
+             "  wire ca, cb;",
+             f"  {CLOCK_BUFFER} cba (.A(clk_a), .X(ca));",
+             f"  {CLOCK_BUFFER} cbb (.A(clk_b), .X(cb));",
+             f"  reg [{half-1}:0] ra, rb;",
+             "  always @(posedge ca or negedge rst_n)",
+             f"    if (!rst_n) ra <= 0; else ra <= d[{half-1}:0];",
+             "  always @(posedge cb or negedge rst_n)",
+             f"    if (!rst_n) rb <= 0; else rb <= d[{width-1}:{half}];",
+             "  assign q = {rb, ra};",
+             "endmodule"]
+    return "\n".join(lines) + "\n", {
+        "family": "two_clocks", "width": width, "reset": "async_reset",
+        "flops": width, "clock_roots": 2,
+        "note": "two independent clock domains, so one root would be wrong"}
+
+
+def inverted_clock(width):
+    """Half the register clocked from an inverted branch of the same tree.
+
+    The other reason "no flop is on an inverting clock path" was a constant:
+    nothing could produce one. That turned out to be true of the *code* as well
+    as of the corpus -- this library writes a combinational output as
+    `function : "(!A)"`, parenthesised, and stage 3 read the level off the raw
+    first character, so all 21 of its inverters were classified as buffers and
+    the walk reported every path straight. Silent, because the root was still
+    correct and only the parity was wrong.
+
+    A circuit that puts a flop behind a real `clkinv` is what makes that rule
+    able to fail. It is also a shape worth handling: those bits sample on the
+    falling edge of the root clock, and a detector that groups them with the
+    rest without noticing has merged two different sampling instants.
+    """
+    name = f"inverted_clock_w{width}"
+    half = width // 2
+    lines = [f"module {name} (input clk, input rst_n,",
+             f"  input [{width-1}:0] d, output [{width-1}:0] q);",
+             "  wire cp, cn;",
+             f"  {CLOCK_BUFFER} cbp (.A(clk), .X(cp));",
+             f"  {CLOCK_INVERTER} cbn (.A(clk), .Y(cn));",
+             f"  reg [{half-1}:0] rp, rn;",
+             "  always @(posedge cp or negedge rst_n)",
+             f"    if (!rst_n) rp <= 0; else rp <= d[{half-1}:0];",
+             "  always @(posedge cn or negedge rst_n)",
+             f"    if (!rst_n) rn <= 0; else rn <= d[{width-1}:{half}];",
+             "  assign q = {rn, rp};",
+             "endmodule"]
+    return "\n".join(lines) + "\n", {
+        "family": "inverted_clock", "width": width, "reset": "async_reset",
+        "flops": width, "clock_roots": 1, "clock_inverted": half,
+        "note": "half the flops sample on the falling edge of the root clock"}
+
+
+def tied_outputs(width, constants):
     """Outputs held at a constant, which is how `conb_1` cells come to exist.
 
     The puzzle carries six `conb_1` cells driving twelve constant nets. The
     corpus produced none at all -- synthesis folds a constant into whatever
     reads it, so nothing survives for `hilomap` to map. A constant that reaches
     a port cannot be folded away, so this is the shape that forces one.
+
+    `constants` varies between the two members so that the rule checking the
+    count has more than one answer to give. A rule only ever asked to confirm
+    the same number is one an implementation returning that number
+    unconditionally would pass.
     """
-    name = f"tied_outputs_w{width}"
-    return f"""module {name} (input [{width-1}:0] d, output [{width-1}:0] q,
-                  output always_high, output always_low);
+    name = f"tied_outputs_w{width}_c{constants}"
+    ties = "".join(
+        f"  assign tie{index} = 1'b{index % 2};\n" for index in range(constants))
+    ports = "".join(f", output tie{index}" for index in range(constants))
+    return f"""module {name} (input [{width-1}:0] d, output [{width-1}:0] q{ports});
   assign q = d;
-  assign always_high = 1'b1;
-  assign always_low  = 1'b0;
-endmodule
-""", {"family": "tied_outputs", "width": width, "constants": 2}
+{ties}endmodule
+""", {"family": "tied_outputs", "width": width, "constants": constants}
 
 
 def counter_compare(width, limit):
@@ -596,8 +672,15 @@ def catalogue():
     # not from a list drawn up in advance.
     for width, branches in ((8, 4), (16, 4), (16, 8)):
         add(clock_tree(width, branches), "structure")
+    for width, constants in ((8, 2), (16, 5)):
+        add(tied_outputs(width, constants), "structure")
+    # Circuits that exist so a rule has something other than its usual answer to
+    # give. Without these, "one clock root" and "no inverting clock path" are
+    # constants that no circuit here could contradict -- and the second was a
+    # constant the *code* could not contradict either.
     for width in (8, 16):
-        add(tied_outputs(width), "structure")
+        add(two_clocks(width), "structure")
+        add(inverted_clock(width), "structure")
 
     # Size. Everything above is an order of magnitude below the target: the
     # largest holds 32 flops and 125 cells against the puzzle's 92 and 738, and

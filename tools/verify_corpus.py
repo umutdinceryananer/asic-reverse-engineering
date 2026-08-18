@@ -80,13 +80,25 @@ def rules(truth, graph):
         out.append((rule, declared, found, declared == found))
 
     # Bits of one register do not share a clock net; they share a clock root.
-    # Every circuit in this corpus is single clock, so any circuit holding state
-    # has exactly one root. Grouping by net instead gives `branches` groups on
-    # the clock_tree family, which is the whole reason that family exists.
+    # Grouping by net gives `branches` groups on the clock_tree family, which is
+    # the whole reason that family exists.
+    #
+    # The expected number of roots is declared rather than assumed to be one.
+    # Every circuit here was single clock, so this rule had only ever been asked
+    # to confirm the number 1 -- which tests a walk that under-merges and never
+    # one that over-merges, and a walk collapsing every clock in a design into
+    # one root would have passed on all of them. The `two_clocks` family must
+    # come back with two.
+    #
+    # The second check is not the first restated. Every flop lands in exactly
+    # one root group by construction, so "one root" would imply "all flops under
+    # it" -- but "the groups account for every flop" holds whatever the root
+    # count is, and catches a flop that fell out of the grouping entirely.
     if flops:
-        check("clock roots", 1, len(graph["clock_roots"]))
-        for root, members in graph["clock_roots"].items():
-            check("flops under the clock root", len(flops), len(members))
+        check("clock roots", truth.get("clock_roots", 1),
+              len(graph["clock_roots"]))
+        check("flops accounted for by the clock roots", len(flops),
+              sum(len(m) for m in graph["clock_roots"].values()))
 
     # A family that writes its own clock tree, because clkbufmap gives one
     # buffer per clock net and cannot split fanout.
@@ -141,10 +153,15 @@ def rules(truth, graph):
               truth.get("enable_holds", len(flops)),
               sum(1 for i in flops if f"{i}.data" in reached))
 
-    # Nothing in this corpus is written with an inverted clock, and an inverting
-    # path to CLK would make a falling edge flop out of a rising edge one.
+    # An inverting path to CLK makes a rising edge flop sample on the falling
+    # edge of the root clock. Declared rather than assumed to be zero: it was
+    # zero everywhere, and the reason turned out to be that stage 3 could not
+    # report anything else. This library writes a combinational output as
+    # `function : "(!A)"` and the level was read off the raw first character, so
+    # every inverter in it was classified as a buffer. The `inverted_clock`
+    # family is what makes this rule able to fail.
     if flops:
-        check("flops on an inverting clock path", 0,
+        check("flops on an inverting clock path", truth.get("clock_inverted", 0),
               sum(1 for r in flops.values() if r.get("clock_inverted")))
 
     return out
@@ -219,6 +236,23 @@ def lost_the_constants(graph):
     graph["constant_nets"] = {}
 
 
+def clocks_merged(graph):
+    """A root walk that runs past a primary input and merges two domains."""
+    everything = [i for i in graph["flipflops"]]
+    graph["clock_roots"] = {"merged": everything}
+
+
+def a_flop_falls_out_of_the_grouping(graph):
+    root = next(iter(graph["clock_roots"]))
+    graph["clock_roots"][root] = graph["clock_roots"][root][1:]
+
+
+def inversion_parity_lost(graph):
+    """What stage 3 did before `(!A)` was unwrapped: every path looks straight."""
+    for record in graph["flipflops"].values():
+        record["clock_inverted"] = False
+
+
 # Each corruption is the real failure mode of one rule, paired with the kind of
 # circuit that rule applies to. Running them all against a single circuit is how
 # a corruption goes unnoticed for the uninteresting reason that its rule was
@@ -235,6 +269,12 @@ CORRUPTIONS = [
     ("enable reaches no cone", enable_reaches_nothing, lambda t: t.get("enable")),
     ("constants folded away", lost_the_constants,
      lambda t: t["family"] == "tied_outputs"),
+    ("two clock domains merged", clocks_merged,
+     lambda t: t.get("clock_roots", 1) > 1),
+    ("a flop left out of a root", a_flop_falls_out_of_the_grouping,
+     lambda t: t["family"] in WIDTH_IS_FLOPS),
+    ("inversion parity lost", inversion_parity_lost,
+     lambda t: t.get("clock_inverted", 0) > 0),
 ]
 
 
@@ -315,11 +355,34 @@ def main(argv):
 
     checked, by_rule, failures = verify(entries)
     variants = Counter(e.get("variant", "base") for e in entries)
+
+    # Which rules were ever asked for more than one answer. A rule whose
+    # declared value is the same on every circuit is one an implementation
+    # returning that value unconditionally would pass, and counting its uses
+    # towards a headline total flatters the total. Two of the constants below
+    # are inherent -- a combinational family has no flops by definition -- and
+    # they are still worth running, because a generator that accidentally infers
+    # a latch would break them. The distinction is between a rule that cannot
+    # fail and one that simply has not.
+    declared = defaultdict(set)
+    for entry in entries:
+        truth, graph = load(entry)
+        for rule, value, _, _ in rules(truth, graph):
+            declared[rule.split(" (")[0]].add(str(value))
+
     print(f"{len({e['name'] for e in entries})} circuits as {len(entries)} "
-          f"netlists {dict(variants)}, {checked} declared facts checked against "
-          f"what stage 3 independently found")
+          f"netlists {dict(variants)}, {len(by_rule)} rules, {checked} uses, "
+          f"checked against what stage 3 independently found")
+    constant = 0
     for rule, count in sorted(by_rule.items()):
-        print(f"  {count:>4}  {rule}")
+        values = sorted(declared[rule])
+        mark = ""
+        if len(values) == 1:
+            mark, constant = f"   always {values[0]}", constant + count
+        print(f"  {count:>4}  {rule}{mark}")
+    print(f"  {len(by_rule) - sum(1 for v in declared.values() if len(v) == 1)}"
+          f"/{len(by_rule)} rules were asked for more than one answer; "
+          f"{constant}/{checked} uses assert a constant")
 
     if failures:
         print(f"\n{len(failures)} DISAGREEMENTS")

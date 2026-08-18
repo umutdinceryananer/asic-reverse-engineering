@@ -210,6 +210,27 @@ SIGNAL = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 NOT_A_SIGNAL = {"1", "0"}
 
 
+def unwrap(expression):
+    """An expression with its enclosing parentheses removed, if it has any.
+
+    Only *enclosing* ones: `(A)&(B)` is returned unchanged, because its leading
+    bracket closes before the end. Written naively this would strip the two
+    outer characters off `(A)|(B)` and hand back `A)|(B`.
+    """
+    text = (expression or "").strip()
+    while text.startswith("(") and text.endswith(")"):
+        depth, closes_at = 0, len(text) - 1
+        for index, character in enumerate(text):
+            depth += (character == "(") - (character == ")")
+            if depth == 0:
+                closes_at = index
+                break
+        if closes_at != len(text) - 1:
+            break
+        text = text[1:-1].strip()
+    return text
+
+
 def pin_of(expression):
     """The single pin an expression names, or None if it is anything else.
 
@@ -217,10 +238,19 @@ def pin_of(expression):
     is all stage 3 needs; the leading `!` is the pin's active level, recorded
     separately. An expression naming more than one pin is not reduced, because
     guessing which of them matters is how a wrong netlist gets built.
+
+    The level is read *after* unwrapping. This library writes a combinational
+    output as `function : "(!A)"`, parenthesised, while it writes the sequential
+    fields bare -- so testing the raw first character for `!` gets `clear` right
+    and reports all 21 of the library's inverters as non-inverting. The clock
+    root walk in stage 3 then traces through an inverter and calls the path
+    straight, which is silent: the root is still correct and only the parity is
+    wrong. Caught by asking why no corpus circuit could ever put a flop on an
+    inverting clock path, and finding that none could be *reported*.
     """
     if not expression:
         return None, None
     names = [n for n in SIGNAL.findall(expression) if n not in NOT_A_SIGNAL]
     if len(set(names)) != 1:
         return None, None
-    return names[0], "low" if expression.strip().startswith("!") else "high"
+    return names[0], "low" if unwrap(expression).startswith("!") else "high"

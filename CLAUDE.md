@@ -19,7 +19,7 @@ case.
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | not started, next |
-| 5, synthetic corpus | **done**, 89 circuits x 2 mappings, gated by `verify_corpus.py` |
+| 5, synthetic corpus | **done**, 93 circuits x 2 mappings, gated by `verify_corpus.py` |
 | 6, inversion | not started |
 | 7, output extraction | not started |
 
@@ -98,9 +98,9 @@ python tools/sim/run.py warmup --netlist out/warmup/graph.v   # gate: round trip
 python tools/stage3_graph.py puzzle
 python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
 
-python tools/stage5_corpus.py             # 89 circuits, 178 netlists -> synth/
+python tools/stage5_corpus.py             # 93 circuits, 186 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
-python tools/verify_corpus.py             # gate: 622 declared facts vs stage 3
+python tools/verify_corpus.py             # gate: 11 rules, 662 uses vs stage 3
 python tools/verify_corpus.py --selftest  # gate: every rule fails on its own
                                           # corruption, or it is not a check
 ```
@@ -119,8 +119,8 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
 | 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
-| 5 | `verify_corpus.py`: 622 declared facts against what stage 3 found, over both mappings of all 89 circuits | passing |
-| 5 | `verify_corpus.py --selftest`: all 7 corruptions caught | passing |
+| 5 | `verify_corpus.py`: 11 rules, 662 uses against what stage 3 found, over both mappings of all 93 circuits | passing |
+| 5 | `verify_corpus.py --selftest`: all 10 corruptions caught | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
 
@@ -142,6 +142,17 @@ only in timing.
 **Liberty booleans are JSON strings.** `"clock": "false"`, and `bool("false")`
 is true. Use `common/liberty.boolean()`. Getting this wrong marks every
 combinational input as a clock and leaves the netlist valid.
+
+**Liberty writes combinational functions parenthesised and sequential fields
+bare.** `function : "(!A)"` but `clear : "!RESET_B"`. Reading the active level
+off the first character therefore gets every `clear` right and all 21 inverters
+in the library wrong. `liberty.pin_of` unwraps enclosing parentheses first;
+`liberty.unwrap` strips only *enclosing* ones, so `(A)&(B)` survives.
+
+**A constant a check always confirms is a check on nothing until something can
+make it vary.** Both halves are needed: a circuit that produces the other
+answer, and a producer able to report it. `verify_corpus.py` prints
+`always <value>` beside any rule whose declared value never varies.
 
 **Cells cannot be blackboxes past stage 3.** A graph can be walked without
 knowing what a cell computes; an SMT2 or CNF export cannot be written. The
@@ -296,8 +307,10 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
   corpus's median circuit held four flip flops against the puzzle's 92, and the
   aggregate totals hid it. The `scale_datapath` family brackets the target at 90,
   178 and 354 flops so a scaling problem appears as a trend.
-- **Count rules, not facts.** "622 declared facts" is ten rules times the corpus
-  size, and four of the ten assert a constant no circuit could violate.
+- **Count rules, not facts.** "662 declared facts" is eleven rules times the
+  corpus size. Four were constants; two have been made to vary, and the tool now
+  labels the rest. Asking why one of them could never be non-zero found a real
+  defect in `liberty.pin_of`.
 
 ## Documentation conventions
 

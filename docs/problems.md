@@ -748,11 +748,46 @@ rather than a two-way split in a toy.
 **Verdict: understood.** Worth recording because the check was written the day
 before and caught a defect in the circuit written to exercise it.
 
+### 31. Every inverter in the library was classified as a buffer
+
+**Symptom.** None visible. Stage 3's clock root walk reported that no flip flop
+in either target sat on an inverting clock path, and no corpus circuit could
+contradict it.
+
+**Cause.** `liberty.pin_of` read the active level off the first character of the
+expression. This library writes a combinational output as
+`function : "(!A)"` — parenthesised — while it writes the sequential fields
+`clear`, `clocked_on` and `preset` bare. So the same function got `clear`
+exactly right on all 107 sequential fields, and all 21 of the library's
+inverters exactly wrong.
+
+The consequence was narrow and completely silent. The walk still traced to the
+correct root, because it walks *through* a transparent cell either way; only the
+inversion parity was lost. Nothing that shipped before this session depended on
+it — measured across the whole library, the fix changes 30 combinational
+`function` results and no sequential field at all.
+
+**How it was found.** Not by a failing test. By asking, of a rule that always
+reported zero, whether it *could* report anything else — and finding that the
+producer could not. The rule was passing because nothing was able to fail it,
+which is the shape problem 23 is about, one level further down: there the check
+could not see the case, here the check could not be given the case.
+
+**Fix.** `liberty.unwrap` strips *enclosing* parentheses only, so `(A)&(B)` is
+left alone rather than becoming `A)&(B`, and the level is read after unwrapping.
+An `inverted_clock` family now puts half a register behind a real `clkinv`, so
+the rule has a non-zero answer to be checked against.
+
+**Verdict: understood.** The general form is worth stating: **a constant a check
+always confirms is a check on nothing until something can make it vary.** Both
+halves matter — a corpus that can produce the other answer, and a producer that
+can report it.
+
 ---
 
 ## The shapes these fall into
 
-Thirty problems, six recurring shapes.
+Thirty one problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source
@@ -775,8 +810,8 @@ happened.
 at 14. Each looked like a defect in the thing being measured and was a defect in
 the measuring.
 
-A sixth shape appears once problems 21 to 23 are in: **a check that passes
-without having been exercised.** The puzzle simulation passed with a defect in
+A sixth shape appears once problems 21 to 23 are in, and 31 belongs to it too:
+**a check that passes without having been exercised.** The puzzle simulation passed with a defect in
 the netlist, and the guard in 23 reported no conflict because it could not see
 the case it existed for. In both, a green result was read as evidence when it
 was only silence. The remedy is the same in both: make the check fail on

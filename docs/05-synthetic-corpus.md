@@ -27,7 +27,7 @@ absent here can be found unexplained; it cannot be identified.
 **More than one structure per function.** The claim above was untestable while
 every circuit was synthesised exactly once: a detector that had memorised one
 particular mapping of an adder would have scored perfectly. Each circuit is now
-mapped twice from one shared pre-mapping netlist, and 51 of 89 land on genuinely
+mapped twice from one shared pre-mapping netlist, and 51 of 93 land on genuinely
 different cell mixes.
 
 **Negative controls.** A corpus of only positive examples measures sensitivity
@@ -41,14 +41,14 @@ holds blocks feeding each other.
 
 ## The catalogue
 
-89 circuits, 19 families, five groups.
+93 circuits, 21 families, five groups.
 
 | Group | Count | Purpose |
 |---|---|---|
 | positive | 71 | can the detector find it |
 | negative | 6 | does it fire where it should not |
 | composed | 4 | does it survive blocks being merged |
-| structure | 5 | shapes the target has that ordinary synthesis does not produce |
+| structure | 9 | shapes the target has, and shapes a rule needs in order to fail |
 | scale | 3 | is it still true at the size of the target |
 
 Families: register, shift register, counter, accumulator, adder, subtractor,
@@ -64,7 +64,7 @@ machine laid out two ways, so a detector that only recognises one has learnt the
 encoding rather than the machine.
 
 **Held out.** Every third variant of each family is withheld from development:
-26 circuits for scoring, 63 to work against. The split is a fixed rule rather
+26 circuits for scoring, 67 to work against. The split is a fixed rule rather
 than a random draw, so "held out" means the same thing on every machine and
 every run, and it is decided once per circuit so that both mappings of a held
 out circuit stay held out together.
@@ -220,11 +220,11 @@ makes the case that detectors must normalise the suffix.
 ## Results
 
 ```
-89 circuits as 178 netlists (base, fast), 0 synthesis failures
-8593 cells, 2318 state elements
-51/89 circuits map to a different cell mix under the second flow
-held out for scoring 26 circuits, available for development 63
-vocabulary by function: 90% of corpus instances are of a kind the puzzle uses
+93 circuits as 186 netlists (base, fast), 0 synthesis failures
+8727 cells, 2414 state elements
+51/93 circuits map to a different cell mix under the second flow
+held out for scoring 26 circuits, available for development 67
+vocabulary by function: 91% of corpus instances are of a kind the puzzle uses
 ```
 
 How far apart the two mappings really are is worth stating separately, because
@@ -245,35 +245,73 @@ way of staying true. **A measurement that is not a program is a measurement that
 happened once.**
 
 ```
-89 circuits as 178 netlists, 622 declared facts checked
-   12  a reset port, with the reset in the logic    118  clock roots
-    4  constant nets                                118  flops on an inverting clock path
-    6  declared flip flop count                     118  flops under the clock root
-   12  distinct clock nets                           70  flops whose reset is a pin
-   30  flops whose data cone the enable reaches      78  width in flip flops
-   56  stateless
+93 circuits as 186 netlists, 11 rules, 662 uses
+   12  a reset port, with the reset in the logic   always True
+  126  clock roots                                   4  constant nets
+   14  declared flip flop count                     12  distinct clock nets
+  126  flops accounted for by the clock roots      126  flops on an inverting clock path
+   30  flops whose data cone the enable reaches     78  flops whose reset is a pin
+   56  stateless   always 0                         78  width in flip flops
+  9/11 rules were asked for more than one answer; 68/662 uses assert a constant
 RESULT: pass
 ```
 
-**That headline number deserves less credit than it looks like.** There are ten
-rules here, applied across 178 netlists. Four of the ten assert a constant no
-circuit in this corpus could violate — `clock roots` is always 1, `stateless`
-always 0, `flops on an inverting clock path` always 0 because no generator
-writes `negedge clk`. And `clock roots == 1` implies `flops under the clock
-root == all of them`, so those 118 pairs are one fact counted twice. The honest
-summary is **ten rules, four of them constant**, not 622 independent facts.
+**The count of facts is the wrong headline, and it was the headline for a
+while.** 662 is eleven rules times the corpus size, so the tool now reports
+rules and marks the ones whose declared value never varies. A rule only ever
+asked to confirm the same number is a rule an implementation returning that
+number unconditionally would pass.
+
+Four rules were constants when the question was first asked, and the two that
+mattered have been made to vary:
+
+| Rule | Was | Now |
+|---|---|---|
+| `clock roots` | always 1 | 1 or 2, from a `two_clocks` family |
+| `flops on an inverting clock path` | always 0 | 0, 4 or 8, from an `inverted_clock` family |
+| `constant nets` | always 2 | 2 or 5 |
+| `flops under the clock root` | restated `clock roots` | replaced by *flops accounted for by the roots*, which holds at any root count |
+
+Two constants remain and are labelled in the output. `stateless` is 0 because a
+combinational family has no flops by definition, and `a reset port` is always
+True — but that one has failed, in problem 26, so it is a constant that has not
+varied rather than one that cannot.
+
+The `clock roots` change is the one that bought something real. Every circuit
+was single clock, so the rule had only ever been asked to confirm the number 1 —
+which tests a walk that **under**-merges and never one that **over**-merges. A
+walk collapsing every clock in a design into one root would have passed on all
+of them.
+
+### The other constant turned out to be a defect
+
+`flops on an inverting clock path` was zero everywhere, and the reason was not
+only that no circuit had one. Stage 3 **could not have reported one**: this
+library writes a combinational output as `function : "(!A)"`, parenthesised, and
+the level was read from the expression's first character, so all 21 of the
+library's inverters were classified as buffers. The walk still found the right
+root, because it goes through a transparent cell either way, and only the parity
+was lost.
+
+Found by asking whether a rule that always answered zero *could* answer anything
+else. That is the whole value of the question: **a constant a check always
+confirms is a check on nothing until something can make it vary**, and both
+halves have to exist — a circuit that produces the other answer, and a producer
+that can report it.
 
 Every declared fact is checked against **every** mapping of the circuit that
 declared it. That is the structural invariance test, made at the stage 3 level
 and for free: a fact that only survives one particular mapping was a property of
 that mapping and not of the circuit.
 
-**`--selftest` feeds each rule the corruption it exists to catch** — the root
-walk removed, reset pins lost, a synchronous reset made asynchronous, a clock
-inverted, an extra flip flop, an enable reaching no cone, constants folded away
-— on a circuit that rule applies to and that passes cleanly beforehand. The
-first version ran all seven against one circuit and one went unnoticed for the
-uninteresting reason that its rule was never in play.
+**`--selftest` feeds each rule the corruption it exists to catch** — ten of
+them now: the root walk removed, reset pins lost, a synchronous reset made
+asynchronous, a clock inverted, an extra flip flop, a flop left out of a root,
+two clock domains merged, inversion parity lost, an enable reaching no cone,
+constants folded away. Each runs on a circuit that rule applies to and that
+passes cleanly beforehand. The first version ran all seven against one circuit
+and one went unnoticed for the uninteresting reason that its rule was never in
+play.
 
 ### What it found on its first run
 

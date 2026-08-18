@@ -73,6 +73,14 @@ whose output is a constant rather than an input. The walk carries the inversion
 parity, because a clock arriving through an odd number of inverters is a falling
 edge clock and a reset through one is active high.
 
+Reading the level took a correction. This library writes a combinational output
+as `function : "(!A)"`, parenthesised, and the sequential fields bare, so a test
+of the expression's first character for `!` gets `clear` right on all 107
+sequential fields and every one of the library's 21 inverters wrong. The walk
+still found the correct root — it goes through a transparent cell either way —
+and only the parity was lost, silently. `liberty.unwrap` strips enclosing
+parentheses before the level is read.
+
 This exists for one reason. **Bits of one register do not share a clock net.**
 The puzzle's 92 flip flops sit on 16 `clkbuf_8` branches, so grouping them by the
 net their `CLK` pin reaches splits every register into sixteen pieces. They share
@@ -85,15 +93,20 @@ with the flop's own `Q` on one leg. Where that is what stands in front of `D`, i
 is recorded: which mux, which net selects it, which leg is the hold.
 
 This is a **lower bound and is labelled as one**, because the corpus contains
-circuits whose enable we declared ourselves and three separate things happen to
+circuits whose enable we declared ourselves and four separate things happen to
 it. In a plain register the mux survives. In a counter, `if (en) q <= q + 1` is
 folded into the carry chain — `D[0] = q[0] ^ en`, `D[1] = q[1] ^ (q[0] & en)` —
 and no mux exists anywhere. In a register with a *synchronous* reset the mux
 survives but the reset's `nor2b` sits between it and `D`, and this search looks
-one cell back. Six of twenty-four declared enables are found.
+one cell back. And in the scale family the mux is factored away entirely: `D =
+en ? (acc ^ lfsr) : outr` becomes one `a21oi` with `Q` arriving two cells back.
+Six of thirty declared enables are found.
 
-Making the search cleverer is the wrong move: it buys a fourth shape and hides
-the fifth. Whether a register holds is a question about behaviour — is there an
+That fourth case is the general one and the first three are the exceptions. A
+plain register keeps its mux only because the data leg is a *port*; once that
+leg is computed, the mapper folds the select into the logic that computes it.
+Making the search cleverer is the wrong move: it buys a fifth shape and hides
+the sixth. Whether a register holds is a question about behaviour — is there an
 input assignment under which `D` equals `Q` — and it belongs to stage 4, which
 has a solver.
 
@@ -119,6 +132,7 @@ gives the nets that root depends on within one cycle.
 | Clock net drivers | `clkbuf_16` x2 | `clkbuf_8` x16 |
 | Flops per clock branch | 8, 8 | twelve of 6, four of 5 |
 | **Clock roots** | **1, `clk`, 16 flops** | **1, `clk`, 92 flops** |
+| Flops on an inverting clock path | 0 | 0 |
 | Transparent cells | 3 | 58: 32 `clkbuf`, 25 `inv`, 1 `buf` |
 | State elements | 16 `dfrtp_2` | 84 `dfrtp_2`, 4 `dfstp_2`, 4 `dfxtp_2` |
 | Holds found structurally | 16, all on `en` | 12, all on one net |
