@@ -64,10 +64,38 @@ and one output stops the run. Adding a rule is cheap; guessing is not.
 **A state element inventory**: clock, data source, output, reset, set per
 instance.
 
-**An enable**, where one exists. No sequential cell in this library carries an
-enable pin, so a held register is built as a mux in front of `D` with the flop's
-own `Q` on one leg. That is a structural fact, not an interpretation, so it is
-recorded: which mux, which net selects it, and which leg is the hold.
+**Signal roots**, by walking back through transparent cells. Which cells are
+transparent is read from liberty's function expression and never from the cell's
+name: a cell is transparent when its single output is its single input, possibly
+inverted. That catches `clkbuf`, `inv`, `buf` and `clkinv` without naming any of
+them, and correctly excludes `diode`, which drives no output, and `conb_1`,
+whose output is a constant rather than an input. The walk carries the inversion
+parity, because a clock arriving through an odd number of inverters is a falling
+edge clock and a reset through one is active high.
+
+This exists for one reason. **Bits of one register do not share a clock net.**
+The puzzle's 92 flip flops sit on 16 `clkbuf_8` branches, so grouping them by the
+net their `CLK` pin reaches splits every register into sixteen pieces. They share
+a clock *root*, and the graph now carries flops grouped by root for clock, reset
+and set alike.
+
+**A hold**, where the structure shows one. No sequential cell in this library
+carries an enable pin, so a held register can be built as a mux in front of `D`
+with the flop's own `Q` on one leg. Where that is what stands in front of `D`, it
+is recorded: which mux, which net selects it, which leg is the hold.
+
+This is a **lower bound and is labelled as one**, because the corpus contains
+circuits whose enable we declared ourselves and three separate things happen to
+it. In a plain register the mux survives. In a counter, `if (en) q <= q + 1` is
+folded into the carry chain — `D[0] = q[0] ^ en`, `D[1] = q[1] ^ (q[0] & en)` —
+and no mux exists anywhere. In a register with a *synchronous* reset the mux
+survives but the reset's `nor2b` sits between it and `D`, and this search looks
+one cell back. Six of twenty-four declared enables are found.
+
+Making the search cleverer is the wrong move: it buys a fourth shape and hides
+the fifth. Whether a register holds is a question about behaviour — is there an
+input assignment under which `D` equals `Q` — and it belongs to stage 4, which
+has a solver.
 
 **Constant nets**, from cell outputs whose liberty function is the literal `1` or
 `0`. Read from the function rather than from the cell's name, so a differently
@@ -90,8 +118,10 @@ gives the nets that root depends on within one cycle.
 | Clock nets | 2 | 16 |
 | Clock net drivers | `clkbuf_16` x2 | `clkbuf_8` x16 |
 | Flops per clock branch | 8, 8 | twelve of 6, four of 5 |
+| **Clock roots** | **1, `clk`, 16 flops** | **1, `clk`, 92 flops** |
+| Transparent cells | 3 | 58: 32 `clkbuf`, 25 `inv`, 1 `buf` |
 | State elements | 16 `dfrtp_2` | 84 `dfrtp_2`, 4 `dfstp_2`, 4 `dfxtp_2` |
-| With a mux enable | 16, all on `en` | 12, all on one net |
+| Holds found structurally | 16, all on `en` | 12, all on one net |
 | Reset nets | 1, `rst_n`, 16 pins | 1, `rst_n`, 88 pins |
 | Set nets | 0 | 1, `rst_n`, 88 pins |
 | Constant nets | 0 | 12, six 1 and six 0 |
@@ -102,7 +132,9 @@ Two of those rows are worth reading twice.
 
 The clock branches account for every state element exactly: 8 + 8 = 16, and
 twelve branches of six plus four of five = 92. Nothing is on an unclocked
-element and nothing is clocked twice.
+element and nothing is clocked twice. And every one of those branches resolves
+to the same root, two buffer hops back, named `clk` — which is the fact stage 4
+needs and the clock *net* count actively obscures.
 
 `rst_n` appears as **both** the reset net and the set net, because it clears 84
 flops and presets 4. Stage 1 counted those 4 `dfstp_2` from geometry; stage 3

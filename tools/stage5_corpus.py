@@ -50,7 +50,7 @@ import json
 import os
 import subprocess
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stage3_graph
@@ -411,12 +411,20 @@ def _sequential(family, name, width, enable, reset, body, ports, truth):
         f"input {size} {port}" if port in ("d", "si") else f"output reg {size} {port}"
         for port, size in ports.items())
     enable_port = ", input en" if enable else ""
+    # An asynchronous reset becomes a pin on the flop; a synchronous one becomes
+    # logic in front of D and leaves the flop with no reset pin at all. Two
+    # genuinely different shapes, and the corpus used to declare `sync` while
+    # emitting neither -- caught by tools/verify_corpus.py comparing the
+    # declaration against the flops stage 3 found.
     if reset == "async_reset":
         head = "always @(posedge clk or negedge rst_n)\n    if (!rst_n) q <= 0;\n    else "
         reset_port = ", input rst_n"
     elif reset == "async_set":
         head = ("always @(posedge clk or negedge rst_n)\n"
                 f"    if (!rst_n) q <= {{{width}{{1'b1}}}};\n    else ")
+        reset_port = ", input rst_n"
+    elif reset == "sync":
+        head = "always @(posedge clk)\n    if (!rst_n) q <= 0;\n    else "
         reset_port = ", input rst_n"
     else:
         head = "always @(posedge clk)\n    "
@@ -511,25 +519,54 @@ CONSTANT_CELL = "sky130_fd_sc_hd__conb_1"
 SINKS_PATH = f"{OUT_DIR}/clock_sinks.v"
 
 
-def synthesise(name, rtl_path, out_dir):
-    """Same flow for every circuit, and the same one the puzzle's cells came from."""
-    script = "; ".join([
-        f"read_verilog -lib {SINKS_PATH}",
-        f"read_verilog {rtl_path}",
-        f"hierarchy -check -top {name}",
-        "proc; opt; fsm; opt; memory; opt",
-        "techmap; opt",
-        f"dfflibmap -liberty {LIB_PATH}",
-        f"abc -liberty {LIB_PATH}",
-        f"clkbufmap -buf {CLOCK_BUFFER} X:A",
-        f"hilomap -hicell {CONSTANT_CELL} HI -locell {CONSTANT_CELL} LO",
-        "opt_clean",
-        "stat",
-        f"write_verilog -noattr {out_dir}/netlist.v",
-    ])
+# The same circuit mapped more than one way.
+#
+# `docs/solver-pipeline.md` calls the miter check "the more reliable of the two"
+# because synthesis rewrites structure and preserves function, so a block that
+# no longer looks like an adder still behaves as one. Every circuit here being
+# synthesised exactly once left that claim untestable: a detector that memorised
+# one particular mapping of an adder would have scored perfectly.
+#
+# Which knob to turn was measured rather than picked. `abc -D 250`, a delay
+# target, was the obvious candidate and changes nothing at all: identical cell
+# mix on every circuit tried. `-fast` stops abc short of its full optimisation
+# and genuinely rewrites -- on `adder_w8`, 24 cells over 6 types becomes 31 over
+# 10, only 10 instances survive unchanged, and the `maj3` carry chain is
+# replaced by `a31o` and `a21oi`, which are cells the puzzle uses and the base
+# flow never produced.
+#
+# Drive strength stays at `_1` under both, and is left alone on purpose. It is a
+# physical choice that changes no function; the corpus differing from the puzzle
+# there is what makes the case that detectors must normalise the suffix.
+VARIANTS = {"base": "", "fast": "-fast"}
+
+
+def synthesise(name, rtl_path, out_dirs):
+    """Map one circuit several ways, from one shared pre-mapping netlist.
+
+    `design -save` before the mapper and `design -load` before each variant is
+    what makes these variants of one function rather than two separately
+    compiled circuits: everything up to technology mapping is shared, and only
+    the mapping differs.
+    """
+    steps = [f"read_verilog -lib {SINKS_PATH}",
+             f"read_verilog {rtl_path}",
+             f"hierarchy -check -top {name}",
+             "proc; opt; fsm; opt; memory; opt",
+             "techmap; opt",
+             "design -save premap"]
+    for variant, extra in VARIANTS.items():
+        steps += ["design -load premap",
+                  f"dfflibmap -liberty {LIB_PATH}",
+                  f"abc -liberty {LIB_PATH} {extra}".strip(),
+                  f"clkbufmap -buf {CLOCK_BUFFER} X:A",
+                  f"hilomap -hicell {CONSTANT_CELL} HI -locell {CONSTANT_CELL} LO",
+                  "opt_clean",
+                  "stat",
+                  f"write_verilog -noattr {out_dirs[variant]}/netlist.v"]
     result = subprocess.run(
         ["docker", "run", "--rm", "-v", f"{os.path.abspath('.')}:/work",
-         "-w", "/work", IMAGE, "yosys", "-p", script],
+         "-w", "/work", IMAGE, "yosys", "-p", "; ".join(steps)],
         capture_output=True, text=True)
     return result.returncode, result.stdout + result.stderr
 
@@ -575,51 +612,79 @@ def main(list_only=False):
         with open(rtl_path, "w", encoding="utf-8") as handle:
             handle.write(verilog)
 
-        out_dir = f"{OUT_DIR}/{name}"
-        os.makedirs(out_dir, exist_ok=True)
-        code, log = synthesise(name, rtl_path, out_dir)
+        # Held out is decided once per circuit and inherited by every variant of
+        # it. Splitting variants across the boundary would let a held out
+        # circuit reach development work through its other mapping.
+        out_dirs = {variant: f"{OUT_DIR}/{name}" if variant == "base"
+                    else f"{OUT_DIR}/{name}__{variant}"
+                    for variant in VARIANTS}
+        for path in out_dirs.values():
+            os.makedirs(path, exist_ok=True)
+
+        code, log = synthesise(name, rtl_path, out_dirs)
         if code != 0:
             failures.append((name, log.strip().splitlines()[-1] if log else "?"))
             continue
 
-        netlist = f"{out_dir}/netlist.v"
-        cells = Counter(line.strip().split()[0]
-                        for line in open(netlist, encoding="utf-8")
-                        if line.strip().startswith("sky130"))
-        truth["cells"] = sum(cells.values())
-        truth["cell_mix"] = dict(cells.most_common())
+        for variant, out_dir in out_dirs.items():
+            entry = dict(truth, variant=variant, dir=out_dir)
+            netlist = f"{out_dir}/netlist.v"
+            cells = Counter(line.strip().split()[0]
+                            for line in open(netlist, encoding="utf-8")
+                            if line.strip().startswith("sky130"))
+            entry["cells"] = sum(cells.values())
+            entry["cell_mix"] = dict(cells.most_common())
 
-        # Through the same stage 3 the puzzle goes through. Stage 4 consumes
-        # graph.json, so a corpus that stopped at a netlist would be testing the
-        # detectors on a different kind of input than they will meet.
-        graph = stage3_graph.build(out_dir, name, lef_views, lib, quiet=True)
-        truth["graph"] = {
-            "cells": len(graph["cells"]),
-            "nets": len(graph["nets"]),
-            "flipflops": len(graph["flipflops"]),
-            "clock_nets": len(graph["clock_nets"]),
-            "cone_roots": len(graph["cone_roots"]),
-        }
+            # Through the same stage 3 the puzzle goes through. Stage 4 consumes
+            # graph.json, so a corpus that stopped at a netlist would be testing
+            # the detectors on a different kind of input than they will meet.
+            graph = stage3_graph.build(out_dir, name, lef_views, lib, quiet=True)
+            entry["graph"] = {
+                "cells": len(graph["cells"]),
+                "nets": len(graph["nets"]),
+                "flipflops": len(graph["flipflops"]),
+                "clock_nets": len(graph["clock_nets"]),
+                "cone_roots": len(graph["cone_roots"]),
+            }
+            with open(f"{out_dir}/truth.json", "w", encoding="utf-8") as handle:
+                json.dump(entry, handle, indent=1)
+            index.append(entry)
 
-        with open(f"{out_dir}/truth.json", "w", encoding="utf-8") as handle:
-            json.dump(truth, handle, indent=1)
-        index.append(truth)
-
-    print(f"\nsynthesised {len(index)}, failed {len(failures)}")
+    circuits = len({t["name"] for t in index})
+    print(f"\nsynthesised {circuits} circuits as {len(index)} netlists "
+          f"({', '.join(VARIANTS)}), failed {len(failures)}")
     for name, why in failures[:10]:
         print(f"  FAILED {name}: {why}")
 
     with open(f"{OUT_DIR}/index.json", "w", encoding="utf-8") as handle:
-        json.dump({"circuits": index, "held_out_every": HELD_OUT_EVERY},
-                  handle, indent=1)
+        json.dump({"circuits": index, "held_out_every": HELD_OUT_EVERY,
+                   "variants": list(VARIANTS)}, handle, indent=1)
     print(f"wrote {OUT_DIR}/index.json")
 
-    held = sum(1 for t in index if t["held_out"])
-    print(f"  held out for scoring: {held}, available for development: "
-          f"{len(index) - held}")
+    held = len({t["name"] for t in index if t["held_out"]})
+    print(f"  held out for scoring: {held} circuits, available for "
+          f"development: {circuits - held}")
     total = sum(t["cells"] for t in index)
     flops = sum(t["graph"]["flipflops"] for t in index)
     print(f"  {total} cells and {flops} state elements across the corpus")
+
+    # A variant that mapped to the same cells as the base tests nothing about
+    # structural invariance. How many actually differ is the honest measure of
+    # what this doubling bought, and it is not a number to assume.
+    by_name = defaultdict(dict)
+    for entry in index:
+        by_name[entry["name"]][entry["variant"]] = entry
+    for variant in VARIANTS:
+        if variant == "base":
+            continue
+        pairs = [(v["base"], v[variant]) for v in by_name.values()
+                 if "base" in v and variant in v]
+        differ = [(b, o) for b, o in pairs
+                  if Counter(b["cell_mix"]) != Counter(o["cell_mix"])]
+        moved = sum(sum((Counter(b["cell_mix"]) - Counter(o["cell_mix"])).values())
+                    for b, o in differ)
+        print(f"  variant {variant!r}: {len(differ)}/{len(pairs)} circuits mapped "
+              f"to a different cell mix, {moved} instances changed")
 
     # The corpus is only useful if it resembles the target. Measured, not
     # assumed.

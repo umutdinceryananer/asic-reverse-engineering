@@ -19,7 +19,7 @@ case.
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | not started, next |
-| 5, synthetic corpus | **done**, 86 circuits, built before stage 4 as required |
+| 5, synthetic corpus | **done**, 86 circuits x 2 mappings, gated by `verify_corpus.py` |
 | 6, inversion | not started |
 | 7, output extraction | not started |
 
@@ -98,8 +98,11 @@ python tools/sim/run.py warmup --netlist out/warmup/graph.v   # gate: round trip
 python tools/stage3_graph.py puzzle
 python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
 
-python tools/stage5_corpus.py             # 86 circuits -> synth/, out/synth/
+python tools/stage5_corpus.py             # 86 circuits, 172 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
+python tools/verify_corpus.py             # gate: 580 declared facts vs stage 3
+python tools/verify_corpus.py --selftest  # gate: every rule fails on its own
+                                          # corruption, or it is not a check
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -116,7 +119,8 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
 | 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
-| 5 | corpus: declared width equals the flip flops stage 3 finds, 86/86 | passing |
+| 5 | `verify_corpus.py`: 580 declared facts against what stage 3 found, over both mappings of all 86 circuits | passing |
+| 5 | `verify_corpus.py --selftest`: all 7 corruptions caught | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
 
@@ -143,14 +147,32 @@ combinational input as a clock and leaves the netlist valid.
 knowing what a cell computes; an SMT2 or CNF export cannot be written. The
 `function` expressions are carried in `graph.json` for stages 4 and 6.
 
-**Detectors must normalise the drive strength suffix.** `a21oi_1` and `a21oi_2`
-compute the same function. Corpus and puzzle overlap 5% on full cell names and
-87% on functions; matching on the full name would fail on the target.
+**Detectors must normalise the drive strength suffix, and reason about
+functions rather than cell types.** `a21oi_1` and `a21oi_2` compute the same
+function. Corpus and puzzle overlap 4% on full cell names and 86% on functions;
+matching on the full name would fail on the target. Beyond the suffix, 13 puzzle
+cell *functions* never appear in the corpus at all — 101 cells, of which
+`inv`/`buf` are transparent and `diode` has no function, leaving **65 of 738
+puzzle cells, 9%, that structural matching cannot name.** `graph.json` carries
+every cell's liberty function so a detector need not be limited that way.
 
 **Bits of one register do not share a clock net.** The puzzle's 92 flops sit on
 16 `clkbuf_8` branches. Grouping flops by clock net splits every register.
-Group by the clock *root*, walking back through buffers. The corpus's
-`clock_tree` family exists to make that failure visible.
+Stage 3 now resolves this: all 16 branches walk back two hops to one root named
+`clk`, and `graph.json` carries `clock_roots`, `reset_roots` and `set_roots`
+with the flops under each. Which cells are transparent comes from liberty's
+function — single output equal to single input, possibly inverted — never from
+the cell's name, so `clkbuf`, `inv`, `buf` and `clkinv` are all covered and
+`diode` and `conb_1` are correctly excluded. The corpus's `clock_tree` family
+exists to make the failure visible, and `verify_corpus.py` asserts one root.
+
+**A held register has no single structure.** Stage 3's search for a mux in front
+of D with Q fed back finds 6 of the corpus's 24 declared enables. Three shapes
+defeat it: a counter's enable is folded into the carry chain and no mux exists;
+a synchronous reset displaces the mux from D; the mux may be `mux2i`. Do not
+extend the pattern list — **"does this register hold" is a functional question**,
+∃ an input assignment where D ≡ Q, and it belongs to stage 4's solver. The
+structural count is a labelled lower bound.
 
 **Yosys `clkbufmap` fails silently in two ways.** Its argument is
 `-buf <cell> <out>:<in>`, so `X:A`; and it finds sinks by the `clkbuf_sink`
@@ -254,7 +276,16 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
 - **A passing test that was never able to fail is not evidence.** The puzzle
   simulation passed with a wrong netlist; the `conb_1` guard reported no
   conflict because it could not see the case it existed for. Exercise a check
-  against a known-bad input once, or it is only silence.
+  against a known-bad input once, or it is only silence. `verify_corpus.py
+  --selftest` is this rule made routine, and it caught its own blind spot on its
+  first run.
+- **A measurement that is not a program is a measurement that happened once.**
+  "The declared width equals the flip flops stage 3 finds, 86/86" sat in
+  `docs/05` as prose for a session. Written as a tool instead, it immediately
+  found six circuits whose answer key was wrong.
+- **A check that fires on a real defect is not thereby a correct check.** The
+  first reset rule reported the right circuits for the wrong reason and would
+  have gone on reporting them after the fix.
 
 ## Documentation conventions
 

@@ -608,9 +608,88 @@ reader's first run by a comparison written for a different purpose.
 
 ---
 
+## Answer keys: the corpus was wrong about itself
+
+These three were found the same afternoon, by the same tool, on its first run:
+`tools/verify_corpus.py`, which puts every fact a generator declared against
+what stage 3 independently found in the gate level result. They are grouped
+because the lesson is one lesson.
+
+### 26. Six circuits declared a synchronous reset and had no reset at all
+
+**Symptom.** `verify_corpus.py` reported twelve disagreements: every
+`register_w*_sync` and `register_w*_en_sync`, in both mappings, declared a reset
+and stage 3 found no flop with a reset pin.
+
+**Cause.** `_sequential` branched on `async_reset` and `async_set` and let
+everything else fall to an `else` that emits `always @(posedge clk)` with no
+reset logic and no reset port. `sync` reached that `else`. The truth said
+`reset: "sync"`, the RTL said nothing of the kind.
+
+**Why it matters more than it looks.** These circuits are an *answer key*.
+Stage 4's detectors were going to be scored against them, and six of them would
+have been scoring against a fact that was not in the circuit. A detector
+correctly reporting "no reset" would have been marked wrong.
+
+**Fix.** The generator now emits what it declares: `if (!rst_n) q <= 0;` inside
+a plain `posedge clk` block, which synthesises to reset logic in front of D and
+a flop with no reset pin. The check distinguishes the two shapes rather than
+asking whether a reset exists somewhere, because that weaker question is exactly
+the one that passed for months.
+
+**Verdict: understood.**
+
+### 27. The first version of the check would have passed the broken corpus
+
+**Symptom.** Not a symptom — this was caught by writing the check's own
+failure test before trusting it.
+
+**Cause.** The rule was written as "a circuit declaring any reset has flops with
+a reset or set pin", which is true of asynchronous resets and false of
+synchronous ones. It reported the right circuits for the wrong reason, and would
+have gone on reporting them after the generator was fixed.
+
+**Fix.** Two separate expectations: `async*` means every flop carries the pin,
+`sync` means no flop does and a reset port exists instead. Both directions can
+fail. `--selftest` corrupts a synchronous circuit into an asynchronous one and
+confirms the rule notices.
+
+**Verdict: understood.** The general form: a check that fires on a real defect
+is not thereby a correct check.
+
+### 28. The structural search for a held register is a lower bound, three ways
+
+**Symptom.** Stage 3 finds a hold as a mux in front of D with the flop's own Q
+on one leg. Against circuits that declare an enable, it finds 6 of 24.
+
+**Cause.** Three distinct ones, all measured against a declared enable:
+
+| Shape | What synthesis did |
+|---|---|
+| `register` | mux survives in front of D — found |
+| `counter` | enable folded into the carry chain: `D[0] = q[0] ^ en`, `D[1] = q[1] ^ (q[0] & en)`. No mux exists |
+| `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and D, and the search looks one cell back |
+
+**Fix, and the part that is not a fix.** The check was changed from "a hold
+survives as a mux", which is a claim about synthesis, to "the enable reaches the
+data cone of every flop it holds", which is a claim about the circuit and holds
+under all three shapes. The structural count is still reported, and the shapes
+that defeat it are listed by name, so a *new* way of losing a hold fails the
+run rather than blending into a rate.
+
+The real answer is stage 4's: whether a register holds is a question about
+behaviour — is there an input assignment under which D equals Q — and no
+enumeration of patterns closes it. Three shapes from thirteen families is
+evidence enough that the enumeration does not terminate.
+
+**Verdict: understood, and deliberately not fully fixed.** Making the structural
+search cleverer would buy a fourth shape and hide the fifth.
+
+---
+
 ## The shapes these fall into
 
-Twenty-five problems, five recurring shapes.
+Twenty-eight problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source
@@ -666,6 +745,14 @@ puzzle — a defect four passing gates had not. That is the strongest evidence i
 this document for the whole approach, so it is worth stating plainly: **the
 fallback was not redundant work, and the reasoning that nearly skipped it was
 "the primary path has never misbehaved."**
+
+Problems 26 to 28 are mechanism 1 again, pointed at the corpus. The generator's
+declaration and stage 3's reading of the synthesised result are two routes to
+the same fact, and the corpus had been sitting there for a session with the two
+never compared — because the comparison had been *made once, by hand, and
+written into prose*: "the declared width equals the flip flops stage 3 finds, 86
+out of 86." That sentence was true when written and had no way of staying true.
+A measurement that is not a program is a measurement that happened once.
 
 ---
 

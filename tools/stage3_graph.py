@@ -141,6 +141,66 @@ def bit_key(bit):
     return f"const:{bit}" if isinstance(bit, str) else f"n{bit}"
 
 
+def pass_through(cell_type, lib, pins):
+    """A cell that carries one input to one output, possibly inverting it.
+
+    Read from liberty's function expression, never from the cell's name. The
+    puzzle's clock tree is `clkbuf`, its data paths hold `inv` and one `buf`,
+    the corpus's mapper prefers `clkinv` for the same job, and a library is free
+    to name a buffer anything at all. What makes a cell transparent is that its
+    output is its input.
+
+    Returns {"input", "output", "inverting"} or None. `diode` drives no output
+    and is not transparent; `conb_1` drives a constant, not an input; `and2` has
+    two inputs and is not transparent.
+    """
+    entry = lib.get(cell_type)
+    if not entry or entry["sequential"]:
+        return None
+    driven = [(pin, info["function"]) for pin, info in entry["pins"].items()
+              if info.get("function")]
+    if len(driven) != 1:
+        return None
+    output, expression = driven[0]
+    source, level = liberty.pin_of(expression)
+    if source is None or level is None:
+        return None
+    # The named pin must be the cell's *only* input. Without this an `and2`
+    # whose function happened to mention one pin would look transparent.
+    if [pin for pin, direction in pins.items() if direction == "input"] != [source]:
+        return None
+    return {"input": source, "output": output, "inverting": level == "low"}
+
+
+def trace_root(net, driver_of, cells, transparent):
+    """Walk back through transparent cells to where a signal originates.
+
+    Bits of one register do not share a clock net: the puzzle's 92 flip flops
+    sit on 16 `clkbuf_8` branches, so grouping them by the net their CLK pin
+    reaches splits every register into sixteen pieces. They do share a clock
+    *root*, which is what this finds.
+
+    Returns (root net, whether the path inverts, how many cells it crossed).
+    Inversion is carried because a clock reaching a flop through an odd number
+    of inverters is a falling edge flop, and a reset through one is active high.
+    """
+    seen, inverting, hops = set(), False, 0
+    while net not in seen:
+        seen.add(net)
+        source = driver_of.get(net)
+        if source is None:
+            break
+        info = transparent.get(source["cell"])
+        if info is None or source["pin"] != info["output"]:
+            break
+        bits = cells[source["instance"]]["connections"].get(info["input"])
+        if not bits or len(bits) != 1:
+            break
+        net, hops = bit_key(bits[0]), hops + 1
+        inverting ^= info["inverting"]
+    return net, inverting, hops
+
+
 def build_graph(design, top, lef, lib):
     module = design["modules"][top]
     cells = module["cells"]
@@ -247,17 +307,63 @@ def build_graph(design, top, lef, lib):
             set_nets.add(record["set"])
         flipflops[instance] = record
 
-    # --- an enable implemented in logic rather than by a pin -----------------
-    #
-    # None of the sequential cells in this library carry an enable, so a held
-    # register is built as a mux in front of D with the flop's own Q on one leg.
-    # That is a structural fact, not an interpretation, so it belongs here.
     driver_of = {}
     for net, pins in net_pins.items():
         for pin in pins:
             if pin["direction"] == "output":
                 driver_of[net] = pin
 
+    # --- roots, past the buffers ---------------------------------------------
+    #
+    # Which nets are one signal distributed, rather than several signals. The
+    # rule this exists for is that flip flops of one register share a clock
+    # root and not a clock net.
+    transparent = {}
+    for cell_type in sorted(used):
+        info = pass_through(cell_type, lib, pins_of[cell_type])
+        if info:
+            transparent[cell_type] = info
+
+    net_roots = {}
+    for net in net_pins:
+        root, inverting, hops = trace_root(net, driver_of, cells, transparent)
+        if hops:
+            net_roots[net] = {"root": root, "inverting": inverting, "hops": hops}
+
+    def root_of(net):
+        return net_roots.get(net, {}).get("root", net) if net else None
+
+    for record in flipflops.values():
+        for role in ("clock", "reset", "set"):
+            record[f"{role}_root"] = root_of(record[role])
+            entry = net_roots.get(record[role]) if record[role] else None
+            record[f"{role}_inverted"] = bool(entry and entry["inverting"])
+
+    grouped = {}
+    for role, nets in (("clock", clock_nets), ("reset", reset_nets),
+                       ("set", set_nets)):
+        by_root = defaultdict(list)
+        for instance, record in sorted(flipflops.items()):
+            if record[role]:
+                by_root[record[f"{role}_root"]].append(instance)
+        grouped[role] = {root: sorted(members)
+                         for root, members in sorted(by_root.items())}
+
+    # --- an enable implemented in logic rather than by a pin -----------------
+    #
+    # None of the sequential cells in this library carry an enable, so a held
+    # register can be built as a mux in front of D with the flop's own Q on one
+    # leg. That is a structural fact, not an interpretation, so it belongs here.
+    #
+    # It is also only one of the forms a hold takes, and the corpus proves it.
+    # Every enabled counter in the corpus declares `if (en) q <= q + 1`, and
+    # synthesis absorbs the enable into the carry chain -- `D[0] = q[0] ^ en`,
+    # `D[1] = q[1] ^ (q[0] & en)` -- so the register holds with no mux anywhere
+    # in it and this search returns nothing for all four of its flops. What is
+    # found here is a lower bound, named `mux_feedback` so no later stage can
+    # mistake it for the answer to "is this register enabled". That question is
+    # functional -- is there an input assignment under which D equals Q -- and
+    # belongs to stage 4, which has a solver.
     for instance, record in flipflops.items():
         record["enable"] = None
         source = driver_of.get(record["data"])
@@ -272,6 +378,7 @@ def build_graph(design, top, lef, lib):
             continue
         select = mux["connections"].get("S")
         record["enable"] = {
+            "form": "mux_feedback",
             "net": bit_key(select[0]) if select else None,
             "mux": source["instance"],
             "held_when": "high" if held[0] == "A1" else "low",
@@ -356,6 +463,14 @@ def build_graph(design, top, lef, lib):
         "clock_nets": sorted(clock_nets),
         "reset_nets": sorted(reset_nets),
         "set_nets": sorted(set_nets),
+        # Where a net's signal originates, for the nets that are not their own
+        # origin. A net absent from this map is its own root, which keeps the
+        # map to the 30 or so entries that carry information.
+        "net_roots": net_roots,
+        "clock_roots": grouped["clock"],
+        "reset_roots": grouped["reset"],
+        "set_roots": grouped["set"],
+        "transparent_cells": transparent,
         "constant_nets": constant_nets,
         "flipflops": flipflops,
         "cone_roots": roots,
@@ -506,10 +621,27 @@ def build(out_dir, top, lef=None, lib=None, quiet=False):
               f"clock={roles['clock']} data={roles['data']} q={roles['q']} "
               f"reset={roles['reset']}({roles['reset_level']}) "
               f"set={roles['set']}({roles['set_level']})")
+    say(f"transparent cells: {len(graph['transparent_cells'])} types, "
+          f"{sum(1 for c in graph['cells'].values() if c['type'] in graph['transparent_cells'])} "
+          f"instances; {len(graph['net_roots'])} nets are not their own root")
+    for role in ("clock", "reset", "set"):
+        groups = graph[f"{role}_roots"]
+        if not groups:
+            continue
+        sizes = sorted((len(m) for m in groups.values()), reverse=True)
+        say(f"  {role}: {len(graph[role + '_nets'])} nets -> {len(groups)} root(s) "
+              f"{[graph['net_names'].get(r, r) for r in groups]}, "
+              f"flops per root {sizes}")
+    flipped = [i for i, r in graph["flipflops"].items()
+               if any(r.get(f"{role}_inverted") for role in ("clock", "reset", "set"))]
+    say(f"  flops reached through an inverting path: {len(flipped)}")
     say(f"cell functions kept for stages 4 and 6: "
           f"{len(graph['cell_functions'])} cell types")
     enabled = [i for i, r in graph["flipflops"].items() if r["enable"]]
-    say(f"  with an enable built from a mux in front of D: {len(enabled)}")
+    say(f"  holds found structurally, as a mux fed back from Q: {len(enabled)} "
+          f"of {len(graph['flipflops'])}. A lower bound: synthesis can absorb "
+          f"an enable into arithmetic and leave no mux. Stage 4 decides this "
+          f"functionally.")
     if enabled:
         nets = Counter(graph["net_names"].get(graph["flipflops"][i]["enable"]["net"],
                                               graph["flipflops"][i]["enable"]["net"])

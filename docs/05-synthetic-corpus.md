@@ -24,6 +24,12 @@ the corpus a *reference library* as well as a test set — and bounds what can
 ever be named, because a miter needs something to compare against. A structure
 absent here can be found unexplained; it cannot be identified.
 
+**More than one structure per function.** The claim above was untestable while
+every circuit was synthesised exactly once: a detector that had memorised one
+particular mapping of an adder would have scored perfectly. Each circuit is now
+mapped twice from one shared pre-mapping netlist, and 48 of 86 land on genuinely
+different cell mixes.
+
 **Negative controls.** A corpus of only positive examples measures sensitivity
 and never specificity: a detector that shouts "counter" at every register scores
 perfectly on a corpus of counters. So some circuits exist to *not* be detected,
@@ -137,36 +143,118 @@ One logical register spread over several clock nets, which is the puzzle's shape
 at a smaller size. A detector that survives these will not be grouping by clock
 net.
 
+## The same function, mapped more than one way
+
+Which knob to turn was measured rather than picked. `abc -D 250`, a delay
+target, was the obvious candidate and changes **nothing at all**: identical cell
+mix on every circuit tried. `-fast` stops `abc` short of its full optimisation
+and genuinely rewrites. On `adder_w8`, 24 cells over 6 types becomes 31 over 10,
+only 10 instances survive unchanged, and the `maj3` carry chain is replaced by
+`a31o` and `a21oi` — cells the puzzle uses and the base flow never produced.
+
+`design -save` before the mapper and `design -load` before each variant is what
+makes these variants of one *function*: everything up to technology mapping is
+shared and only the mapping differs. Held out is decided once per circuit and
+inherited by every variant, or a held out circuit would reach development work
+through its other mapping.
+
+Drive strength stays at `_1` under both, deliberately. It is a physical choice
+that changes no function; the corpus differing from the puzzle there is what
+makes the case that detectors must normalise the suffix.
+
 ## Results
 
 ```
-86 circuits, 0 synthesis failures
-1999 cells, 537 state elements
-85 clock buffers across 56 circuits
-4 conb_1 cells across 2 circuits
-held out for scoring 25, available for development 61
-vocabulary by function: 87% of corpus instances are of a kind the puzzle uses
+86 circuits as 172 netlists (base, fast), 0 synthesis failures
+4493 cells, 1074 state elements
+48/86 circuits map to a different cell mix under the second flow, 576 instances
+held out for scoring 25 circuits, available for development 61
+vocabulary by function: 86% of corpus instances are of a kind the puzzle uses
 ```
 
-**A consistency check that needs no detector.** The generator declares a width;
-stage 3 independently reports how many flip flops it found. For every sequential
-circuit the two agree, and every combinational circuit reports zero. That is 86
-out of 86, and it exercises the generators and stage 3 at once.
+## The answer key, checked
+
+`tools/verify_corpus.py` puts every fact a generator declared against what stage
+3 independently found in the synthesised result. The two are independent: one is
+what was asked for, the other is what a tool read out of the gate level netlist,
+and where they disagree it is not knowable in advance which is wrong.
+
+This existed once as a sentence in this document — "the declared width equals
+the flip flops stage 3 finds, 86 out of 86". It was true when written and had no
+way of staying true. **A measurement that is not a program is a measurement that
+happened once.**
+
+```
+86 circuits as 172 netlists, 580 declared facts checked
+   12  a reset port, with the reset in the logic     112  clock roots
+    4  constant nets                                 112  flops on an inverting clock path
+    6  distinct clock nets                           112  flops under the clock root
+   24  flops whose data cone the enable reaches       64  flops whose reset is a pin
+   56  stateless                                      78  width in flip flops
+RESULT: pass
+```
+
+Every declared fact is checked against **every** mapping of the circuit that
+declared it. That is the structural invariance test, made at the stage 3 level
+and for free: a fact that only survives one particular mapping was a property of
+that mapping and not of the circuit.
+
+**`--selftest` feeds each rule the corruption it exists to catch** — the root
+walk removed, reset pins lost, a synchronous reset made asynchronous, a clock
+inverted, an extra flip flop, an enable reaching no cone, constants folded away
+— on a circuit that rule applies to and that passes cleanly beforehand. The
+first version ran all seven against one circuit and one went unnoticed for the
+uninteresting reason that its rule was never in play.
+
+### What it found on its first run
+
+**Six circuits declared a synchronous reset and had no reset at all.** The
+generator branched on `async_reset` and `async_set` and let `sync` fall through
+to an `else` emitting no reset and no reset port. These are an answer key:
+stage 4's detectors were going to be scored against them, and a detector
+correctly reporting "no reset" would have been marked wrong. The generator now
+emits what it declares, and the check distinguishes the two shapes rather than
+asking whether a reset exists somewhere — which is the weaker question that had
+been passing.
+
+**The structural search for a held register finds 6 of 24 declared enables**, in
+three distinct ways, all measured against ground truth we wrote:
+
+| Shape | What synthesis did |
+|---|---|
+| `register` | mux survives in front of `D` — found |
+| `counter` | enable folded into the carry chain, `D[0] = q[0] ^ en`. No mux exists |
+| `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and `D` |
+
+The rule was changed from "a hold survives as a mux", which is a claim about
+synthesis, to "the enable reaches the data cone of every flop it holds", which
+is a claim about the circuit and holds under all three. The structural count is
+still reported and the shapes that defeat it are listed by name, so a *fourth*
+way of losing a hold fails the run rather than blending into a rate.
 
 ## Known gaps
 
-**No general buffering.** 17 of the puzzle's cell functions still never appear,
-and `buf` and `inv` are among them: with no timing constraint the mapper never
-inserts a plain buffer. Lower risk than the clock tree was, since a buffer in a
-data path is a one input one output cell a detector can walk through, but it is
-untested.
+**13 of the puzzle's cell functions never appear**, down from 17 once the second
+mapping was added. They account for 101 of the puzzle's 738 cells, 14%. Three of
+those thirteen do not need naming:
 
-**`diode`** never appears and never will. Antenna diodes are a manufacturing
-construct with no function; stage 3 already carries them as cells attached to a
-net and stage 4 should filter them by role.
+| | | |
+|---|---|---|
+| `inv`, `buf` | 26 cells | transparent; stage 3 walks through them by function, and the corpus's 102 `clkinv` exercise the same code |
+| `diode` | 10 cells | an antenna diode is a manufacturing construct with no function at all |
+
+That leaves **65 of 738 puzzle cells, 9%, of a function the corpus cannot
+name** — the largest being `and2b` at 30. Halved from 18%, and it is a bound on
+*structural* matching only: a miter compares behaviour, and the graph carries
+every cell's liberty function for exactly this reason. It is the number that
+makes the case that **detectors must reason about what a cell computes, not
+about which cell it is.**
 
 **Fewer constants than the target.** Four `conb_1` cells against the puzzle's
 six. The shape exists; the density does not.
+
+**Drive strength.** The corpus is `_1` throughout and the puzzle is mostly `_2`.
+Left alone on purpose — see above.
 
 **The corpus cannot prove its own completeness.** This is not fixable and should
 not be papered over. The answer is stage 4's coverage report: after the
