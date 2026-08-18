@@ -38,7 +38,7 @@ SUFFIX = f"__{CORNER}.lib.json"
 
 # Bumped whenever `parse` changes what it extracts, so a stale distilled cache
 # is rebuilt rather than believed.
-FORMAT = 2
+FORMAT = 3
 CACHE = "_liberty_functions.json"
 
 # Liberty writes a group as "ff,IQ,IQ_N" or "latch,IQ,IQ_N" once flattened into
@@ -88,7 +88,11 @@ def parse(text):
                 "preset": value.get("preset"),
                 "state": key.split(",")[1:],
             }
-    return {"pins": pins, "sequential": sequential}
+    # Area is kept because synthesis needs it: the mapper chooses between cells
+    # that compute the same function by cost, and without an area it has no
+    # reason to prefer a small gate over a large one.
+    return {"pins": pins, "sequential": sequential,
+            "area": raw.get("area")}
 
 
 def load(directory, rebuild=False):
@@ -124,6 +128,82 @@ def load(directory, rebuild=False):
     with open(cache_path, "w", encoding="utf-8") as handle:
         json.dump({"stamp": stamp, "cells": library}, handle)
     return library
+
+
+# Cell families a low power flow brings and this design's flow did not. The
+# puzzle instantiates none of them, and offering them to the mapper would build
+# a corpus out of a vocabulary the target never used -- which is the one thing
+# `docs/solver-pipeline.md` asks stage 5 to avoid.
+#
+# This is deliberately an exclusion by *design intent*, not by drive strength or
+# by "what the puzzle happens to contain". Narrowing to exactly the puzzle's 67
+# cell types would tune the test set to the target and make the detector scores
+# meaningless.
+EXCLUDED_FAMILIES = ("lpflow_",)
+
+
+def write_lib(library, path, cells=None):
+    """Emit a minimal liberty text file, which is what Yosys can actually read.
+
+    Yosys maps logic onto a cell library through `abc -liberty` and
+    `dfflibmap -liberty`, and both want liberty *text*. This PDK publishes
+    liberty as per cell, per corner JSON instead, so the text has to be
+    reconstructed.
+
+    Only what a mapper uses is written: area, pin directions, output functions,
+    and the sequential group. Everything else in the source is timing and power
+    characterisation, which nothing in this pipeline reads.
+
+    This file is what lets stage 5 synthesise the corpus through the same cell
+    vocabulary the puzzle uses. Without it the corpus would be built from
+    generic gates and would not resemble what the detectors have to work on.
+    """
+    names = sorted(cells if cells is not None else library)
+    names = [n for n in names
+             if not any(f in n for f in EXCLUDED_FAMILIES)]
+    lines = ['library(sky130_fd_sc_hd) {',
+             '  delay_model : table_lookup;',
+             '  time_unit : "1ns";',
+             '  voltage_unit : "1V";',
+             '  current_unit : "1mA";',
+             '  capacitive_load_unit(1, pf);']
+    written = 0
+    for name in names:
+        entry = library.get(name)
+        if entry is None:
+            continue
+        outputs = {p: i for p, i in entry["pins"].items()
+                   if i["direction"] == "output"}
+        # A cell with no output function is one a mapper cannot use. Physical
+        # only cells -- fill, tap, decap -- are exactly that, and are skipped
+        # rather than emitted as something the mapper might try to pick.
+        if not outputs or not all(i["function"] for i in outputs.values()):
+            continue
+        lines.append(f'  cell({name}) {{')
+        lines.append(f'    area : {entry.get("area") or 1.0};')
+        state = entry["sequential"]
+        if state:
+            group = ",".join(state["state"]) or "IQ,IQ_N"
+            lines.append(f'    {state["kind"]}({group}) {{')
+            for field in ("clocked_on", "next_state", "clear", "preset"):
+                if state.get(field):
+                    lines.append(f'      {field} : "{state[field]}";')
+            lines.append('    }')
+        for pin, info in sorted(entry["pins"].items()):
+            lines.append(f'    pin({pin}) {{')
+            lines.append(f'      direction : {info["direction"]};')
+            if info["clock"]:
+                lines.append('      clock : true;')
+            if info["function"]:
+                lines.append(f'      function : "{info["function"]}";')
+            lines.append('    }')
+        lines.append('  }')
+        written += 1
+    lines.append('}')
+
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(lines) + "\n")
+    return written
 
 
 SIGNAL = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")

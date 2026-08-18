@@ -18,3 +18,7 @@ Thumbs.db
 
 # Downloaded PDK cell library, fetched by tools/fetch_pdk.py
 pdk/
+
+# Generated corpus RTL. Reproducible from tools/stage5_corpus.py, and the
+# generators are the artifact worth reviewing, not their output.
+synth/

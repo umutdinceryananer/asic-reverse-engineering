@@ -18,8 +18,8 @@ case.
 | 1, cell recognition | **done**, gated |
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
-| 4, detectors | not started |
-| 5, synthetic corpus | not started, build it *before* stage 4 |
+| 4, detectors | not started, next |
+| 5, synthetic corpus | **done**, 86 circuits, built before stage 4 as required |
 | 6, inversion | not started |
 | 7, output extraction | not started |
 
@@ -97,6 +97,9 @@ python tools/stage3_graph.py warmup       # -> out/warmup/graph.{json,v}
 python tools/sim/run.py warmup --netlist out/warmup/graph.v   # gate: round trip
 python tools/stage3_graph.py puzzle
 python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
+
+python tools/stage5_corpus.py             # 86 circuits -> synth/, out/synth/
+python tools/stage5_corpus.py --list      # the catalogue, without synthesising
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -113,6 +116,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
 | 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
+| 5 | corpus: declared width equals the flip flops stage 3 finds, 86/86 | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
 
@@ -138,6 +142,20 @@ combinational input as a clock and leaves the netlist valid.
 **Cells cannot be blackboxes past stage 3.** A graph can be walked without
 knowing what a cell computes; an SMT2 or CNF export cannot be written. The
 `function` expressions are carried in `graph.json` for stages 4 and 6.
+
+**Detectors must normalise the drive strength suffix.** `a21oi_1` and `a21oi_2`
+compute the same function. Corpus and puzzle overlap 5% on full cell names and
+87% on functions; matching on the full name would fail on the target.
+
+**Bits of one register do not share a clock net.** The puzzle's 92 flops sit on
+16 `clkbuf_8` branches. Grouping flops by clock net splits every register.
+Group by the clock *root*, walking back through buffers. The corpus's
+`clock_tree` family exists to make that failure visible.
+
+**Yosys `clkbufmap` fails silently in two ways.** Its argument is
+`-buf <cell> <out>:<in>`, so `X:A`; and it finds sinks by the `clkbuf_sink`
+attribute, which cells from `dfflibmap`/`abc` do not carry. Read the blackbox
+library first with clock pins marked from liberty.
 
 **PDK cache layout matters.** `.gds` and `.lef` are flat in
 `pdk/sky130_fd_sc_hd/`; `.v` keeps the library's directory structure, because

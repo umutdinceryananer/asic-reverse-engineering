@@ -1,0 +1,666 @@
+"""Stage 5, synthetic corpus. Circuits whose answer we already know.
+
+Stage 4 will write detectors: algorithms that say "these eight flops are a
+counter". On the puzzle there is no way to check such a claim, because if we
+could check it we would not need the detector. So the test set has to be built
+first, out of circuits whose answer is known because we wrote them.
+
+`docs/solver-pipeline.md` is explicit that this comes *before* the detectors:
+"detectors written without a test set cannot be validated."
+
+## What the corpus has to be, and what it cannot be
+
+It cannot be complete. A puzzle designed to be reverse engineered is not obliged
+to contain textbook blocks, and no list of families can be proven to cover it.
+Three things are done about that, none of which is guessing harder.
+
+**Functional detection over structural.** The spec calls the miter check "the
+more reliable of the two": synthesis rewrites structure but preserves function,
+so a block that no longer looks like an adder still behaves as one. The corpus
+is therefore not only a test set, it is the *reference library* those miters
+compare against. That also bounds what can ever be named: a miter needs
+something to compare with, so a structure absent from this corpus can be found
+unexplained but not identified.
+
+**Negative controls.** A corpus of only positive examples measures sensitivity
+and never specificity. A detector that shouts "counter" at every register scores
+perfectly on a corpus of counters. So the corpus carries circuits that must
+*not* trigger a given detector, and stage 4 is scored on both.
+
+**Composition.** Synthesis merges logic across module boundaries, which the spec
+names as a failure mode. Blocks standing alone are the easy case; the corpus
+also holds blocks feeding each other, so a detector is tested on the case it
+will actually meet.
+
+## Matching the target's vocabulary
+
+Each circuit is synthesised through the same Yosys flow onto the same PDK, so
+the cell mix resembles what stage 2 recovers rather than a set of generic gates.
+The reconstructed liberty excludes the low power cell families, which belong to
+a flow this design did not use; it is not narrowed to the puzzle's own 67 cell
+types, because tuning the test set to the target would make the scores
+meaningless.
+
+Usage:
+    python tools/stage5_corpus.py              # generate, synthesise, graph
+    python tools/stage5_corpus.py --list       # what would be generated
+"""
+
+import json
+import os
+import subprocess
+import sys
+from collections import Counter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import stage3_graph
+from common import liberty
+from common.lef import load as load_lef
+from stage1_cells import PDK_DIR
+
+IMAGE = "gds-teardown-eda:latest"
+RTL_DIR = "synth"
+OUT_DIR = "out/synth"
+LIB_PATH = f"{OUT_DIR}/sky130_fd_sc_hd.lib"
+
+# Circuits are assigned to the held out split by a fixed rule rather than by a
+# random draw, so that "held out" means the same thing on every machine and in
+# every rerun. Every third variant of each family is withheld.
+HELD_OUT_EVERY = 3
+
+
+# --- generators ------------------------------------------------------------
+#
+# Each returns (verilog, truth). `truth` is what stage 4 has to recover: the
+# family, the parameters, and which ports carry what. It is the answer key, so
+# it is written from the generator's own arguments and never inferred back out
+# of the result.
+
+def register(width, enable, reset):
+    body = "q <= d;" if not enable else "if (en) q <= d;"
+    return _sequential("register", f"register_w{width}"
+                       f"{'_en' if enable else ''}_{reset}",
+                       width, enable, reset, body,
+                       ports={"d": f"[{width-1}:0]", "q": f"[{width-1}:0]"},
+                       truth={"family": "register", "width": width,
+                              "enable": enable, "reset": reset})
+
+
+def shift_register(width, direction, reset):
+    if direction == "left":
+        body = f"q <= {{q[{width-2}:0], si}};"
+    else:
+        body = f"q <= {{si, q[{width-1}:1]}};"
+    return _sequential("shift_register",
+                       f"shift_{direction}_w{width}_{reset}",
+                       width, False, reset, body,
+                       ports={"si": "", "q": f"[{width-1}:0]"},
+                       truth={"family": "shift_register", "width": width,
+                              "direction": direction, "reset": reset,
+                              "serial_input": "si"})
+
+
+def counter(width, direction, enable, reset):
+    step = "+ 1'b1" if direction == "up" else "- 1'b1"
+    body = f"q <= q {step};"
+    if enable:
+        body = f"if (en) {body}"
+    return _sequential("counter",
+                       f"counter_{direction}_w{width}"
+                       f"{'_en' if enable else ''}_{reset}",
+                       width, enable, reset, body,
+                       ports={"q": f"[{width-1}:0]"},
+                       truth={"family": "counter", "width": width,
+                              "direction": direction, "enable": enable,
+                              "reset": reset})
+
+
+def lfsr(width, taps, style):
+    if style == "fibonacci":
+        feed = " ^ ".join(f"q[{t}]" for t in taps)
+        body = f"q <= {{q[{width-2}:0], {feed}}};"
+    else:
+        terms = [f"q[{t}] ^ q[{width-1}]" if t in taps else f"q[{t}]"
+                 for t in range(width - 1)]
+        body = f"q <= {{{', '.join(reversed(terms))}, q[{width-1}]}};"
+    return _sequential("lfsr", f"lfsr_{style}_w{width}",
+                       width, False, "async_set", body,
+                       ports={"q": f"[{width-1}:0]"},
+                       truth={"family": "lfsr", "width": width,
+                              "taps": taps, "style": style})
+
+
+def accumulator(width):
+    return _sequential("accumulator", f"accumulator_w{width}",
+                       width, True, "async_reset", "if (en) q <= q + d;",
+                       ports={"d": f"[{width-1}:0]", "q": f"[{width-1}:0]"},
+                       truth={"family": "accumulator", "width": width})
+
+
+def serial_adder(width):
+    """One bit of a sum per clock, which is what a serial input implies.
+
+    The puzzle's `I` port is one bit wide, so whatever it does with its input
+    does it a bit at a time. Textbook corpus circuits take their operands in
+    parallel and would leave that whole shape untested.
+    """
+    name = f"serial_adder_w{width}"
+    verilog = f"""module {name} (input clk, input rst_n, input a, input b,
+                  output so, output reg carry);
+  assign so = a ^ b ^ carry;
+  always @(posedge clk or negedge rst_n)
+    if (!rst_n) carry <= 1'b0;
+    else carry <= (a & b) | (a & carry) | (b & carry);
+endmodule
+"""
+    return verilog, {"family": "serial_adder", "width": width,
+                     "serial_inputs": ["a", "b"], "serial_output": "so"}
+
+
+def crc(width, poly):
+    """An LFSR with the input mixed in, which is what a stream checker is."""
+    name = f"crc_w{width}"
+    terms = []
+    for bit in range(width):
+        if bit == 0:
+            terms.append("feedback")
+        elif (poly >> bit) & 1:
+            terms.append(f"q[{bit-1}] ^ feedback")
+        else:
+            terms.append(f"q[{bit-1}]")
+    assign = ", ".join(reversed(terms))
+    verilog = f"""module {name} (input clk, input rst_n, input si,
+                  output reg [{width-1}:0] q);
+  wire feedback = q[{width-1}] ^ si;
+  always @(posedge clk or negedge rst_n)
+    if (!rst_n) q <= {width}'d0;
+    else q <= {{{assign}}};
+endmodule
+"""
+    return verilog, {"family": "crc", "width": width, "polynomial": poly,
+                     "serial_input": "si"}
+
+
+def adder(width, carry):
+    name = f"adder_w{width}{'_cio' if carry else ''}"
+    if carry:
+        verilog = f"""module {name} (input [{width-1}:0] a, input [{width-1}:0] b,
+                  input ci, output [{width-1}:0] s, output co);
+  assign {{co, s}} = a + b + ci;
+endmodule
+"""
+    else:
+        verilog = f"""module {name} (input [{width-1}:0] a, input [{width-1}:0] b,
+                  output [{width-1}:0] s);
+  assign s = a + b;
+endmodule
+"""
+    return verilog, {"family": "adder", "width": width, "carry": carry}
+
+
+def subtractor(width):
+    name = f"subtractor_w{width}"
+    return f"""module {name} (input [{width-1}:0] a, input [{width-1}:0] b,
+                  output [{width-1}:0] d, output borrow);
+  assign {{borrow, d}} = a - b;
+endmodule
+""", {"family": "subtractor", "width": width}
+
+
+def comparator(width, kind):
+    op = {"eq": "==", "lt": "<", "gt": ">"}[kind]
+    name = f"comparator_{kind}_w{width}"
+    return f"""module {name} (input [{width-1}:0] a, input [{width-1}:0] b,
+                  output r);
+  assign r = (a {op} b);
+endmodule
+""", {"family": "comparator", "width": width, "kind": kind}
+
+
+def multiplexer(width, inputs):
+    select = max(1, (inputs - 1).bit_length())
+    name = f"mux_w{width}_n{inputs}"
+    lines = [f"module {name} (input [{select-1}:0] s,"]
+    lines += [f"  input [{width-1}:0] d{i}," for i in range(inputs)]
+    lines.append(f"  output reg [{width-1}:0] y);")
+    lines.append("  always @(*) case (s)")
+    for i in range(inputs):
+        lines.append(f"    {select}'d{i}: y = d{i};")
+    lines.append(f"    default: y = {width}'d0;")
+    lines.append("  endcase")
+    lines.append("endmodule")
+    return "\n".join(lines) + "\n", {"family": "multiplexer", "width": width,
+                                     "inputs": inputs}
+
+
+def decoder(bits):
+    name = f"decoder_b{bits}"
+    return f"""module {name} (input [{bits-1}:0] a, input en,
+                  output [{2**bits-1}:0] y);
+  assign y = en ? ({2**bits}'d1 << a) : {2**bits}'d0;
+endmodule
+""", {"family": "decoder", "input_bits": bits, "outputs": 2 ** bits}
+
+
+def fsm(states, encoding):
+    """A ring of states that advances on `go` and flags the last one.
+
+    The encoding is passed to Yosys as an attribute rather than written by hand,
+    because the point of having both variants is to see the same behaviour laid
+    out two different ways: binary packs the state into log2(N) flops, one-hot
+    spends one flop per state. A detector that only recognises one of them has
+    learnt the encoding rather than the machine.
+    """
+    identifier = encoding.replace("-", "")
+    name = f"fsm_s{states}_{identifier}"
+    bits = max(1, (states - 1).bit_length())
+    lines = [f'(* fsm_encoding = "{encoding}" *)',
+             f"module {name} (input clk, input rst_n, input go, "
+             "output reg done);",
+             f"  reg [{bits-1}:0] state;",
+             "  always @(posedge clk or negedge rst_n)",
+             f"    if (!rst_n) begin",
+             f"      state <= {bits}'d0;",
+             "      done  <= 1'b0;",
+             "    end else begin",
+             "      case (state)"]
+    for current in range(states):
+        following = (current + 1) % states
+        if current == 0:
+            step = f"go ? {bits}'d{following} : {bits}'d0"
+        else:
+            step = f"{bits}'d{following}"
+        lines.append(f"        {bits}'d{current}: state <= {step};")
+    lines += [f"        default: state <= {bits}'d0;",
+              "      endcase",
+              f"      done <= (state == {bits}'d{states - 1});",
+              "    end",
+              "endmodule"]
+    return "\n".join(lines) + "\n", {"family": "fsm", "states": states,
+                                     "encoding": encoding}
+
+
+# --- negative controls ------------------------------------------------------
+#
+# These exist to be *not* detected. Without them a detector that fires on
+# everything scores perfectly.
+
+def parallel_register(width):
+    """A register whose input comes from outside. Not a counter, not a shift."""
+    verilog, truth = register(width, False, "async_reset")
+    truth = {"family": "register", "width": width, "enable": False,
+             "reset": "async_reset",
+             "must_not_detect": ["counter", "shift_register", "lfsr"]}
+    return verilog.replace("module register_", "module negctl_register_"), truth
+
+
+def xor_tree(width):
+    """Dense XOR logic that is not an LFSR, because it holds no state."""
+    name = f"negctl_xor_tree_w{width}"
+    return f"""module {name} (input [{width-1}:0] a, output y);
+  assign y = ^a;
+endmodule
+""", {"family": "xor_tree", "width": width,
+      "must_not_detect": ["lfsr", "counter", "adder"]}
+
+
+def scrambled_logic(width):
+    """Arbitrary combinational logic with an adder-like cell mix and no meaning."""
+    name = f"negctl_scrambled_w{width}"
+    terms = " | ".join(f"(a[{i}] & ~b[{(i * 3) % width}])" for i in range(width))
+    return f"""module {name} (input [{width-1}:0] a, input [{width-1}:0] b,
+                  output [{width-1}:0] y);
+  assign y = {{a[{width-1}:1] ^ b[{width-2}:0], {terms}}};
+endmodule
+""", {"family": "scrambled_logic", "width": width,
+      "must_not_detect": ["adder", "subtractor", "comparator", "counter"]}
+
+
+# --- composed ---------------------------------------------------------------
+#
+# Synthesis merges logic across module boundaries, so a detector that only ever
+# saw isolated blocks has not been tested on the case it will meet.
+
+def clock_tree(width, branches):
+    """A register whose bits are clocked from different branches of a tree.
+
+    The puzzle distributes its clock through sixteen `clkbuf_8` branches, so
+    bits of one logical register do not share a clock *net*. A detector that
+    groups flops by the net their CLK reaches would split that register into
+    sixteen pieces and find nothing.
+
+    `clkbufmap` inserts one buffer per clock net and cannot split fanout, so the
+    tree is written here in the RTL, which is the only place this pipeline can
+    put it without a real clock tree synthesis tool. It is a one level tree
+    rather than the puzzle's, which is enough to make the failure visible: a
+    detector that survives this will not group by clock net.
+    """
+    name = f"clock_tree_w{width}_b{branches}"
+    per = max(1, width // branches)
+    lines = [f"module {name} (input clk, input rst_n, input [{width-1}:0] d,",
+             f"  output [{width-1}:0] q);"]
+    for branch in range(branches):
+        lines.append(f"  wire clk_b{branch};")
+        lines.append(f"  {CLOCK_BUFFER} cb{branch} (.A(clk), .X(clk_b{branch}));")
+    for branch in range(branches):
+        low = branch * per
+        high = min(width, low + per) - 1
+        if low > high:
+            continue
+        lines.append(f"  reg [{high}:{low}] r{branch};")
+        lines.append(f"  always @(posedge clk_b{branch} or negedge rst_n)")
+        lines.append(f"    if (!rst_n) r{branch} <= 0; "
+                     f"else r{branch} <= d[{high}:{low}];")
+        lines.append(f"  assign q[{high}:{low}] = r{branch};")
+    lines.append("endmodule")
+    return "\n".join(lines) + "\n", {
+        "family": "clock_tree", "width": width, "branches": branches,
+        "note": "one logical register spread over several clock nets"}
+
+
+def tied_outputs(width):
+    """Outputs held at a constant, which is how `conb_1` cells come to exist.
+
+    The puzzle carries six `conb_1` cells driving twelve constant nets. The
+    corpus produced none at all -- synthesis folds a constant into whatever
+    reads it, so nothing survives for `hilomap` to map. A constant that reaches
+    a port cannot be folded away, so this is the shape that forces one.
+    """
+    name = f"tied_outputs_w{width}"
+    return f"""module {name} (input [{width-1}:0] d, output [{width-1}:0] q,
+                  output always_high, output always_low);
+  assign q = d;
+  assign always_high = 1'b1;
+  assign always_low  = 1'b0;
+endmodule
+""", {"family": "tied_outputs", "width": width, "constants": 2}
+
+
+def counter_compare(width, limit):
+    name = f"composed_counter_compare_w{width}"
+    return f"""module {name} (input clk, input rst_n, input en, output hit,
+                  output [{width-1}:0] q);
+  reg [{width-1}:0] count;
+  always @(posedge clk or negedge rst_n)
+    if (!rst_n) count <= {width}'d0;
+    else if (en) count <= count + 1'b1;
+  assign hit = (count == {width}'d{limit});
+  assign q = count;
+endmodule
+""", {"family": "composed", "parts": ["counter", "comparator"],
+      "width": width, "limit": limit}
+
+
+def shift_accumulate(width):
+    name = f"composed_shift_accumulate_w{width}"
+    return f"""module {name} (input clk, input rst_n, input si,
+                  output [{width-1}:0] total);
+  reg [{width-1}:0] sr, acc;
+  always @(posedge clk or negedge rst_n)
+    if (!rst_n) begin sr <= {width}'d0; acc <= {width}'d0; end
+    else begin sr <= {{sr[{width-2}:0], si}}; acc <= acc + sr; end
+  assign total = acc;
+endmodule
+""", {"family": "composed", "parts": ["shift_register", "accumulator"],
+      "width": width}
+
+
+def _sequential(family, name, width, enable, reset, body, ports, truth):
+    """Shared skeleton for the clocked generators."""
+    declared = ", ".join(
+        f"input {size} {port}" if port in ("d", "si") else f"output reg {size} {port}"
+        for port, size in ports.items())
+    enable_port = ", input en" if enable else ""
+    if reset == "async_reset":
+        head = "always @(posedge clk or negedge rst_n)\n    if (!rst_n) q <= 0;\n    else "
+        reset_port = ", input rst_n"
+    elif reset == "async_set":
+        head = ("always @(posedge clk or negedge rst_n)\n"
+                f"    if (!rst_n) q <= {{{width}{{1'b1}}}};\n    else ")
+        reset_port = ", input rst_n"
+    else:
+        head = "always @(posedge clk)\n    "
+        reset_port = ""
+    verilog = (f"module {name} (input clk{reset_port}{enable_port}, "
+               f"{declared});\n  {head}{body}\nendmodule\n")
+    return verilog, truth
+
+
+def catalogue():
+    """Every circuit the corpus holds, as (generator result, group)."""
+    items = []
+
+    def add(result, group):
+        items.append((result[0], result[1], group))
+
+    for width in (4, 8, 16):
+        for reset in ("async_reset", "sync"):
+            add(register(width, False, reset), "positive")
+            add(register(width, True, reset), "positive")
+        for direction in ("left", "right"):
+            add(shift_register(width, direction, "async_reset"), "positive")
+        for direction in ("up", "down"):
+            add(counter(width, direction, False, "async_reset"), "positive")
+            add(counter(width, direction, True, "async_reset"), "positive")
+        add(accumulator(width), "positive")
+        add(adder(width, False), "positive")
+        add(adder(width, True), "positive")
+        add(subtractor(width), "positive")
+        for kind in ("eq", "lt", "gt"):
+            add(comparator(width, kind), "positive")
+        add(multiplexer(width, 4), "positive")
+        add(serial_adder(width), "positive")
+        add(crc(width, {4: 0b10011, 8: 0b100011101, 16: 0b11000000000000101}[width]),
+            "positive")
+
+    for width, taps in ((8, (7, 5, 4, 3)), (16, (15, 13, 12, 10))):
+        for style in ("fibonacci", "galois"):
+            add(lfsr(width, taps, style), "positive")
+
+    for bits in (2, 3, 4):
+        add(decoder(bits), "positive")
+    for states in (4, 8):
+        for encoding in ("binary", "one-hot"):
+            add(fsm(states, encoding), "positive")
+
+    for width in (8, 16):
+        add(parallel_register(width), "negative")
+        add(xor_tree(width), "negative")
+        add(scrambled_logic(width), "negative")
+        add(counter_compare(width, width * 3), "composed")
+        add(shift_accumulate(width), "composed")
+
+    # Shapes the puzzle has that ordinary synthesis of ordinary RTL does not
+    # produce. Both were added after measuring the corpus against the target,
+    # not from a list drawn up in advance.
+    for width, branches in ((8, 4), (16, 4), (16, 8)):
+        add(clock_tree(width, branches), "structure")
+    for width in (8, 16):
+        add(tied_outputs(width), "structure")
+
+    return items
+
+
+def module_name(verilog):
+    for line in verilog.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("module "):
+            return stripped.split()[1].split("(")[0]
+    raise ValueError("no module in generated source")
+
+
+# Structures the puzzle has that a plain `abc` mapping does not produce. Both
+# were found by measuring the corpus's cell vocabulary against the puzzle's
+# rather than assuming the two matched.
+#
+# `clkbufmap` inserts one buffer per clock net. Two things had to be right
+# before it inserted anything at all, and neither announced itself:
+#
+#   port order    `-buf <cell> <out>:<in>`, so `X:A` and not `A:X`. Written the
+#                 wrong way round the pass runs, reports nothing and does
+#                 nothing.
+#   sink marking  it finds clock inputs by the `clkbuf_sink` attribute, which
+#                 cells arriving through `dfflibmap` and `abc` do not carry.
+#                 The blackbox library is read first with those pins marked,
+#                 from liberty's own `clock` flag.
+#
+# It gives one buffer, not the puzzle's sixteen branches. Circuits that need a
+# real tree write it in their RTL instead, in the `clock_tree` family below.
+CLOCK_BUFFER = "sky130_fd_sc_hd__clkbuf_1"
+CONSTANT_CELL = "sky130_fd_sc_hd__conb_1"
+SINKS_PATH = f"{OUT_DIR}/clock_sinks.v"
+
+
+def synthesise(name, rtl_path, out_dir):
+    """Same flow for every circuit, and the same one the puzzle's cells came from."""
+    script = "; ".join([
+        f"read_verilog -lib {SINKS_PATH}",
+        f"read_verilog {rtl_path}",
+        f"hierarchy -check -top {name}",
+        "proc; opt; fsm; opt; memory; opt",
+        "techmap; opt",
+        f"dfflibmap -liberty {LIB_PATH}",
+        f"abc -liberty {LIB_PATH}",
+        f"clkbufmap -buf {CLOCK_BUFFER} X:A",
+        f"hilomap -hicell {CONSTANT_CELL} HI -locell {CONSTANT_CELL} LO",
+        "opt_clean",
+        "stat",
+        f"write_verilog -noattr {out_dir}/netlist.v",
+    ])
+    result = subprocess.run(
+        ["docker", "run", "--rm", "-v", f"{os.path.abspath('.')}:/work",
+         "-w", "/work", IMAGE, "yosys", "-p", script],
+        capture_output=True, text=True)
+    return result.returncode, result.stdout + result.stderr
+
+
+def main(list_only=False):
+    items = catalogue()
+    groups = Counter(group for _, _, group in items)
+    print(f"corpus: {len(items)} circuits  {dict(groups)}")
+    families = Counter(truth["family"] for _, truth, _ in items)
+    print(f"families: {dict(families)}")
+    if list_only:
+        for verilog, truth, group in items:
+            print(f"  {group:<9} {module_name(verilog):<34} {truth}")
+        return 0
+
+    os.makedirs(RTL_DIR, exist_ok=True)
+    os.makedirs(OUT_DIR, exist_ok=True)
+
+    lib = liberty.load(PDK_DIR)
+    lef_views = load_lef(PDK_DIR)
+    written = liberty.write_lib(lib, LIB_PATH)
+    print(f"\nwrote {LIB_PATH}, {written} mappable cells "
+          f"(low power families excluded)")
+
+    # Read before synthesis so `clkbufmap` can find the clock inputs. Every cell
+    # the mapper might pick is included, since which ones it picks is not known
+    # until it has picked them.
+    mappable = sorted(n for n in lib if n in lef_views)
+    stage3_graph.blackbox_library(mappable, lef_views, SINKS_PATH, lib)
+    marked = open(SINKS_PATH, encoding="utf-8").read().count("clkbuf_sink")
+    print(f"wrote {SINKS_PATH}, {len(mappable)} cells, {marked} clock pins marked")
+
+    index = []
+    seen = Counter()
+    failures = []
+    for verilog, truth, group in items:
+        name = module_name(verilog)
+        seen[truth["family"]] += 1
+        truth = dict(truth, name=name, group=group,
+                     held_out=seen[truth["family"]] % HELD_OUT_EVERY == 0)
+
+        rtl_path = f"{RTL_DIR}/{name}.v"
+        with open(rtl_path, "w", encoding="utf-8") as handle:
+            handle.write(verilog)
+
+        out_dir = f"{OUT_DIR}/{name}"
+        os.makedirs(out_dir, exist_ok=True)
+        code, log = synthesise(name, rtl_path, out_dir)
+        if code != 0:
+            failures.append((name, log.strip().splitlines()[-1] if log else "?"))
+            continue
+
+        netlist = f"{out_dir}/netlist.v"
+        cells = Counter(line.strip().split()[0]
+                        for line in open(netlist, encoding="utf-8")
+                        if line.strip().startswith("sky130"))
+        truth["cells"] = sum(cells.values())
+        truth["cell_mix"] = dict(cells.most_common())
+
+        # Through the same stage 3 the puzzle goes through. Stage 4 consumes
+        # graph.json, so a corpus that stopped at a netlist would be testing the
+        # detectors on a different kind of input than they will meet.
+        graph = stage3_graph.build(out_dir, name, lef_views, lib, quiet=True)
+        truth["graph"] = {
+            "cells": len(graph["cells"]),
+            "nets": len(graph["nets"]),
+            "flipflops": len(graph["flipflops"]),
+            "clock_nets": len(graph["clock_nets"]),
+            "cone_roots": len(graph["cone_roots"]),
+        }
+
+        with open(f"{out_dir}/truth.json", "w", encoding="utf-8") as handle:
+            json.dump(truth, handle, indent=1)
+        index.append(truth)
+
+    print(f"\nsynthesised {len(index)}, failed {len(failures)}")
+    for name, why in failures[:10]:
+        print(f"  FAILED {name}: {why}")
+
+    with open(f"{OUT_DIR}/index.json", "w", encoding="utf-8") as handle:
+        json.dump({"circuits": index, "held_out_every": HELD_OUT_EVERY},
+                  handle, indent=1)
+    print(f"wrote {OUT_DIR}/index.json")
+
+    held = sum(1 for t in index if t["held_out"])
+    print(f"  held out for scoring: {held}, available for development: "
+          f"{len(index) - held}")
+    total = sum(t["cells"] for t in index)
+    flops = sum(t["graph"]["flipflops"] for t in index)
+    print(f"  {total} cells and {flops} state elements across the corpus")
+
+    # The corpus is only useful if it resembles the target. Measured, not
+    # assumed.
+    #
+    # Compared on the logic function, with the drive strength suffix dropped.
+    # `a21oi_1` and `a21oi_2` compute the same thing and differ in how hard they
+    # can drive, which is a physical choice a detector has no business reading.
+    # Comparing full names scores 6% and comparing functions scores 85%, and the
+    # second is the number that means something -- but the first is why
+    # detectors must normalise the suffix rather than match on it.
+    puzzle_netlist = "out/puzzle/netlist.v"
+    if not os.path.exists(puzzle_netlist):
+        return 1 if failures else 0
+
+    import re
+    function_of = lambda name: re.sub(r"_\d+$", "", name.split("__")[-1])
+    puzzle_cells = Counter(re.findall(r"^\s*(sky130_fd_sc_hd__\w+)\s",
+                                      open(puzzle_netlist, encoding="utf-8").read(),
+                                      re.M))
+    corpus_cells = Counter()
+    for entry in index:
+        corpus_cells.update(entry["cell_mix"])
+
+    print("\nvocabulary against the puzzle")
+    for label, key in (("by function", function_of), ("by full name", lambda c: c)):
+        puzzle_kinds = {key(c) for c in puzzle_cells}
+        corpus_kinds = {key(c) for c in corpus_cells}
+        covered = sum(n for c, n in corpus_cells.items()
+                      if key(c) in puzzle_kinds)
+        total = sum(corpus_cells.values())
+        print(f"  {label:<13} shared {len(puzzle_kinds & corpus_kinds)} kinds, "
+              f"{covered}/{total} corpus instances of a shared kind "
+              f"({100 * covered / total:.0f}%)")
+
+    absent = sorted({function_of(c) for c in puzzle_cells}
+                    - {function_of(c) for c in corpus_cells})
+    print(f"  puzzle functions the corpus never produced: {len(absent)}")
+    if absent:
+        print(f"    {absent}")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main("--list" in sys.argv[1:]))
