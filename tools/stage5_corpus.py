@@ -890,44 +890,12 @@ def main(list_only=False):
         print(f"  variant {variant!r}: {len(differ)}/{len(pairs)} circuits mapped "
               f"to a different cell mix, {moved} instances changed")
 
-    # The corpus is only useful if it resembles the target. Measured, not
-    # assumed.
-    #
-    # Compared on the logic function, with the drive strength suffix dropped.
-    # `a21oi_1` and `a21oi_2` compute the same thing and differ in how hard they
-    # can drive, which is a physical choice a detector has no business reading.
-    # Comparing full names scores 6% and comparing functions scores 85%, and the
-    # second is the number that means something -- but the first is why
-    # detectors must normalise the suffix rather than match on it.
-    puzzle_netlist = "out/puzzle/netlist.v"
-    if not os.path.exists(puzzle_netlist):
-        return 1 if failures else 0
-
-    import re
-    function_of = lambda name: re.sub(r"_\d+$", "", name.split("__")[-1])
-    puzzle_cells = Counter(re.findall(r"^\s*(sky130_fd_sc_hd__\w+)\s",
-                                      open(puzzle_netlist, encoding="utf-8").read(),
-                                      re.M))
-    corpus_cells = Counter()
-    for entry in index:
-        corpus_cells.update(entry["cell_mix"])
-
-    print("\nvocabulary against the puzzle")
-    for label, key in (("by function", function_of), ("by full name", lambda c: c)):
-        puzzle_kinds = {key(c) for c in puzzle_cells}
-        corpus_kinds = {key(c) for c in corpus_cells}
-        covered = sum(n for c, n in corpus_cells.items()
-                      if key(c) in puzzle_kinds)
-        total = sum(corpus_cells.values())
-        print(f"  {label:<13} shared {len(puzzle_kinds & corpus_kinds)} kinds, "
-              f"{covered}/{total} corpus instances of a shared kind "
-              f"({100 * covered / total:.0f}%)")
-
-    absent = sorted({function_of(c) for c in puzzle_cells}
-                    - {function_of(c) for c in corpus_cells})
-    print(f"  puzzle functions the corpus never produced: {len(absent)}")
-    if absent:
-        print(f"    {absent}")
+    # How far this corpus reaches against a target -- the size bound on what
+    # can ever be named, and the cell vocabulary comparison -- is
+    # tools/corpus_reach.py. It lives there rather than here because the
+    # vocabulary number needs its limits stated beside it every time it is
+    # printed: it reads like a coverage figure and is not one.
+    print(f"\nreach against a target: python tools/corpus_reach.py puzzle")
     return 1 if failures else 0
 
 

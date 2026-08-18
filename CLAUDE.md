@@ -103,6 +103,8 @@ python tools/stage5_corpus.py --list      # the catalogue, without synthesising
 python tools/verify_corpus.py             # gate: 11 rules, 662 uses vs stage 3
 python tools/verify_corpus.py --selftest  # gate: every rule fails on its own
                                           # corruption, or it is not a check
+python tools/corpus_reach.py puzzle       # not a gate: the size bound on what
+                                          # the corpus could ever name
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -171,6 +173,13 @@ The corpus can only name a puzzle block if some corpus circuit computes the same
 function; a block built entirely from `nand2` scores 100% on vocabulary and may
 still be unnameable. **Functional coverage measured so far is zero — no miter
 has been run.** The real number is stage 4's residue report.
+
+What *can* be measured before stage 4 is a one-directional bound, and
+`tools/corpus_reach.py` measures it: a cone depending on more distinct inputs
+than any corpus cone cannot be equivalent to one, so it cannot be named at all.
+0 of the puzzle's 189 cones fall outside the envelope — but only since the
+`scale_datapath` family was added. Without it the envelope stops at 33 inputs
+and two puzzle cones of 57 are provably unnameable.
 
 **Bits of one register do not share a clock net.** The puzzle's 92 flops sit on
 16 `clkbuf_8` branches. Grouping flops by clock net splits every register.

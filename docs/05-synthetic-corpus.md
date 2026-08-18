@@ -371,9 +371,49 @@ one for a while.** It measures cell *vocabulary* overlap. The corpus can only
 name a puzzle block if some corpus circuit computes the same function, and
 vocabulary overlap says nothing whatever about that: a block built entirely from
 `nand2` scores 100% here and may still compute something no corpus circuit
-computes. **Functional coverage measured so far is zero — no miter has been
-run.** The real figure comes out of stage 4's residue report, and until then
-this is a lower bound on the problem dressed up as an estimate of it.
+computes.
+
+It is reported because it justifies a *different* claim — that detectors must
+normalise the drive strength suffix and reason about functions rather than cell
+types — and it now lives in `tools/corpus_reach.py`, where its limits are
+printed beside it every time, rather than at the end of the build where it
+looked like a score.
+
+## A bound that does not need a miter
+
+Functional coverage cannot be measured before stage 4, because measuring it is
+what stage 4's miters do. One thing can be measured now, in one direction only.
+
+A cone depending on more distinct inputs than any cone in the corpus **cannot be
+equivalent to any of them**, so it cannot be named however good the detector is.
+Support is counted at the boundary — flop outputs, primary inputs, constants —
+which makes it comparable between two circuits mapped differently.
+
+```
+corpus envelope   support up to 128 inputs, depth up to 37
+puzzle            support median 4 max 57, depth median 2 max 12
+cones outside     0 / 189
+```
+
+**Necessary, never sufficient.** Staying inside the envelope proves nothing at
+all; falling outside it proves a block is out of reach. Zero of the puzzle's 189
+cones are out of reach on size grounds, which is worth knowing and is not a
+coverage figure either.
+
+The scale family is what earns this. Measured without it:
+
+| | envelope | puzzle cones outside |
+|---|---|---|
+| with `scale_datapath` | support ≤ 128, depth ≤ 37 | **0 / 189** |
+| without it | support ≤ 33, depth ≤ 14 | 2 / 189 |
+
+Two of the puzzle's cones — `i00227.data` and `i00228.data`, 57 inputs each at
+depth 6 — were **provably unnameable** by the corpus as it stood a day earlier,
+and nothing was measuring that. The family added for size closed a nameability
+gap, which was not the argument made for it.
+
+The real number remains stage 4's residue report: after the detectors run, how
+much of the netlist is still unexplained.
 
 **Fewer constants than the target.** Four `conb_1` cells against the puzzle's
 six. The shape exists; the density does not.
