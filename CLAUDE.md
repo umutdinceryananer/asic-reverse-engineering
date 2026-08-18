@@ -23,9 +23,9 @@ case.
 | 6, inversion | not started |
 | 7, output extraction | not started |
 
-Lessons written: `docs/lectures/00`, `01`, `02`. **Ders 3 is owed** — stage 3's
-round trip passes on both targets, so it can be written from verified facts now.
-Lessons are written after the gates, never before.
+Lessons written: `docs/lectures/00`, `01`, `02`, `03`. The next is owed once
+stage 5's corpus exists and stage 4's detectors pass against it. Lessons are
+written after the gates, never before.
 
 ## Rules that bind this repository
 
