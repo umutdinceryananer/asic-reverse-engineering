@@ -172,6 +172,50 @@ puzzle:  312 cycles of the VCD, 0 mismatches               RESULT: pass
 
 Both gates pass on the regenerated netlist.
 
+### What that gate does not check
+
+It proves stage 3 kept the *circuit*. It proves nothing about the annotations,
+because `write_verilog` reads only cells, ports and connections. **Clock roots,
+cone membership and the flip flop inventory could all be wrong and this gate
+would still pass** — and those are exactly what stage 4 consumes.
+
+On the corpus, `verify_corpus.py` checks the annotations against a declared
+answer key. On the warm up and the puzzle there is no answer key, so the only
+thing left is a second derivation sharing as little as possible with the first.
+That is `tools/stage3_crosscheck.py`.
+
+| | stage 3 | the cross check |
+|---|---|---|
+| input | `netlist.v` → Yosys → `yosys.json` | `netlist.json`, stage 2's own file |
+| nets | integers Yosys assigned | names the extractor assigned |
+| roots | walks **backwards** from each flop's clock pin | floods **forwards** from every net no transparent cell drives |
+| cones | depth first search backwards, once per root | one memoised forward pass, every net at once |
+
+The two paths meet only at the LEF and liberty. What is genuinely shared is the
+liberty reading of cell roles, and this cannot check that. What it does check is
+the *attribution* — which net reached which pin — which travels through Yosys in
+one path and not in the other.
+
+```
+warm up   84 nets matched, 16 flip flops, 1 clock root, 33 cone roots,
+          84 cone memberships identical
+puzzle    723 nets matched, 92 flip flops, 1 clock root, 189 cone roots,
+          723 cone memberships identical
+```
+
+**Keyed on the pins each net touches, not on names.** Stage 2 renumbers nets
+when it writes the Verilog — the extractor's `$371` becomes `n00076` — so the
+first version of this compared names, found every internal net missing, and
+reported a disaster that was not there. A net is identified by the set of
+`(instance, pin)` pairs on it, which both sides compute and neither chose. Same
+rule stage 2 already needs for placements, for the same reason.
+
+`--selftest` corrupts stage 3's answer six ways — a flop rewired, a root left at
+the buffer instead of walked back to `clk`, a clock parity flipped, a net
+dropped from a cone, an extra cone root, a net rewired — and confirms each is
+caught. Two implementations agreeing is only evidence if disagreeing was
+possible.
+
 ## Not done, and worth knowing
 
 The `eda` image is heavy for what it delivers. Debian's `yosys` depends on

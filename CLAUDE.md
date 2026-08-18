@@ -97,6 +97,9 @@ python tools/stage3_graph.py warmup       # -> out/warmup/graph.{json,v}
 python tools/sim/run.py warmup --netlist out/warmup/graph.v   # gate: round trip
 python tools/stage3_graph.py puzzle
 python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
+python tools/stage3_crosscheck.py warmup  # gate: annotations derived a second
+python tools/stage3_crosscheck.py puzzle  # way, forwards instead of backwards
+python tools/stage3_crosscheck.py warmup --selftest
 
 python tools/stage5_corpus.py             # 93 circuits, 186 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
@@ -121,6 +124,8 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
 | 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
+| 3 | `stage3_crosscheck.py`: annotations re-derived from stage 2's netlist, forwards; warmup 84/84 nets and puzzle 723/723 agree on roots, cones and flop wiring | passing |
+| 3 | `stage3_crosscheck.py --selftest`: all 6 corruptions caught | passing |
 | 5 | `verify_corpus.py`: 11 rules, 662 uses against what stage 3 found, over both mappings of all 93 circuits | passing |
 | 5 | `verify_corpus.py --selftest`: all 10 corruptions caught | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
@@ -299,6 +304,11 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
 - **Log what does not match rather than dropping it.** Every real defect this
   session surfaced through an unmatched-items report or an independent
   cross-check.
+- **The round trip gate does not check stage 3's annotations.** `graph.v` is
+  written from cells and connections alone, so clock roots, cones and the flop
+  inventory could all be wrong and it would still pass. Those are what stage 4
+  consumes. `stage3_crosscheck.py` derives them a second time, forwards, from
+  stage 2's `netlist.json` rather than through Yosys.
 - **A passing test that was never able to fail is not evidence.** The puzzle
   simulation passed with a wrong netlist; the `conb_1` guard reported no
   conflict because it could not see the case it existed for. Exercise a check

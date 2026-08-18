@@ -783,18 +783,36 @@ always confirms is a check on nothing until something can make it vary.** Both
 halves matter — a corpus that can produce the other answer, and a producer that
 can report it.
 
+### 32. The cross check compared nets by a name one side invents
+
+**Symptom.** `stage3_crosscheck.py`, on its first run, reported all 16 of the
+warm up's flip flops wired differently — and every role net as a mismatch of the
+form `n00076` against `$371`.
+
+**Cause.** Stage 2 renumbers the nets when it writes the Verilog. `netlist.json`
+carries the extractor's own names, `netlist.v` carries `n000NN`, and comparing
+the two by name finds every internal net missing.
+
+**Fix.** Key a net on the set of `(instance, pin)` pairs on it — something both
+sides compute and neither side chose. This is problem 12 and problem 14 for the
+third time: **a name assigned by one of the two things being compared is not a
+key.**
+
+**Verdict: understood.** Notable only for how quickly the same shape came back
+in a tool written specifically to be independent.
+
 ---
 
 ## The shapes these fall into
 
-Thirty one problems, six recurring shapes.
+Thirty two problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source
 misread, but the primary source never fetched. The liberty data had been sitting
 at the pinned commit the whole time.
 
-**A key that does not identify.** Problems 12, 13, 14. Position without
+**A key that does not identify.** Problems 12, 13, 14, 32. Position without
 orientation; one format's anchor read as another's; a per-run id treated as
 stable. All three produce a *plausible* result, which is why they survive.
 
