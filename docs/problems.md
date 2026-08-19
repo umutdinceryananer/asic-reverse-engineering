@@ -59,6 +59,9 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 33 | A failed build overwrote the answer key it failed to produce | tooling | understood |
 | 34 | The repository's best answer key went unused for five stages | process | understood |
 | 35 | A score reported without its null model | process | understood |
+| 36 | Two gates that printed a verdict and always exited 0 | tooling | understood |
+| 37 | Ten corruptions caught, five rules never seen to fail | tooling | understood |
+| 38 | The review packet's own three sections misreported | tooling | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -887,11 +890,121 @@ produces.
 passing test that was never able to fail is not evidence* — one step further
 out: **a score a trivial implementation also achieves is not evidence either.**
 
+### 36. Two gates that printed a verdict and always exited 0
+
+**Symptom.** `stage4_registers.py --score` and `--compare` were listed as gates
+in `CLAUDE.md`, were run by `review_packet.py` as gates, and both ended in an
+unconditional `return 0`.
+
+**How it was shown.** Replacing `control_groups` with "every flop is its own
+register" -- a criterion that is wrong on 120 of the corpus's 126 netlists --
+took the score from 116/126 to 6/126. The run printed the 6, printed a line
+reading `of those 18, this criterion gets -102`, printed a paragraph explaining
+that every miss was a circuit whose registers share their control signals, and
+exited 0. The review packet rendered it **pass**.
+
+**Cause.** Three separate things, all the same shape. The exit status was never
+connected to the measurement. The non-trivial-subset figure was computed as
+`18 - len(wrong)`, subtracting the single-register misses too, so it could go
+negative. And the explanatory paragraph was printed unconditionally rather than
+when the run supported it.
+
+**Fix.** What each entry point is expected to measure is recorded in `RECORDED`
+and `RECORDED_CRITERIA`, and a figure that moves in either direction fails --
+below its recording as a regression, above it because an unexplained
+improvement is a change to something and re-recording has to be a decision. The
+subset figure is counted directly as hits among the multi-register netlists and
+cannot go negative. The paragraph is said only when the misses support it, and
+the over-splitting case says so instead. A fourth number went with them: the
+per-target report quoted "48/63 against the control signature's 56/63", from a
+corpus two sizes ago, which no run reproduced.
+
+**Verdict: understood.** This is the project's own rule -- *a passing test that
+was never able to fail is not evidence* -- applied to the thing doing the
+passing rather than to the thing being tested. Every printed figure was
+truthful. None of them was a gate.
+
+### 37. Ten corruptions caught, five rules never seen to fail
+
+**Symptom.** `verify_corpus.py --selftest` reported `RESULT: pass, every
+corruption was caught`, over ten corruptions, and had done for several
+sessions.
+
+**Cause.** True, and read as something stronger. Between them the ten
+corruptions tripped seven of the twelve rules; the other five had never been
+seen to fail at all. The selftest asked the question from the corruptions' side
+-- *was each one noticed* -- and never from the rules' side -- *was each rule
+ever the one doing the noticing*. Two of the five are the rules the report
+itself labels `always True` and `always 0`, which is the easiest place for a
+rule to rot, because a constant that is always confirmed looks like a rule that
+works. A third is `flops accounted for by the declared registers`, the rule
+stage 4's entire corpus score rests on: a declared partition that does not add
+up to the flop count would make `--score` a comparison against a wrong answer
+key, and a neutered version of that rule passed every gate in the repository.
+
+**Fix.** `--selftest` now counts coverage from the rules' side as well and names
+any rule no corruption reaches. Five corruptions close the gap. For the two
+constant rules the corruption makes the *found* value vary, since the declared
+one cannot: a synchronous reset whose port has vanished, and a circuit declared
+combinational whose graph has grown a flop.
+
+**Verdict: understood.** Problem 23's shape at one remove. There the guard could
+not see the case it existed for; here the selftest could not see which rules it
+was not exercising, and the number it printed was large enough to look like
+coverage.
+
+### 38. The review packet's own three sections misreported
+
+**Symptom.** `out/review.md` is the artifact an outside reviewer reads, and it
+is generated, which makes every line in it look measured. Three sections were
+reporting something other than what they said.
+
+**The defect register showed zero of its rows.** The slice ended at
+`register.index("---", start)`, which finds the `|---|---|---|---|` separator of
+the summary table's own header, not the horizontal rule after it. Every packet
+ever generated showed the heading, the header row, and none of the thirty five
+rows underneath, above a sentence claiming 36 entries -- itself wrong, because
+`count("\n### ")` counts one heading that is a discussion and not an entry.
+
+**"Read by" was a substring search over basename stems**, and every row it
+produced was wrong in one direction or the other. It credited `review_packet.py`
+with reading all seven answer keys, because that file names them. It credited
+twenty three tools with reading `puzzle.gds`, because the stem is `puzzle`. It
+credited `verify_blocks.py` with `01_netlist.v`, which that tool mentions in its
+opening paragraph and never opens. And it missed `stage2_nets.py`,
+`stage2_unionfind.py` and `stack_sensitivity.py`, which reach the layouts
+through `stage1_cells.TARGETS` and never name a path at all. This is the section
+that exists *because* an answer key went unused for five stages, so a wrong
+answer in it is worse than no section.
+
+**A report was rendered as a passing gate.** `corpus_reach.py` is labelled "not
+a gate" in `CLAUDE.md` and got the same **pass** cell as `compare_def.py`.
+
+**stderr was captured and dropped**, so a tool dying through
+`sys.exit("message")` produced a **FAIL** row above an empty output block.
+
+**Fix.** The register slice ends at the horizontal rule, counts numbered
+entries, and fails if the entry count and the summary row count disagree; the
+`except` no longer swallows a slicing failure. "Read by" is an explicit
+registry, and `verify()` re-derives every claim from the named tool's parsed
+source -- docstrings excluded, which is what separates opening a file from
+mentioning it, and TARGETS use requiring a subscript, because five tools import
+it only to validate an argument. Rows declare gate or report and `verify()`
+derives which from whether the tool's source holds any literal non-zero exit.
+stderr is emitted in a marked block. If any claim does not hold, the packet is
+not written.
+
+**Verdict: understood.** Problem 6 in the tool that exists to prevent problem 6.
+The packet was built so a reviewer would not have to trust the author's summary,
+and then its own tables were not checked against anything -- because generated
+output reads as measured, and three of those sections were prose with a
+`for` loop in front of it.
+
 ---
 
 ## The shapes these fall into
 
-Thirty five problems, six recurring shapes.
+Thirty eight problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

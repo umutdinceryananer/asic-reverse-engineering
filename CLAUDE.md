@@ -103,16 +103,17 @@ python tools/stage3_crosscheck.py warmup --selftest
 
 python tools/stage5_corpus.py             # 93 circuits, 186 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
-python tools/verify_corpus.py             # gate: 11 rules, 662 uses vs stage 3
-python tools/verify_corpus.py --selftest  # gate: every rule fails on its own
-                                          # corruption, or it is not a check
+python tools/verify_corpus.py             # gate: 12 rules, 680 uses vs stage 3,
+                                          # and fails if any graph is missing
+python tools/verify_corpus.py --selftest  # gate: 15 corruptions, and every one
+                                          # of the 12 rules tripped by one
 python tools/corpus_reach.py puzzle       # not a gate: the size bound on what
                                           # the corpus could ever name
 
 python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
 python tools/stage4_registers.py puzzle
-python tools/stage4_registers.py --score  # gate: 116/126 netlists partitioned
-python tools/stage4_registers.py --compare  # all three criteria, one answer key
+python tools/stage4_registers.py --score  # gate: 116/126 against a recording
+python tools/stage4_registers.py --compare  # gate: all three criteria, same key
 python tools/verify_blocks.py             # gate: stage 4 against the warm up's
                                           # DEF hierarchy. CURRENTLY FAILING
 python tools/stage4_cone.py puzzle        # the success condition, composed
@@ -139,10 +140,11 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
 | 3 | `stage3_crosscheck.py`: annotations re-derived from stage 2's netlist, forwards; warmup 84/84 nets and puzzle 723/723 agree on roots, cones and flop wiring | passing |
 | 3 | `stage3_crosscheck.py --selftest`: all 6 corruptions caught | passing |
-| 5 | `verify_corpus.py`: 11 rules, 662 uses against what stage 3 found, over both mappings of all 93 circuits | passing |
-| 5 | `verify_corpus.py --selftest`: all 10 corruptions caught | passing |
+| 5 | `verify_corpus.py`: 12 rules, 680 uses against what stage 3 found, over both mappings of all 93 circuits; a missing or stale `graph.json` fails rather than warning | passing |
+| 5 | `verify_corpus.py --selftest`: all 15 corruptions caught, **and all 12 rules tripped by at least one of them** | passing |
 | 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]` | **failing**: the committed criterion answers `[16]` |
-| 4 | `stage4_registers.py --score`: 116/126 corpus netlists, beside a null model that gets 108/126 and a real margin of 8 | passing, and nearly meaningless |
+| 4 | `stage4_registers.py --score`: 116/126 corpus netlists, beside a null model that gets 108/126 and a real margin of 8; every figure against a recording, and a move in either direction fails | passing, and nearly meaningless |
+| 4 | `stage4_registers.py --compare`: all three criteria against their recordings, 116 / 96 / 74 | passing |
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
@@ -390,6 +392,14 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
   corpus's median circuit held four flip flops against the puzzle's 92, and the
   aggregate totals hid it. The `scale_datapath` family brackets the target at 90,
   178 and 354 flops so a scaling problem appears as a trend.
+- **A gate needs an exit status, not just a verdict.** `--score` printed
+  116/126 and ended in `return 0`; swapping the criterion for one that splits
+  every flop printed 6/126 and still passed. Anything the pipeline calls a gate
+  must be run once against a known-bad input, and what it should measure written
+  down, or the printed number is the only thing doing the checking.
+- **Every corruption caught is not every rule covered.** `verify_corpus.py
+  --selftest` reported ten of ten and had tripped seven of its twelve rules. The
+  question has two sides and only one was being asked.
 - **Count rules, not facts.** "662 declared facts" is eleven rules times the
   corpus size. Four were constants; two have been made to vary, and the tool now
   labels the rest. Asking why one of them could never be non-zero found a real
