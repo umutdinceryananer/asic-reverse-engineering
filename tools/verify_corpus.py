@@ -15,6 +15,16 @@ Every rule here can fail, and `--selftest` proves it by feeding each one a graph
 broken in the way that rule exists to catch. A check that has never been seen to
 fail is silence, not evidence.
 
+That claim was true of the corruptions and false of the rules. Ten corruptions
+all being caught was reported as `pass, every corruption was caught`, and it was
+-- but between them they tripped seven of the twelve rules, so five had still
+never been seen to fail. `--selftest` now counts coverage from the rules' side
+as well, and says which rule no corruption reaches.
+
+An incomplete corpus is a failure here rather than a warning. Running the rules
+over whichever graphs happen to be present scores a different corpus and reports
+it under this one's name.
+
 Usage:
     python tools/verify_corpus.py
     python tools/verify_corpus.py --selftest
@@ -35,6 +45,12 @@ REQUIRED = ("clock_roots", "flipflops", "constant_nets", "clock_nets")
 # construction. The others hold state too, but their width names an operand or a
 # bus rather than a flop count, so equality would be asserting a coincidence.
 WIDTH_IS_FLOPS = {"register", "shift_register", "counter", "lfsr", "clock_tree"}
+
+# Families that declare no state at all. Named here rather than inline in the
+# rule, so that `--selftest` can pick a subject by exactly the condition the
+# rule uses instead of by a second list that would drift away from it.
+STATELESS_FAMILIES = {"adder", "subtractor", "comparator", "multiplexer",
+                      "decoder", "xor_tree", "tied_outputs"}
 
 # Where stage 3's structural search for a held register finds nothing, and why.
 # Measured against circuits whose enable we declared ourselves, so these are
@@ -118,8 +134,7 @@ def rules(truth, graph):
 
     # A combinational circuit that grew state means a generator wrote something
     # other than what it declared.
-    if family in ("adder", "subtractor", "comparator", "multiplexer", "decoder",
-                  "xor_tree", "tied_outputs"):
+    if family in STATELESS_FAMILIES:
         check("stateless", 0, len(flops))
 
     # Reset style, as declared, against the pins liberty says the mapped flops
@@ -259,6 +274,58 @@ def inversion_parity_lost(graph):
         record["clock_inverted"] = False
 
 
+def reset_port_vanished(graph):
+    """A synchronous reset whose port stage 3 did not report.
+
+    The rule this catches asserts `True` on every circuit it applies to, so it
+    is one of the two the report labels `always True`. A rule with a constant
+    declared value is still a rule -- what has to vary for it to mean anything
+    is the *found* value, and that is what this makes vary.
+    """
+    for name in ("rst_n", "rst", "reset"):
+        graph["ports"].pop(name, None)
+
+
+def clock_nets_merged(graph):
+    """A clock tree read as one net, which is what grouping by net would give."""
+    graph["clock_nets"] = graph["clock_nets"][:1]
+
+
+def a_flop_dropped(graph):
+    """One flop missing from the inventory the declared registers add up to.
+
+    This is the rule stage 4's scoring rests on: if the declared partition does
+    not account for every flop then `stage4_registers.py --score` is comparing
+    against an answer key that is wrong, and nothing else in the pipeline would
+    notice. It had never been shown able to fail.
+    """
+    graph["flipflops"].pop(next(iter(graph["flipflops"])))
+
+
+# What a flop record looks like, for the one corruption that has to invent one
+# because its subject has no flops to copy. Only the fields the rules read
+# matter; the nets are left null because no rule follows them.
+INFERRED_LATCH = {
+    "cell": "sky130_fd_sc_hd__dfrtp_1", "kind": "ff",
+    "clock": None, "data": None, "q": None,
+    "reset": None, "set": None, "reset_level": None, "set_level": None,
+    "clock_root": None, "clock_inverted": False,
+    "reset_root": None, "reset_inverted": False,
+    "set_root": None, "set_inverted": False, "enable": None,
+}
+
+
+def a_latch_inferred(graph):
+    """State in a circuit declared combinational.
+
+    The other rule the report labels a constant -- `stateless` is always 0 --
+    and the same argument applies: the declared side cannot vary, so the found
+    side has to. A generator with an incomplete sensitivity list, or a stage 3
+    that mistook a feedback loop for a flop, is what this looks like.
+    """
+    graph["flipflops"]["_inferred_"] = dict(INFERRED_LATCH)
+
+
 # Each corruption is the real failure mode of one rule, paired with the kind of
 # circuit that rule applies to. Running them all against a single circuit is how
 # a corruption goes unnoticed for the uninteresting reason that its rule was
@@ -281,18 +348,45 @@ CORRUPTIONS = [
      lambda t: t["family"] in WIDTH_IS_FLOPS),
     ("inversion parity lost", inversion_parity_lost,
      lambda t: t.get("clock_inverted", 0) > 0),
+    # The five below were added after a review pointed out that ten corruptions
+    # were tripping seven of the twelve rules, and that the other five had never
+    # been seen to fail. Two of them are the rules the report labels constants,
+    # which is exactly where a rule can rot unnoticed: `always True` reads like
+    # a rule that works.
+    ("a sync reset's port gone", reset_port_vanished,
+     lambda t: t.get("reset") == "sync"),
+    ("clock branches merged", clock_nets_merged, lambda t: "branches" in t),
+    ("an extra flop, count declared", grew_a_flop, lambda t: "flops" in t),
+    ("a flop dropped from the graph", a_flop_dropped, lambda t: "registers" in t),
+    ("a latch inferred", a_latch_inferred,
+     lambda t: t["family"] in STATELESS_FAMILIES),
 ]
 
 
-def selftest(index, available):
+def every_rule(entries):
+    """Every rule name the corpus actually exercises, however it is suffixed."""
+    names = set()
+    for entry in entries:
+        truth, graph = load(entry)
+        names.update(r.split(" (")[0] for r, *_ in rules(truth, graph))
+    return names
+
+
+def selftest(index, available, entries):
     """Feed each rule a graph broken the way that rule exists to catch.
 
     A check that has never been seen to fail is silence. Each corruption is
     applied to a circuit the corresponding rule applies to and that passes
     cleanly beforehand, so a rule staying quiet means the rule is not checking
     anything rather than that it was not asked.
+
+    Every corruption being caught is not the same as every rule being covered,
+    and for a while it was read as if it were: ten corruptions tripped seven of
+    the twelve rules and the run said `pass, every corruption was caught`. The
+    coverage tally below is the missing half -- it asks the question from the
+    rules' side rather than the corruptions'.
     """
-    silent, skipped = [], []
+    silent, skipped, covered = [], [], set()
     for name, corrupt, applies in CORRUPTIONS:
         subject = None
         for entry in index:
@@ -304,18 +398,26 @@ def selftest(index, available):
                 break
         if subject is None:
             skipped.append(name)
-            print(f"  {name:<22} NO SUBJECT, rule untested")
+            print(f"  {name:<30} NO SUBJECT, rule untested")
             continue
         entry, truth, good = subject
         graph = copy.deepcopy(good)
         corrupt(graph)
         caught = sorted({r.split(" (")[0]
                          for r, d, f, ok in rules(truth, graph) if not ok})
-        print(f"  {name:<22} on {label(entry):<32} "
+        covered.update(caught)
+        print(f"  {name:<30} on {label(entry):<32} "
               f"{'caught by ' + ', '.join(caught) if caught else 'NOT CAUGHT'}")
         if not caught:
             silent.append(name)
-    return silent, skipped
+
+    exercised = every_rule(entries)
+    uncovered = sorted(exercised - covered)
+    print(f"\nrule coverage: {len(exercised & covered)}/{len(exercised)} rules "
+          f"were tripped by at least one corruption")
+    for rule in uncovered:
+        print(f"  NEVER SEEN TO FAIL   {rule}")
+    return silent, skipped, uncovered
 
 
 def main(argv):
@@ -346,17 +448,26 @@ def main(argv):
         print(f"{len(index) - len(entries)} of {len(index)} netlists have no "
               f"graph.json or one written by an older stage 3.")
         print(f"  re-run: python tools/stage5_corpus.py")
-        if not entries:
-            return 1
+        # A failure, not a warning. This used to return 1 only when *nothing*
+        # was left, so a corpus with 4 of its 186 graphs present printed this
+        # line and then passed on the remaining four -- and the four it kept
+        # were the smallest, whose rules are the ones that assert constants.
+        # The shape is problem 33 again: a half-finished build reporting a pass
+        # for the part that finished.
+        print("\nRESULT: fail, the corpus is incomplete and a score over what "
+              "survived would be a score over a different corpus")
+        return 1
 
     if "--selftest" in argv:
         print(f"selftest: each rule against the corruption it exists to catch")
-        silent, skipped = selftest(index, available)
-        if silent or skipped:
+        silent, skipped, uncovered = selftest(index, available, entries)
+        if silent or skipped or uncovered:
             print(f"\nRESULT: fail, {len(silent)} corruption(s) went unnoticed, "
-                  f"{len(skipped)} rule(s) had no subject to test against")
+                  f"{len(skipped)} had no subject to test against, and "
+                  f"{len(uncovered)} rule(s) were never tripped by any of them")
             return 1
-        print("\nRESULT: pass, every corruption was caught")
+        print(f"\nRESULT: pass, all {len(CORRUPTIONS)} corruptions were caught "
+              f"and every rule was tripped by at least one")
         return 0
 
     checked, by_rule, failures = verify(entries)
