@@ -390,6 +390,9 @@ def two_clocks(width):
     return "\n".join(lines) + "\n", {
         "family": "two_clocks", "width": width, "reset": "async_reset",
         "flops": width, "clock_roots": 2,
+        # Two registers, not one: they are written by different clocks, so no
+        # assignment of bits to a single register survives.
+        "registers": [half, width - half],
         "note": "two independent clock domains, so one root would be wrong"}
 
 
@@ -426,6 +429,9 @@ def inverted_clock(width):
     return "\n".join(lines) + "\n", {
         "family": "inverted_clock", "width": width, "reset": "async_reset",
         "flops": width, "clock_roots": 1, "clock_inverted": half,
+        # One clock root, two registers: half sample on the rising edge and
+        # half on the falling, which is two different instants.
+        "registers": [half, width - half],
         "note": "half the flops sample on the falling edge of the root clock"}
 
 
@@ -478,7 +484,7 @@ def shift_accumulate(width):
   assign total = acc;
 endmodule
 """, {"family": "composed", "parts": ["shift_register", "accumulator"],
-      "width": width}
+      "width": width, "registers": [width, width]}
 
 
 def scale_datapath(width, branches):
@@ -587,6 +593,10 @@ def scale_datapath(width, branches):
         # bit state; and the enable gates only the output register, unlike the
         # smaller families where it holds all of them.
         "flops": 5 * width + half + 2,
+        # The shift register counts once, not once per segment: the segments
+        # are one logical register spread over the clock tree, which is the
+        # shape the clock_tree family exists to make visible.
+        "registers": [width, width, width, width, width, half, 2],
         "enable": True, "enable_holds": width, "reset": "async_reset",
         "segments": segments,
         "parts": ["shift_register", "accumulator", "counter", "lfsr",
@@ -859,6 +869,20 @@ def main(list_only=False):
           f"({', '.join(VARIANTS)}), failed {len(failures)}")
     for name, why in failures[:10]:
         print(f"  FAILED {name}: {why}")
+
+    # An index written from a failed build is worse than no index: it is the
+    # answer key stage 4 is scored against, and a shorter one still looks like a
+    # valid corpus. This was not hypothetical -- Docker Desktop being stopped
+    # made all 93 circuits fail and the previous version wrote an index of zero
+    # over a good one, which the verifier then reported as passing 0/0.
+    if failures:
+        print(f"\n{len(failures)} circuit(s) failed, so {OUT_DIR}/index.json is "
+              f"NOT being rewritten; the existing one is left alone.")
+        if any("docker" in why.lower() for _, why in failures):
+            print("  Every failure mentions Docker. Start Docker Desktop and "
+                  "run this again.")
+        print("\nRESULT: fail")
+        return 1
 
     with open(f"{OUT_DIR}/index.json", "w", encoding="utf-8") as handle:
         json.dump({"circuits": index, "held_out_every": HELD_OUT_EVERY,

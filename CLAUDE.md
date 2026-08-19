@@ -18,7 +18,7 @@ case.
 | 1, cell recognition | **done**, gated |
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
-| 4, detectors | not started, next |
+| 4, detectors | **step 1 done**: registers, 116/126 on the corpus. Naming not started |
 | 5, synthetic corpus | **done**, 93 circuits x 2 mappings, gated by `verify_corpus.py` |
 | 6, inversion | not started |
 | 7, output extraction | not started |
@@ -108,6 +108,11 @@ python tools/verify_corpus.py --selftest  # gate: every rule fails on its own
                                           # corruption, or it is not a check
 python tools/corpus_reach.py puzzle       # not a gate: the size bound on what
                                           # the corpus could ever name
+
+python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
+python tools/stage4_registers.py puzzle
+python tools/stage4_registers.py --score  # gate: 116/126 netlists partitioned
+python tools/stage4_registers.py --compare  # all three criteria, one answer key
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -128,6 +133,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `stage3_crosscheck.py --selftest`: all 6 corruptions caught | passing |
 | 5 | `verify_corpus.py`: 11 rules, 662 uses against what stage 3 found, over both mappings of all 93 circuits | passing |
 | 5 | `verify_corpus.py --selftest`: all 10 corruptions caught | passing |
+| 4 | `stage4_registers.py --score`: 116/126 corpus netlists partitioned into exactly the declared registers, 34 of them held out | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
 
@@ -228,6 +234,23 @@ out. `I` is one bit, so input is serial. 728 logic cells, 92 flip-flops: 84
 `dfrtp`, 4 `dfstp` (**set**, not reset), 4 `dfxtp`. The `dfstp` cells mean some
 register leaves reset holding a non-zero value.
 
+**Registers, derived by stage 4.** Grouping is by *control signature* — clock
+root, reset root and level, set root and level, hold net — which scores 116/126
+on the corpus against 96 for colour refinement and 74 for connected components.
+The two alternatives fail in mirror image: components shatter a plain register
+whose bits do not interact, refinement shatters a shift register whose chain
+distinguishes every bit. Refinement is reported as *candidate splits* and never
+applied.
+
+The puzzle's 92 flops become 4 registers: R0 72 bits (reset), R1 12 bits (reset,
+holds on one net), R2 4 bits (no reset, `dfxtp`), R3 4 bits (set, `dfstp`).
+**R0 is unresolved** — 72 bits under one signature, which refinement wants to
+cut into 23, 22, 8, 4, 4, 4, 2, 2 and three singletons. That is the residue, and
+it is where a person reads.
+
+A hold stage 3 misses is a split missed here, which is the one place the
+grouping inherits a known weakness rather than a measured one.
+
 **Puzzle structure, derived by stage 3.** 16 clock branches, each from a
 `clkbuf_8`, twelve carrying six flops and four carrying five: 92 exactly.
 `rst_n` is both the reset net and the set net, clearing 84 and presetting 4.
@@ -315,6 +338,10 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
   against a known-bad input once, or it is only silence. `verify_corpus.py
   --selftest` is this rule made routine, and it caught its own blind spot on its
   first run.
+- **A failed build must not overwrite the answer key it failed to produce.**
+  Docker Desktop stopped, all 93 circuits failed, and `stage5_corpus.py` wrote
+  an index of zero over a good one; `verify_corpus.py` then reported 0/0 as a
+  pass. It now refuses to rewrite the index if any circuit failed.
 - **A measurement that is not a program is a measurement that happened once.**
   "The declared width equals the flip flops stage 3 finds, 86/86" sat in
   `docs/05` as prose for a session. Written as a tool instead, it immediately

@@ -109,6 +109,12 @@ def rules(truth, graph):
         check("width in flip flops", truth["width"], len(flops))
     if "flops" in truth:
         check("declared flip flop count", truth["flops"], len(flops))
+    # A declared register partition has to account for every flop. Stage 4 is
+    # scored against this, so a partition that does not add up would make the
+    # score meaningless in a way nothing else would notice.
+    if "registers" in truth:
+        check("flops accounted for by the declared registers",
+              sum(truth["registers"]), len(flops))
 
     # A combinational circuit that grew state means a generator wrote something
     # other than what it declared.

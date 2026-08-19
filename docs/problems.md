@@ -49,11 +49,25 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 23 | The guard protecting 22 did not fire, twice | extraction | understood |
 | 24 | Cell roles derived from the LEF and the cell name, not from liberty | normalisation | **retracted** |
 | 25 | `bool("false")` is true, so every input read as a clock | normalisation | understood |
+| 26 | Six circuits declared a synchronous reset and had none | answer key | understood |
+| 27 | The first version of that check would have passed the broken corpus | answer key | understood |
+| 28 | The structural search for a held register is a lower bound, four ways | answer key | understood, deliberately not fully fixed |
+| 29 | Every test circuit was an order of magnitude below the target | scale | understood |
+| 30 | The scale circuit declared sixteen clock branches and used eight | scale | understood |
+| 31 | Every inverter in the library was classified as a buffer | normalisation | understood |
+| 32 | The cross check compared nets by a name one side invents | identity | understood |
+| 33 | A failed build overwrote the answer key it failed to produce | tooling | understood |
 
 Two remain unresolved: **1** and **4**.
 
 Entry **21** is the only defect so far found in a *shipped* artifact rather than
 during development, and the only one a passing test did not catch.
+
+Entries **26** to **33** were all found by tools written to check other tools,
+within two days of each other. That is not a coincidence about those days: it is
+what happens the first time the checks are made into programs instead of
+sentences. **31** is the sharpest of them — a rule that had never reported a
+non-zero value, because the code could not produce one.
 
 ---
 
@@ -801,11 +815,31 @@ key.**
 **Verdict: understood.** Notable only for how quickly the same shape came back
 in a tool written specifically to be independent.
 
+### 33. A failed build overwrote the answer key it failed to produce
+
+**Symptom.** `verify_corpus.py` reported `0 circuits as 0 netlists, 0 rules, 0
+uses` and `RESULT: pass`.
+
+**Cause.** Docker Desktop was not running, so all 93 syntheses failed. The
+builder reported every failure, then wrote `index.json` from the empty result,
+replacing a good index. The verifier iterated over nothing and passed, because
+zero disagreements out of zero checks is a pass.
+
+**Fix.** The builder refuses to rewrite the index if any circuit failed, leaves
+the existing one alone, and exits non-zero — and says so, naming Docker when
+every failure mentions it.
+
+**Verdict: understood.** Two shapes at once, both already in this document.
+A green result read as evidence when it was silence, and a step whose *report*
+was checked instead of its *product*. Worth the entry because the loss was
+silent: nothing said the answer key had been destroyed, and stage 4's score
+would have been measured against it.
+
 ---
 
 ## The shapes these fall into
 
-Thirty two problems, six recurring shapes.
+Thirty three problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

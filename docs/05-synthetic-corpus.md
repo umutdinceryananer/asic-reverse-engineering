@@ -352,6 +352,45 @@ of losing a hold fails the run rather than blending into a rate — which is
 exactly what happened when the scale family arrived, and is why the fourth shape
 above is written down with a measurement behind it instead of a guess.
 
+## The corpus was shaped by looking at the target
+
+This is a limitation on every score measured against it, and it is recorded here
+rather than left for a reader to notice.
+
+`CLAUDE.md` carries the rule: *"The library is not narrowed to the puzzle's own
+67 cell types: tuning the test set to the target would make the detector scores
+meaningless."* That rule is kept in the narrow sense — the mapper may still
+choose any cell outside the low power families. But the *catalogue* has been
+extended repeatedly on the strength of measurements against the puzzle:
+
+| Family | Added because the puzzle |
+|---|---|
+| `clock_tree` | distributes its clock through 16 `clkbuf_8` branches |
+| `tied_outputs` | carries six `conb_1` cells |
+| `serial_adder`, `crc` | takes its input one bit at a time on `I` |
+| `scale_datapath` | holds 92 flops and 738 cells |
+
+Two defences, and one concession.
+
+**Shape is not function.** Every one of those adds a structural shape the corpus
+lacked, not a computation the puzzle performs — which is not known. A detector
+that works on a clock tree of four branches is not thereby tuned to a particular
+circuit.
+
+**The alternative was worse.** Without `clock_tree` a detector grouping flops by
+clock net would have scored perfectly and failed completely on the target.
+Without `scale_datapath` two puzzle cones were provably unnameable and nothing
+was measuring it. Refusing to look at the target would have preserved a cleaner
+claim about a weaker corpus.
+
+**But the scores are weakened by it, and the direction is known.** Held-out
+scoring answers "does this detector generalise across parameters of a family it
+has seen"; it does not answer "does it generalise to a family nobody thought
+of". A corpus extended in response to measurements against the target will
+overstate how well it covers that target. **The only honest correction is stage
+4's residue report**, which counts what was *not* named rather than what was,
+and that number cannot be inflated by adding families.
+
 ## Known gaps
 
 **12 of the puzzle's cell functions never appear**, down from 17 once the second
