@@ -18,7 +18,7 @@ case.
 | 1, cell recognition | **done**, gated |
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
-| 4, detectors | **step 1 done**: registers, 116/126 on the corpus. Naming not started |
+| 4, detectors | **steps 1 and 2 done**: registers 116/126, and cones composed into readable listings. Naming not started |
 | 5, synthetic corpus | **done**, 93 circuits x 2 mappings, gated by `verify_corpus.py` |
 | 6, inversion | not started |
 | 7, output extraction | not started |
@@ -113,6 +113,12 @@ python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
 python tools/stage4_registers.py puzzle
 python tools/stage4_registers.py --score  # gate: 116/126 netlists partitioned
 python tools/stage4_registers.py --compare  # all three criteria, one answer key
+python tools/stage4_cone.py puzzle        # the success condition, composed
+python tools/stage4_cone.py puzzle --list # every cone root by size
+python tools/verify_functions.py          # gate: liberty vs the PDK's own
+                                          # behavioural models, 850 patterns
+python tools/verify_functions.py --selftest  # gate: and which mistakes that
+                                          # comparison could actually notice
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -134,6 +140,8 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 5 | `verify_corpus.py`: 11 rules, 662 uses against what stage 3 found, over both mappings of all 93 circuits | passing |
 | 5 | `verify_corpus.py --selftest`: all 10 corruptions caught | passing |
 | 4 | `stage4_registers.py --score`: 116/126 corpus netlists partitioned into exactly the declared registers, 34 of them held out | passing |
+| 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
+| 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 6 | any solver trace reproduces in simulation before it is believed | todo |
 
@@ -233,6 +241,19 @@ It is a real test vector for the puzzle target.
 out. `I` is one bit, so input is serial. 728 logic cells, 92 flip-flops: 84
 `dfrtp`, 4 `dfstp` (**set**, not reset), 4 `dfxtp`. The `dfstp` cells mean some
 register leaves reset holding a non-zero value.
+
+**Liberty's functions are fully parenthesised, so precedence is untested by
+them.** `(A1&B1) | (A2&B1)`, never `A1&B1 | A2&B1`. A parser with `&` and `|` at
+one precedence level agrees with the behavioural models on all 448 functions in
+the library, so `verify_functions.py`'s 850 comparisons are evidence about
+identifiers, negation and grouping and none at all about precedence. Eight hand
+written truth tables are what cover it.
+
+**`success` is a registered output.** The port is driven straight off a `dfrtp`,
+so its own cone holds one signal. The condition lives in that flop's data cone:
+47 cells over 57 bits of R0, no primary input and no constant reaching it. The
+success condition is a function of stored state alone, which is why stage 6 is
+bounded model checking and not a single SAT call.
 
 **Registers, derived by stage 4.** Grouping is by *control signature* — clock
 root, reset root and level, set root and level, hold net — which scores 116/126

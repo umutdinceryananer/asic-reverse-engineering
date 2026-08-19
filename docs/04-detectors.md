@@ -97,3 +97,83 @@ The declared partition is itself checked: `verify_corpus.py` confirms the widths
 a generator declares add up to the flip flops stage 3 found. A register partition
 that did not account for every flop would make this score meaningless in a way
 nothing else would notice.
+
+## Step 2, one cone, composed
+
+`tools/stage4_cone.py`. Output `out/<target>/cone.json`.
+
+The roadmap's instruction for the analysis week is *"read `success` backwards to
+find what gates the success condition"*. Backwards from `success` the netlist is
+738 anonymous cells. This turns the part that matters into a listing over
+register bits and ports, in dependency order, each line showing what the cell
+computes rather than what it is called.
+
+Nothing here interprets. It substitutes names and composes liberty functions,
+both mechanical, and stops at the boundary stage 3 already defines: a flip flop's
+output, a primary input, a constant.
+
+### `success` is a registered output
+
+The port is driven straight off a `dfrtp`, so its own cone holds one signal and
+says nothing. The cone that matters is the one feeding that flop's `D`, and it
+is one of the two widest in the design — the same 57-input cone
+`corpus_reach.py` found sitting closest to the edge of what the corpus can name.
+
+```
+target puzzle, cone root i00228.data
+  47 cells, 57 boundary signals
+  it depends on   R0  57 bits, and nothing else
+
+  i00228.data = t46
+  t0  = !R0[41]                                  # inv_2
+  t2  = (R0[48] | R0[45] | R0[49])               # or3_2
+  t3  = (!R0[50] & !R0[52] & !t2)                # nor3_2
+  t4  = (R0[47] & R0[46] & R0[51] & t3)          # and4_2
+  ...
+  t44 = (!R0[0] & R0[36] & t24 & t43)            # and4b_2
+  t45 = (R0[0] | !R0[36])                        # nand2b_2
+  t46 = ((t0 & t5 & t44) | (R0[2] & t45))        # a32o_2
+```
+
+Every boundary signal is a bit of R0. No primary input reaches it directly and
+no constant does, so the success condition is a function of stored state alone —
+which is what makes stage 6 a bounded model checking problem rather than a
+single SAT query.
+
+Reading what that condition *means* is the author's work and deliberately not
+the pipeline's. What the pipeline owes is the listing above and the guarantee
+that it is faithful.
+
+### What guarantees the listing
+
+Composing cells means evaluating liberty's `function` expressions, and from here
+on the pipeline computes with them rather than carrying them: stage 6's SMT2
+export inherits the same parser. So the parser is checked twice.
+
+`tools/common/boolexpr.py` parses the expressions. `tools/verify_functions.py`
+puts every combinational cell through **both** liberty and the PDK's own
+behavioural Verilog model, under Icarus, and compares complete truth tables.
+
+```
+67 cell types, 62 combinational with a parseable function
+850 (cell, output, pattern) comparisons -- every one agrees
+```
+
+`--selftest` asks the harder question: *which mistakes would that comparison
+notice?* It builds three deliberately wrong parsers and measures how many of the
+library's 448 functions expose each.
+
+| Mistake | Functions that expose it |
+|---|---|
+| `and` and `or` exchanged | 257 / 448 |
+| negation binds greedily, `!A&B` read as `!(A&B)` | 137 / 448 |
+| **one precedence level**, `A\|B&C` read as `(A\|B)&C` | **0 / 448** |
+
+That last row is the finding. **This library parenthesises every conjunction** —
+`(A1&B1) | (A2&B1)` — so precedence never decides anything in it, and 850
+agreeing comparisons are no evidence at all about precedence. Eight hand written
+truth tables cover it instead, and they are the only thing that does.
+
+Three of those eight were wrong when first written, in the bit order of the
+pattern rather than in the logic. The parser was right and the test was wrong,
+which is the ordinary way round for a test nobody has exercised.
