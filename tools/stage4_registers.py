@@ -5,30 +5,34 @@ said before "these eight flops are one thing", and a flat netlist does not say
 which flops belong together -- the puzzle's 92 sit in no declared order, under no
 shared name, on sixteen different clock nets.
 
-Three criteria were written and measured against the corpus, where the answer is
-known. Two of them lose:
+Three criteria are computed and **none is committed**, because measurement
+refuted the first attempt at choosing between them.
 
     control signature      116/126   clock root, reset root and level, set root
                                      and level, hold net
-    colour refinement       96/126   shatters a shift register, because the
-                                     chain gives every bit a distinct colour
-                                     once its predecessor has one
-    + connected components  74/126   shatters a plain register, whose bits do
+    colour refinement       96/126   shatters a shift register: the chain gives
+                                     every bit a distinct colour once its
+                                     predecessor has one
+    connected components    74/126   shatters a plain register, whose bits do
                                      not depend on one another at all
 
-`--compare` reruns all three against the same answer key, so those numbers are a
-program rather than a sentence somebody measured once.
+Those corpus numbers are nearly meaningless on their own, and `--score` now
+prints the reason beside them: **108 of the corpus's 126 netlists hold exactly
+one register**, so a criterion that returns one group and does nothing else
+scores 108/126. The control signature's real margin is eight circuits, and on
+the 18 netlists where the question is not trivial it gets 8.
 
-So the control signature is committed, and refinement is reported *beside* it as
-candidate splits rather than applied. That is what `docs/solver-pipeline.md` asks
-for -- "report overlapping candidates rather than forcing a disjoint partition"
--- and it is the honest shape of the result: the control signature is right when
-it is right and merges registers that share a clock, a reset and a hold, which
-is 10 of the corpus's 126 netlists: every `scale_datapath`, and the composed
-circuit that feeds a shift register into an accumulator.
+On the warm up, whose true partition the DEF states outright -- two eight bit
+shift registers, `sr_a` and `sr_b` -- the control signature is **wrong** and
+connected components is right. See `tools/verify_blocks.py`. The two shift
+registers share a clock, a reset and an enable, and no control signature can
+separate registers that share all three.
 
-The residue is the point. A control group that refinement wants to split, and
-that no detector later names, is where a person has to read.
+So the three are **complementary and not ranked**, and presenting them as a
+ranking was the mistake. Each is reported, and where they disagree that
+disagreement is the residue: it is where a person has to read, and it is not
+resolved by picking whichever scored best on a corpus that mostly does not ask
+the question.
 
 Usage:
     python tools/stage4_registers.py warmup
@@ -229,9 +233,14 @@ def run(target):
 
     result = analyse(graph)
     rows = result["registers"]
-    print(f"target {target}: {len(graph['flipflops'])} flip flops -> "
-          f"{len(rows)} registers by control signature")
-    print()
+    print(f"target {target}: {len(graph['flipflops'])} flip flops")
+    print(f"\nwhat each criterion says, none of them committed")
+    for name, criterion in CRITERIA.items():
+        sizes = sorted((len(m) for m in criterion(graph).values()), reverse=True)
+        print(f"  {name:<32} {sizes}")
+    print(f"\nthe rest of this report follows the control signature, which is")
+    print(f"the coarsest of the three. Where the others split further, that is")
+    print(f"reported as a candidate split and not applied.\n")
     for row in rows:
         control = f"clock {row['clock']}"
         if row["clock_inverted"]:
@@ -395,6 +404,32 @@ def score():
     total = exact + len(wrong)
     print(f"register grouping by control signature, over the corpus")
     print(f"  {exact}/{total} netlists partitioned exactly {dict(held_out)}")
+
+    # The null model, printed here rather than left for somebody to think of.
+    # A score a criterion that does nothing also achieves is not a result, and
+    # this one very nearly is: most of the corpus holds a single register.
+    trivial, single = 0, 0
+    for entry in entries:
+        directory = entry.get("dir", f"{OUT_DIR}/{entry['name']}")
+        if not os.path.exists(f"{directory}/graph.json"):
+            continue
+        with open(f"{directory}/graph.json", encoding="utf-8") as handle:
+            graph = json.load(handle)
+        if not graph["flipflops"]:
+            continue
+        with open(f"{directory}/truth.json", encoding="utf-8") as handle:
+            declared = expected_registers(json.load(handle), graph)
+        single += len(declared) == 1
+        trivial += declared == [len(graph["flipflops"])]
+    print(f"  {trivial}/{total} would be got right by a criterion that returns "
+          f"one group and does nothing else")
+    print(f"  {total - single}/{total} netlists declare more than one register, "
+          f"which is where the question is real")
+    hard = [w for w in wrong]
+    print(f"  of those {total - single}, this criterion gets "
+          f"{total - single - len(hard)}")
+    print(f"\n  On the warm up, whose true partition the DEF states, it is "
+          f"wrong: see tools/verify_blocks.py")
     print(f"\n  the {len(wrong)} it does not get:")
     for name, variant, family, expected, got in wrong:
         print(f"    {name}[{variant}]  {family}")

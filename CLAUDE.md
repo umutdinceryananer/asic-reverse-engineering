@@ -18,7 +18,7 @@ case.
 | 1, cell recognition | **done**, gated |
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
-| 4, detectors | **steps 1 and 2 done**: registers 116/126, and cones composed into readable listings. Naming not started |
+| 4, detectors | steps 1 and 2 built, **register grouping fails the warm up's own hierarchy**. Naming not started |
 | 5, synthetic corpus | **done**, 93 circuits x 2 mappings, gated by `verify_corpus.py` |
 | 6, inversion | not started |
 | 7, output extraction | not started |
@@ -113,6 +113,8 @@ python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
 python tools/stage4_registers.py puzzle
 python tools/stage4_registers.py --score  # gate: 116/126 netlists partitioned
 python tools/stage4_registers.py --compare  # all three criteria, one answer key
+python tools/verify_blocks.py             # gate: stage 4 against the warm up's
+                                          # DEF hierarchy. CURRENTLY FAILING
 python tools/stage4_cone.py puzzle        # the success condition, composed
 python tools/stage4_cone.py puzzle --list # every cone root by size
 python tools/verify_functions.py          # gate: liberty vs the PDK's own
@@ -139,7 +141,8 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `stage3_crosscheck.py --selftest`: all 6 corruptions caught | passing |
 | 5 | `verify_corpus.py`: 11 rules, 662 uses against what stage 3 found, over both mappings of all 93 circuits | passing |
 | 5 | `verify_corpus.py --selftest`: all 10 corruptions caught | passing |
-| 4 | `stage4_registers.py --score`: 116/126 corpus netlists partitioned into exactly the declared registers, 34 of them held out | passing |
+| 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]` | **failing**: the committed criterion answers `[16]` |
+| 4 | `stage4_registers.py --score`: 116/126 corpus netlists, beside a null model that gets 108/126 and a real margin of 8 | passing, and nearly meaningless |
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
@@ -255,13 +258,20 @@ so its own cone holds one signal. The condition lives in that flop's data cone:
 success condition is a function of stored state alone, which is why stage 6 is
 bounded model checking and not a single SAT call.
 
-**Registers, derived by stage 4.** Grouping is by *control signature* — clock
-root, reset root and level, set root and level, hold net — which scores 116/126
-on the corpus against 96 for colour refinement and 74 for connected components.
-The two alternatives fail in mirror image: components shatter a plain register
-whose bits do not interact, refinement shatters a shift register whose chain
-distinguishes every bit. Refinement is reported as *candidate splits* and never
-applied.
+**The warm up's own hierarchy is an answer key, and it went unused for five
+stages.** `01_netlist.v` and `03_post_place_and_route.def` name every instance
+with the block it came from — `sr_a` 16 cells, `sr_b` 16, `add0` 41, `cmp0` 3 —
+so the true register partition is `[8, 8]`. `tools/verify_blocks.py` maps it onto
+the recovered instances by position, orientation and cell, 230 of 230.
+
+**Registers, derived by stage 4. No criterion is committed, because measurement
+refuted the first choice.** Control signature scores 116/126 on the corpus,
+colour refinement 96, connected components 74 — but **a criterion that returns
+one group and does nothing scores 108/126**, so the real margin is eight
+netlists and on the 18 that are not trivial the control signature gets 8. On the
+warm up it is wrong and connected components, ranked last by the corpus, is
+right. The three are complementary, not ranked, and presenting them as a ranking
+was the mistake. Where they disagree, that disagreement is the residue.
 
 The puzzle's 92 flops become 4 registers: R0 72 bits (reset), R1 12 bits (reset,
 holds on one net), R2 4 bits (no reset, `dfxtp`), R3 4 bits (set, `dfstp`).
@@ -359,6 +369,12 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
   against a known-bad input once, or it is only silence. `verify_corpus.py
   --selftest` is this rule made routine, and it caught its own blind spot on its
   first run.
+- **Inventory the answer keys before building a substitute for them.** The warm
+  up's RTL and reference netlist sat unread while a synthetic corpus was built to
+  do their job. `tools/review_packet.py` lists every ground truth file and greps
+  for what reads it, so "unused" is visible rather than remembered.
+- **A score a trivial implementation also achieves is not evidence.** Print the
+  null model beside every score, in the same run.
 - **A failed build must not overwrite the answer key it failed to produce.**
   Docker Desktop stopped, all 93 circuits failed, and `stage5_corpus.py` wrote
   an index of zero over a good one; `verify_corpus.py` then reported 0/0 as a

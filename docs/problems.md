@@ -57,6 +57,8 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 31 | Every inverter in the library was classified as a buffer | normalisation | understood |
 | 32 | The cross check compared nets by a name one side invents | identity | understood |
 | 33 | A failed build overwrote the answer key it failed to produce | tooling | understood |
+| 34 | The repository's best answer key went unused for five stages | process | understood |
+| 35 | A score reported without its null model | process | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -835,11 +837,61 @@ was checked instead of its *product*. Worth the entry because the loss was
 silent: nothing said the answer key had been destroyed, and stage 4's score
 would have been measured against it.
 
+### 34. The repository's best answer key went unused for five stages
+
+**Symptom.** Stage 4's register grouping scored 116/126 on a synthetic corpus
+and was declared done. Asked afterwards what ground truth existed and had not
+been used, the answer was `puzzle/warmup/00_source.v` and
+`puzzle/warmup/01_netlist.v` — the warm up's RTL and its reference gate netlist.
+
+**What they contain.** `01_netlist.v` and `03_post_place_and_route.def` both
+name every instance with the hierarchy it came from: `sr_a/_16_`, `add0/_31_`,
+`cmp0/_02_`. That is an exact block partition of a real design — 16 cells in
+`sr_a`, 16 in `sr_b`, 41 in `add0`, 3 in `cmp0`. The flops divide 8 and 8.
+
+**What it says about stage 4.** The committed criterion answers "one register of
+sixteen". It is wrong, and the criterion the corpus score ranked *last* is the
+one that is right. Two shift registers sharing a clock, a reset and an enable
+cannot be separated by any control signature, and no corpus circuit has that
+shape — `two_clocks` differs in clock, `inverted_clock` in edge,
+`composed_shift_accumulate` in structure.
+
+**Cause.** Days were spent building a synthetic corpus to test detectors against,
+while the real answer sat in the repository unopened. The stage documents were
+written from the corpus score.
+
+**Fix.** `tools/verify_blocks.py` maps the DEF's hierarchy onto the recovered
+instances — keyed on position, orientation and cell, all 230 matching — and
+scores stage 4 against it. It fails, and is recorded as failing.
+
+**Verdict: understood.** This is problem 6 again at the scale of a whole stage:
+*open the primary artifact before reasoning from a secondary one*. Problem 6 was
+one file unread; this was the most authoritative file in the repository unread
+while a substitute for it was constructed.
+
+### 35. A score reported without its null model
+
+**Symptom.** "116/126 netlists partitioned exactly" was written into `CLAUDE.md`
+as a gate.
+
+**Cause.** 108 of the corpus's 126 netlists hold exactly one register, so a
+criterion that returns one group and does nothing else scores 108/126. The real
+margin was eight netlists, and on the 18 where the question is not trivial the
+criterion gets 8.
+
+**Fix.** `--score` prints the null model beside the score, so it cannot be read
+the old way again. The same principle belongs beside every score this project
+produces.
+
+**Verdict: understood.** A sibling of the rule this project already had — *a
+passing test that was never able to fail is not evidence* — one step further
+out: **a score a trivial implementation also achieves is not evidence either.**
+
 ---
 
 ## The shapes these fall into
 
-Thirty three problems, six recurring shapes.
+Thirty five problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

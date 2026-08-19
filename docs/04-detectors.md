@@ -15,14 +15,11 @@ before "these eight flops are one thing", and a flat netlist does not say which
 flops belong together: the puzzle's 92 sit in no declared order, under no shared
 name, on sixteen different clock nets.
 
-### Three criteria, measured rather than argued
+### Three criteria, and no committed answer
 
-The answer is known for every circuit in the corpus, because the generator
-declares it. `--compare` scores all three against that answer key:
-
-| Criterion | Exact |
+| Criterion | Corpus |
 |---|---|
-| **control signature** | **116/126** |
+| control signature | 116/126 |
 | colour refinement, to a fixed point | 96/126 |
 | control signature + connected components | 74/126 |
 
@@ -30,17 +27,25 @@ The control signature is the clock root, the reset root and its level, the set
 root and its level, and the hold net — what a register is written and cleared
 by, which its bits share by definition.
 
-The two alternatives **fail in mirror image**, and that is the useful part.
-Connected components of the flop dependency graph shatters a *plain* register,
-whose bits do not depend on one another at all. Colour refinement shatters a
-*shift* register, whose chain hands every bit a distinct colour once its
-predecessor has one. Neither is a tuning problem: one criterion needs the bits
-to interact and the other needs them not to.
+**Those numbers are nearly meaningless and were reported as a result anyway.**
+108 of the corpus's 126 netlists hold exactly one register, so a criterion that
+returns one group and does nothing else scores 108/126. The control signature's
+real margin is eight netlists, and on the 18 where the question is not trivial
+it gets **8 of 18**. `--score` now prints the null model beside the score so
+this cannot be read the old way again.
 
-So the control signature is committed, and refinement is reported **beside** it
-as candidate splits rather than applied. That is what `docs/solver-pipeline.md`
-asks for — "report overlapping candidates rather than forcing a disjoint
-partition" — and it is the honest shape of the result.
+The three **fail in mirror image**, which is the useful part. Connected
+components shatters a *plain* register, whose bits do not depend on one another
+at all. Colour refinement shatters a *shift* register, whose chain hands every
+bit a distinct colour once its predecessor has one. Neither is a tuning problem:
+one criterion needs the bits to interact and the other needs them not to.
+
+The first version of this document committed the control signature on the
+strength of 116/126. The warm up disproves that choice, and the disproof was
+sitting in the repository the whole time — see below. Nothing is committed now.
+All three are reported, and where they disagree that disagreement is the
+residue: it is where a person reads, and it is not settled by picking whichever
+scored best on a corpus that mostly does not ask the question.
 
 ### What it cannot do
 
@@ -55,15 +60,43 @@ missed here.** In `scale_datapath` that is exactly what happens: the held output
 register would have been separated by its hold net, and the mapper factored the
 mux away, so it is not.
 
-### The warm up and the puzzle
+### The warm up, where the answer is known and stage 4 gets it wrong
+
+`puzzle/warmup/03_post_place_and_route.def` names every placed instance with the
+hierarchy it came from, and `01_netlist.v` carries the same names. That is an
+exact block partition of a *real* design — not a corpus we wrote, not a shape we
+chose. `tools/verify_blocks.py` maps it onto the recovered instances, keyed on
+position, orientation and cell together, and all 230 match.
 
 ```
-warm up   16 flops -> 1 register of 16 bits
-          clock clk, reset rst_n low, holds on en
-          reads A, B, en; drives S
+the design's own block partition, from the DEF
+  (top)      154 cells
+  add0        41 cells
+  sr_a        16 cells, 8 of them flip flops
+  sr_b        16 cells, 8 of them flip flops
+  cmp0         3 cells
+
+the register partition it implies: [8, 8]
+
+  control signature                [16]      wrong
+  connected components             [8, 8]    CORRECT
+  colour refinement, fixed point   [16]      wrong
+  everything is one register       [16]      wrong
 ```
 
-Which is the whole circuit: a 16-bit accumulator behind a hold.
+Two eight bit shift registers, feeding an adder, feeding a comparator. They
+share a clock, a reset **and** an enable, so no control signature can separate
+them — and the criterion the corpus score ranked *last* is the one that is
+right.
+
+An earlier version of this document read stage 4's `[16]` and wrote "which is
+the whole circuit: a 16-bit accumulator behind a hold". `00_source.v` says it is
+two shift registers, an adder and a comparison against 496. The count was wrong,
+the name was wrong, and interpreting the circuit was not the pipeline's job in
+the first place.
+
+This gate **currently fails**, and it should: stage 4 cannot yet partition the
+one real design whose partition is known.
 
 ```
 puzzle    92 flops -> 4 registers
@@ -90,13 +123,22 @@ hidden in it.
 
 ### Verification
 
-Scored on the corpus, both mappings of every circuit, `--score`. 116 of 126
-exact, of which 34 are on circuits held out from development.
+Two scores, and they disagree, which is the finding.
 
-The declared partition is itself checked: `verify_corpus.py` confirms the widths
-a generator declares add up to the flip flops stage 3 found. A register partition
-that did not account for every flop would make this score meaningless in a way
-nothing else would notice.
+`--score` runs the corpus: 116 of 126 exact, 34 of them held out — beside a null
+model that gets 108. `verify_blocks.py` runs the warm up against its own DEF
+hierarchy: **fail**.
+
+The declared corpus partitions are themselves checked: `verify_corpus.py`
+confirms the widths a generator declares add up to the flip flops stage 3 found.
+A partition that did not account for every flop would make the corpus score
+meaningless in a way nothing else would notice.
+
+What neither score covers is the shape the warm up actually has: **two
+structurally identical registers sharing every control signal.** No corpus
+circuit has it. `two_clocks` differs in clock, `inverted_clock` in edge,
+`composed_shift_accumulate` in structure. The corpus missed exactly the case the
+real target contains.
 
 ## Step 2, one cone, composed
 
