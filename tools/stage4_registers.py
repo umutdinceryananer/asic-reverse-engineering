@@ -34,11 +34,17 @@ disagreement is the residue: it is where a person has to read, and it is not
 resolved by picking whichever scored best on a corpus that mostly does not ask
 the question.
 
+`--score` and `--compare` are gates and exit non-zero. They did not use to:
+both ended in `return 0` whatever they measured, so a criterion returning one
+group per flop scored 6/126 and still passed. What each one is expected to
+measure is recorded in `RECORDED` and `RECORDED_CRITERIA` below, and a figure
+that moves in either direction fails until somebody re-records it.
+
 Usage:
     python tools/stage4_registers.py warmup
     python tools/stage4_registers.py puzzle
-    python tools/stage4_registers.py --score      # against the corpus
-    python tools/stage4_registers.py --compare    # all three criteria
+    python tools/stage4_registers.py --score      # gate: against the corpus
+    python tools/stage4_registers.py --compare    # gate: all three criteria
 """
 
 import json
@@ -51,6 +57,30 @@ from stage1_cells import TARGETS
 
 OUT_DIR = "out/synth"
 REFINEMENT_ROUNDS = 3
+
+# What the corpus said the last time somebody looked at it and understood the
+# answer. Recorded rather than only recomputed, because both entry points below
+# used to end in an unconditional `return 0`: replacing the criterion with
+# "every flop is its own register" took the score from 116/126 to 6/126 and the
+# run still passed, which made --score a report wearing a gate's clothes.
+#
+# A number that falls below its recording fails. A number that rises is printed
+# loudly and also fails, deliberately: an unexplained improvement is a change to
+# something, and re-recording it has to be a decision rather than a side effect.
+RECORDED = {
+    "exact": 116,           # netlists the control signature partitions exactly
+    "netlists": 126,        # netlists with flops and a declared partition
+    "null model": 108,      # what "one group, and do nothing" scores
+    "multi": 18,            # netlists declaring more than one register
+    "multi hits": 8,        # of those, what the control signature gets
+}
+
+# Per criterion, for --compare. Same rule.
+RECORDED_CRITERIA = {
+    "control signature": 116,
+    "colour refinement, fixed point": 96,
+    "+ connected components": 74,
+}
 
 
 def flop_edges(graph):
@@ -274,9 +304,13 @@ def run(target):
         print(f"  {name} ({len(pieces)} pieces): "
               f"{[len(p) for p in pieces]}")
     print(f"  group sizes after each round: {result['refinement_sizes']}")
-    print(f"\n  Refinement is NOT applied. Measured on the corpus it scores")
-    print(f"  48/63 against the control signature's 56/63, because it shatters")
-    print(f"  a shift register. Where it disagrees, a person should read.")
+    print(f"\n  Refinement is NOT applied, and neither is any other criterion.")
+    print(f"  Where they disagree, that disagreement is the residue and a person")
+    print(f"  reads it. For how the three score against a known answer run")
+    print(f"  --compare, and tools/verify_blocks.py for the one real design")
+    print(f"  whose partition is known. No score is quoted here, because this")
+    print(f"  entry point does not measure one: the numbers that stood here were")
+    print(f"  from a corpus two sizes ago and no run reproduced them.")
 
     out = os.path.join("out", target, "registers.json")
     with open(out, "w", encoding="utf-8") as handle:
@@ -345,12 +379,16 @@ CRITERIA = {
 }
 
 
-def compare():
-    """Every criterion against the same answer key, in one run."""
+def corpus():
+    """Every scored netlist as (entry, truth, expected, graph), loaded once.
+
+    Both entry points below used to walk the index themselves, `score` twice
+    over, which is how its score and its null model could end up counting
+    different denominators without anything saying so.
+    """
     with open(f"{OUT_DIR}/index.json", encoding="utf-8") as handle:
         entries = json.load(handle)["circuits"]
-    tally = {name: 0 for name in CRITERIA}
-    total = 0
+    rows = []
     for entry in entries:
         directory = entry.get("dir", f"{OUT_DIR}/{entry['name']}")
         if not os.path.exists(f"{directory}/graph.json"):
@@ -361,87 +399,145 @@ def compare():
             continue
         with open(f"{directory}/truth.json", encoding="utf-8") as handle:
             truth = json.load(handle)
-        expected = expected_registers(truth, graph)
-        total += 1
+        rows.append((entry, truth, expected_registers(truth, graph), graph))
+    return rows
+
+
+def against_recording(measured):
+    """Every figure against what was recorded. Returns (lines, failed).
+
+    Below its recording is a regression. *Above* its recording fails too, which
+    is deliberate: a score that improved on its own is a change to something,
+    and the recording is the only thing that makes it visible. Re-record it and
+    the next run is quiet.
+    """
+    lines, failed = [], False
+    for key, value in measured.items():
+        recorded = RECORDED.get(key)
+        if recorded is None:
+            lines.append(f"  {key}: {value}, NOT RECORDED -- add it to RECORDED")
+            failed = True
+        elif value < recorded:
+            lines.append(f"  REGRESSION  {key}: {value}, recorded {recorded}")
+            failed = True
+        elif value > recorded:
+            lines.append(f"  NOTE        {key}: {value}, recorded {recorded}. "
+                         f"Above the recording, which is not automatically good")
+            lines.append(f"              news. Find out why it moved, then "
+                         f"re-record it in RECORDED.")
+            failed = True
+    return lines, failed
+
+
+def compare():
+    """Every criterion against the same answer key, in one run."""
+    rows = corpus()
+    tally = {name: 0 for name in CRITERIA}
+    for _, _, expected, graph in rows:
         for name, criterion in CRITERIA.items():
             got = sorted((len(m) for m in criterion(graph).values()), reverse=True)
             tally[name] += got == expected
+    total = len(rows)
     print(f"register grouping criteria, over {total} netlists with a declared "
           f"partition\n")
     for name, hits in sorted(tally.items(), key=lambda kv: -kv[1]):
-        print(f"  {hits:>4}/{total}   {name}")
+        recorded = RECORDED_CRITERIA.get(name)
+        mark = ""
+        if recorded is None:
+            mark = "   NOT RECORDED"
+        elif hits < recorded:
+            mark = f"   REGRESSION, recorded {recorded}"
+        elif hits > recorded:
+            mark = f"   above its recording of {recorded}, re-record it"
+        print(f"  {hits:>4}/{total}   {name}{mark}")
+    missing = sorted(set(RECORDED_CRITERIA) - set(CRITERIA))
+    for name in missing:
+        print(f"     --/{total}   {name}   RECORDED, BUT NO LONGER COMPUTED")
     print(f"\n  The two alternatives fail in mirror image. Connected components")
     print(f"  shatters a plain register, whose bits do not depend on one")
     print(f"  another. Refinement shatters a shift register, whose chain gives")
     print(f"  every bit a distinct colour. Neither failure is a tuning problem.")
+
+    off = sorted([n for n, h in tally.items() if RECORDED_CRITERIA.get(n) != h]
+                 + missing)
+    if off:
+        print(f"\nRESULT: fail, {len(off)} criterion(s) do not match their "
+              f"recording: {off}")
+        return 1
+    print(f"\nRESULT: pass, all {len(tally)} criteria match their recording")
     return 0
 
 
 def score():
     """Sensitivity of the committed criterion, on circuits with a known answer."""
-    with open(f"{OUT_DIR}/index.json", encoding="utf-8") as handle:
-        entries = json.load(handle)["circuits"]
+    rows = corpus()
     exact, wrong, held_out = 0, [], Counter()
-    for entry in entries:
-        directory = entry.get("dir", f"{OUT_DIR}/{entry['name']}")
-        if not os.path.exists(f"{directory}/graph.json"):
-            continue
-        with open(f"{directory}/graph.json", encoding="utf-8") as handle:
-            graph = json.load(handle)
-        if not graph["flipflops"]:
-            continue
-        with open(f"{directory}/truth.json", encoding="utf-8") as handle:
-            truth = json.load(handle)
-        expected = expected_registers(truth, graph)
+    # The null model and the non-trivial subset, counted in the same pass over
+    # the same rows as the score, so the denominators cannot drift apart.
+    trivial = multi = multi_hits = 0
+    for entry, truth, expected, graph in rows:
         got = sorted((len(m) for m in control_groups(graph).values()),
                      reverse=True)
-        if got == expected:
+        hit = got == expected
+        if hit:
             exact += 1
             held_out["exact, held out" if entry["held_out"] else "exact"] += 1
         else:
             wrong.append((entry["name"], entry.get("variant"), truth["family"],
                           expected, got))
-    total = exact + len(wrong)
+        trivial += expected == [len(graph["flipflops"])]
+        if len(expected) > 1:
+            multi += 1
+            # Hits among the multi-register netlists, counted directly. This was
+            # `multi - len(wrong)`, which subtracts every miss including the
+            # single-register ones, so a criterion that split every flop
+            # reported "of those 18, this criterion gets -102". A figure that
+            # can go negative was never counting what its sentence said.
+            multi_hits += hit
+    total = len(rows)
     print(f"register grouping by control signature, over the corpus")
     print(f"  {exact}/{total} netlists partitioned exactly {dict(held_out)}")
-
-    # The null model, printed here rather than left for somebody to think of.
-    # A score a criterion that does nothing also achieves is not a result, and
-    # this one very nearly is: most of the corpus holds a single register.
-    trivial, single = 0, 0
-    for entry in entries:
-        directory = entry.get("dir", f"{OUT_DIR}/{entry['name']}")
-        if not os.path.exists(f"{directory}/graph.json"):
-            continue
-        with open(f"{directory}/graph.json", encoding="utf-8") as handle:
-            graph = json.load(handle)
-        if not graph["flipflops"]:
-            continue
-        with open(f"{directory}/truth.json", encoding="utf-8") as handle:
-            declared = expected_registers(json.load(handle), graph)
-        single += len(declared) == 1
-        trivial += declared == [len(graph["flipflops"])]
     print(f"  {trivial}/{total} would be got right by a criterion that returns "
           f"one group and does nothing else")
-    print(f"  {total - single}/{total} netlists declare more than one register, "
+    print(f"  {multi}/{total} netlists declare more than one register, "
           f"which is where the question is real")
-    hard = [w for w in wrong]
-    print(f"  of those {total - single}, this criterion gets "
-          f"{total - single - len(hard)}")
+    print(f"  of those {multi}, this criterion gets {multi_hits}")
     print(f"\n  On the warm up, whose true partition the DEF states, it is "
           f"wrong: see tools/verify_blocks.py")
+
     print(f"\n  the {len(wrong)} it does not get:")
-    for name, variant, family, expected, got in wrong:
+    for name, variant, family, expected, got in wrong[:20]:
         print(f"    {name}[{variant}]  {family}")
         print(f"      expected {expected}")
         print(f"      got      {got}")
+    if len(wrong) > 20:
+        print(f"    ... and {len(wrong) - 20} more")
     families = Counter(w[2] for w in wrong)
     print(f"\n  by family: {dict(families)}")
-    print(f"  Every one is a circuit built from several registers that share a")
-    print(f"  clock, a reset and a hold. The criterion cannot see a boundary")
-    print(f"  that no control signal marks, and refinement, which can, breaks")
-    print(f"  more than it fixes. This is the residue stage 4 reports rather")
-    print(f"  than the failure it hides.")
+    # Said only when it is true of the run that just happened. It used to be
+    # printed unconditionally, so a criterion that shattered every plain
+    # register still concluded that every miss was a shared-control circuit.
+    over = sum(1 for w in wrong if len(w[3]) == 1)
+    if wrong and not over:
+        print(f"  Every one is a circuit built from several registers that share")
+        print(f"  a clock, a reset and a hold. The criterion cannot see a")
+        print(f"  boundary that no control signal marks, and refinement, which")
+        print(f"  can, breaks more than it fixes. This is the residue stage 4")
+        print(f"  reports rather than the failure it hides.")
+    elif wrong:
+        print(f"  {over} of the misses are on netlists that declare ONE register,")
+        print(f"  so this criterion is over-splitting and not merely failing to")
+        print(f"  split. That is a different failure from the recorded one.")
+
+    lines, failed = against_recording({
+        "exact": exact, "netlists": total, "null model": trivial,
+        "multi": multi, "multi hits": multi_hits})
+    print(f"\nagainst the recorded expectation")
+    print("\n".join(lines) if lines else "  every figure matches its recording")
+    if failed:
+        print("\nRESULT: fail")
+        return 1
+    print("\nRESULT: pass")
     return 0
 
 
