@@ -79,6 +79,8 @@ GATES = [
      ["tools/stage3_crosscheck.py", "puzzle"], False, "gate"),
     ("stage 3, and would that cross check notice if it were wrong",
      ["tools/stage3_crosscheck.py", "warmup", "--selftest"], False, "gate"),
+    ("stages 1 to 3, the recovered netlist proven equal to the reference",
+     ["tools/verify_equiv.py", "warmup"], True, "gate"),
     ("stage 4, liberty functions against the PDK's behavioural models",
      ["tools/verify_functions.py"], True, "gate"),
     ("stage 4, and which parser mistakes that comparison could expose",
@@ -93,6 +95,10 @@ GATES = [
      ["tools/verify_corpus.py"], False, "gate"),
     ("stage 5, and every rule against the corruption it exists to catch",
      ["tools/verify_corpus.py", "--selftest"], False, "gate"),
+    ("stage 6, an input sequence solved for out of the graph",
+     ["tools/stage6_invert.py", "warmup"], True, "gate"),
+    ("stage 6, and that trace replayed through stage 2's netlist",
+     ["tools/sim/replay.py", "warmup"], True, "gate"),
     ("the size bound on what the corpus could ever name",
      ["tools/corpus_reach.py", "puzzle"], False, "report"),
 ]
@@ -133,13 +139,16 @@ GROUND_TRUTH = [
 #                     Importing TARGETS is not enough on its own: five tools
 #                     import it only to validate a command line argument.
 #
-# `00_source.v`, `01_netlist.v` and `02_netlist_with_power_rails.v` are read by
-# nothing. That is the honest answer and the useful one: two of them name every
-# instance with the block it came from, which is an exact block partition of a
-# real design, and stage 4 was scored against a synthetic corpus instead.
+# `00_source.v` and `02_netlist_with_power_rails.v` are read by nothing, and
+# saying so is the useful part: this section exists because the row above them
+# said the same thing for five stages. `01_netlist.v` stopped being one of them
+# when `verify_equiv.py` was written, which is the first thing in this
+# repository to open the warm up's reference netlist.
 READERS = {
     "puzzle/warmup/00_source.v": [],
-    "puzzle/warmup/01_netlist.v": [],
+    "puzzle/warmup/01_netlist.v": [
+        ("tools/verify_equiv.py", "names it"),
+    ],
     "puzzle/warmup/02_netlist_with_power_rails.v": [],
     "puzzle/warmup/03_post_place_and_route.def": [
         ("tools/stage1_cells.py", "names it"),
@@ -193,8 +202,19 @@ UNVERIFIED = [
      "were reporting something other than what they said: a truncated defect "
      "register, a substring search presented as an inventory, and a report "
      "rendered as a passing gate. Read a claim here as a claim."),
-    ("stages 6 and 7",
-     "Not started. No inversion, no output extraction."),
+    ("tools/stage6_invert.py, what the reproduction gate does not assert",
+     "sim/replay.py asserts the property cycle and only reports the others. "
+     "Simulation starts every flop at x and the solver started from a state it "
+     "chose, so the early cycles can differ for a reason that is not a defect. "
+     "A model error that only shows on a cycle the property does not name "
+     "would not be caught."),
+    ("stage 6's two readings of liberty",
+     "The transition relation and common/celllib.py derive cell behaviour "
+     "separately, and both are this repository's reading of the same JSON. "
+     "verify_functions.py checks that reading against the PDK's behavioural "
+     "models, which is the only thing keeping either honest."),
+    ("stage 7",
+     "Not started. No output extraction."),
 ]
 
 
@@ -551,11 +571,14 @@ def main(quick=False):
         who = ", ".join(f"`{tool}` ({how})" for tool, how in rows) or "**nothing**"
         w(f"| `{path}` | {what} | {who} |\n")
     w("\n`00_source.v` and `01_netlist.v` were unread for the first five stages "
-      "of this\nwork, and are unread still. `01_netlist.v` and the DEF both name "
-      "every instance\nwith the hierarchy it came from, which is an exact block "
-      "partition of a real\ndesign. Stage 4 was being scored against a synthetic "
-      "corpus instead.\n`tools/verify_blocks.py` now uses the DEF, and stage 4 "
-      "fails it.\n\n")
+      "of this\nwork. Both name every instance with the hierarchy it came from, "
+      "which is an exact\nblock partition of a real design, and stage 4 was "
+      "being scored against a synthetic\ncorpus instead. "
+      "`tools/verify_blocks.py` uses the DEF now and stage 4 fails it;\n"
+      "`tools/verify_equiv.py` uses `01_netlist.v` and proves the recovered "
+      "netlist equal\nto it. `00_source.v`, the RTL, is still read by nothing, "
+      "and should stay that way:\nit says what the design *is*, which is the "
+      "one thing the pipeline has to derive.\n\n")
 
     w("## Repository\n\n")
     rows = inventory()

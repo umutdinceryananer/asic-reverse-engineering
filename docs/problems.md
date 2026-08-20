@@ -62,6 +62,9 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 36 | Two gates that printed a verdict and always exited 0 | tooling | understood |
 | 37 | Ten corruptions caught, five rules never seen to fail | tooling | understood |
 | 38 | The review packet's own three sections misreported | tooling | understood |
+| 39 | `clock_nets` is the nets at the flop pins, not the clock tree | inversion | understood |
+| 40 | An equivalence proof that proved nothing, twice over | inversion | understood |
+| 41 | A bounded model checker answering from a start state nothing has | inversion | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1000,11 +1003,88 @@ and then its own tables were not checked against anything -- because generated
 output reads as measured, and three of those sections were prose with a
 `for` loop in front of it.
 
+### 39. `clock_nets` is the nets at the flop pins, not the clock tree
+
+**Symptom.** Stage 6's first run stopped with `KeyError: 'clk'` while building
+the transition relation: something was asking for the value of the clock port,
+in a model where a cycle *is* a clock edge and the clock has no value.
+
+**Cause.** The model drops clock tree cells, and it identified them as the cells
+driving a net in `graph.json`'s `clock_nets`. That field holds the nets **at the
+flop clock pins** and nothing else. The warm up's tree is
+`clk -> n8 -> {n18, n41}` through three `clkbuf_16`; `clock_nets` is
+`['n18', 'n41']` and `clock_roots` is `{'n5': 16}`, so the middle net n8 appears
+in neither. The buffer driving it was modelled as ordinary logic, which made the
+clock port a free variable the solver had to choose a value for.
+
+**Fix.** The tree is walked backwards from each flop's clock pin to its root,
+through the cells that drive it, rather than read off a field that answers a
+different question. A clock net read by anything other than a flop's clock pin
+is now reported and refused: that is a gated or sampled clock, which this cycle
+model cannot represent at all.
+
+**Verdict: understood.** The field is not wrong; it was read as though it named
+the tree, and it names the leaves. Nothing before stage 6 needed the difference,
+which is why five stages went by without it surfacing.
+
+### 40. An equivalence proof that proved nothing, twice over
+
+**Symptom.** The first miter between `01_netlist.v` and `graph.v` failed. So did
+the second. The two designs are the same design.
+
+**First cause.** The flops carry an asynchronous reset, and Yosys's SAT engine
+has no model for `$adff`. Every proof step emitted
+`No SAT model available for async FF cell ... Consider running async2sync`, and
+the run failed for a reason with nothing to do with the netlists. `async2sync`
+fixes it.
+
+**Second cause.** With that fixed, `equiv_struct` proposed no correspondences at
+all and `equiv_induct` ground through five induction steps and gave up: 0 of 153
+points proven. The script used `prep -flatten`, and `prep` optimises. Two
+designs optimised independently stop being structurally comparable, which is the
+one thing `equiv_struct` needs. `proc; flatten; opt_clean` instead, and 153 of
+153 prove in 1.5 seconds. A third cause sat under it: `equiv_struct` ignores
+internal cell types by default, and after flattening every cell here is one, so
+`-icells` is required for it to look at anything.
+
+**Fix.** Both settings, with the measurement that chose them recorded in the
+tool. Demonstrated able to fail: one `nand2_2` swapped for `nor2_2`, exit 1.
+
+**Verdict: understood.** Worth its own entry because a failing equivalence check
+looks exactly like a real inequivalence, and the temptation is to go looking for
+the defect in the netlist rather than in the script.
+
+### 41. A bounded model checker answering from a start state nothing has
+
+**Symptom.** None, which is the problem. Stage 6 found a trace driving the warm
+up's output high at depth 0 -- before any clock edge -- and would have written
+it down.
+
+**Cause.** The initial state was left free, which is the honest statement of a
+chip whose power-up state is unknown, and asking `exists inputs, exists start
+state: output high` is not the question. It lets the solver choose the state as
+well as the inputs. Measured on the warm up, *every* depth from 0 to 7 returns a
+trace of this kind. Each is a correct answer to what was asked and useless as an
+answer to what was meant, and simulation from `x` would have rejected all of
+them without saying why.
+
+**Fix.** After each candidate, the opposite question: is there a start state
+these same inputs fail from? Any such state is pinned as another copy of the
+design sharing the input variables, and the search runs again. The loop ends
+when no state defeats the trace, which makes it good from every power-up state.
+Depth 8 is the first the warm up survives, and it uses no reset at all, because
+eight shifts overwrite the registers -- which is also why baking in a reset
+preamble would have been wrong rather than merely unnecessary.
+
+**Verdict: understood.** The same shape as *a passing test that was never able
+to fail*: a query that can be satisfied the easy way will be, and the fix is to
+ask the harder question rather than to constrain the answer by hand.
+
 ---
 
 ## The shapes these fall into
 
-Thirty eight problems, six recurring shapes.
+Forty one problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

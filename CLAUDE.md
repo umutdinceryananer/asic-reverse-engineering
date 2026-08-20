@@ -20,12 +20,12 @@ case.
 | 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | steps 1 and 2 built, **register grouping fails the warm up's own hierarchy**. Naming not started |
 | 5, synthetic corpus | **done**, 93 circuits x 2 mappings, gated by `verify_corpus.py` |
-| 6, inversion | not started |
+| 6, inversion | **machinery built and gated on `warmup`**: BMC out of `graph.json`, trace replayed in simulation. The puzzle run is the author's |
 | 7, output extraction | not started |
 
 Lessons written: `docs/lectures/00`, `01`, `02`, `03`. The next is owed once
-stage 5's corpus exists and stage 4's detectors pass against it. Lessons are
-written after the gates, never before.
+stage 5's corpus exists and stage 4's detectors pass against it, and one is
+owed for stage 6 as well. Lessons are written after the gates, never before.
 
 ## Rules that bind this repository
 
@@ -100,6 +100,8 @@ python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
 python tools/stage3_crosscheck.py warmup  # gate: annotations derived a second
 python tools/stage3_crosscheck.py puzzle  # way, forwards instead of backwards
 python tools/stage3_crosscheck.py warmup --selftest
+python tools/verify_equiv.py warmup       # gate: the recovered netlist proven
+                                          # equal to 01_netlist.v, 153 points
 
 python tools/stage5_corpus.py             # 93 circuits, 186 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
@@ -122,6 +124,12 @@ python tools/verify_functions.py          # gate: liberty vs the PDK's own
                                           # behavioural models, 850 patterns
 python tools/verify_functions.py --selftest  # gate: and which mistakes that
                                           # comparison could actually notice
+
+python tools/stage6_invert.py warmup      # gate: BMC, -> out/warmup/solution.json
+python tools/stage6_invert.py warmup --depth 6   # a bound below the answer:
+                                          # exits 1 and says how deep it looked
+python tools/sim/replay.py warmup         # gate: that trace back through stage
+                                          # 2's netlist in Icarus
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -148,7 +156,9 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
-| 6 | any solver trace reproduces in simulation before it is believed | todo |
+| 3 | `verify_equiv.py warmup`: the recovered netlist proven sequentially equivalent to `01_netlist.v`, 153 correspondence points, all proven | passing |
+| 6 | `stage6_invert.py warmup`: a trace found at depth 8, proven to hold from every start state | passing |
+| 6 | `sim/replay.py warmup`: that trace reproduces against **stage 2's** netlist and the output is high at the predicted cycle | passing |
 
 ## Facts worth not rediscovering
 
@@ -253,6 +263,27 @@ one precedence level agrees with the behavioural models on all 448 functions in
 the library, so `verify_functions.py`'s 850 comparisons are evidence about
 identifiers, negation and grouping and none at all about precedence. Eight hand
 written truth tables are what cover it.
+
+**Stage 6's cycle model, and the two things it refuses.** A cycle is a clock
+edge, so the clock is not a signal: clock tree cells are dropped and the clock
+port is implicit. `S(t+1) = resetval if r(t) or r(t+1) else D(t)` is what makes
+an asynchronous reset asynchronous -- a level held across the edge clears the
+flop from either side of it. That is only a definition while a flop's reset net
+does not depend on a flop, so `stage6_invert.py` refuses a design where it does,
+and refuses one where a clock net is read by anything but a flop's clock pin.
+Neither happens in the warm up or the puzzle.
+
+**`graph.json`'s `clock_nets` is the nets *at the flop pins*, not the tree.**
+The warm up's tree is `clk -> n8 -> {n18, n41}` and the field lists n18 and n41
+only. Anything wanting the whole tree has to walk back from the flops.
+
+**A free initial state makes bounded model checking answer the wrong question.**
+The solver will happily return a trace that only works from one power-up state,
+and nothing powers up in a state anyone chose. Measured on the warm up: every
+depth from 0 to 7 yields such a trace. `stage6_invert.py` puts each candidate to
+the opposite question -- is there a start state these inputs fail from -- and
+pins any it finds as another copy of the design. Depth 8 is the first that
+survives, and it needs no reset, because eight shifts overwrite the registers.
 
 **`success` is a registered output.** The port is driven straight off a `dfrtp`,
 so its own cone holds one signal. The condition lives in that flop's data cone:
@@ -400,6 +431,13 @@ or only worked around, is `docs/problems.md`. The ones most likely to bite again
 - **Every corruption caught is not every rule covered.** `verify_corpus.py
   --selftest` reported ten of ten and had tripped seven of its twelve rules. The
   question has two sides and only one was being asked.
+- **A solver result is a claim about the model, not about the circuit.** Stage
+  6 builds its transition relation from the same `graph.json` a defect would be
+  in, so a corrupted `cell_functions` entry gives a confident, self consistent,
+  wrong trace. `sim/replay.py` puts the trace through stage 2's netlist and the
+  PDK's own models instead, which is the only thing that would notice.
+  Demonstrated: one liberty function altered, solver still says pass, replay
+  says fail.
 - **Count rules, not facts.** "662 declared facts" is eleven rules times the
   corpus size. Four were constants; two have been made to vary, and the tool now
   labels the rest. Asking why one of them could never be non-zero found a real
