@@ -45,7 +45,7 @@ import sys
 from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import liberty
+from common import boolexpr, liberty
 from common.lef import functional_pins, load as load_lef
 from stage1_cells import PDK_DIR, TARGETS
 
@@ -68,6 +68,55 @@ IMAGE = "gds-teardown-eda:latest"
 CELL_NAME_MARK = {"reset": "r", "set": "s"}
 
 BUS_BIT = re.compile(r"^(?P<base>.+)\[(?P<index>\d+)\]$")
+
+
+def selecting_mux(function):
+    """(select pin, {leg pin: the level that passes it}) for a 2:1 mux, or None.
+
+    Read out of the cell's liberty function by cofactor, never off its name.
+    The name test this replaced was `"mux2" in cell`, which also matches
+    `mux2i` -- and `mux2i` is an *inverting* mux:
+
+        mux2   X = (A0&!S) | (A1&S)          passes A0, then A1
+        mux2i  Y = (!A0&!S) | (!A1&S)        passes !A0, then !A1
+
+    A flop whose D comes from a `mux2i` with its own Q on a leg does not hold.
+    It toggles. Reporting that as a hold is wrong in the one direction that
+    matters, because every later stage treats a hold as "this register can keep
+    its value" and would build on a register that inverts every cycle instead.
+
+    The test is therefore functional: for some pin S, the function with S=0 must
+    be *identically some other pin*, positively, and the function with S=1 must
+    be identically a third. `mux2i` fails it because its cofactors are `!A0` and
+    `!A1`. Anything else in the library computing a non-inverting select passes
+    it, whatever it is called.
+
+    `tools/stage3_crosscheck.py` applies the same rule by a different route, and
+    a witness netlist in the corpus holds a `mux2i` in front of a D so that the
+    rule has something it can be seen to reject.
+    """
+    if not function:
+        return None
+    tree = boolexpr.parse(function)
+    names = sorted(tree.inputs)
+    if len(names) != 3:
+        return None
+
+    def cofactor_is(select, value, target):
+        others = [n for n in names if n != select]
+        for pattern in range(1 << len(others)):
+            values = {n: (pattern >> i) & 1 for i, n in enumerate(others)}
+            values[select] = value
+            if boolexpr.evaluate(tree, values) != values[target]:
+                return False
+        return True
+
+    for select in names:
+        low, high = [n for n in names if n != select]
+        for a, b in ((low, high), (high, low)):
+            if cofactor_is(select, 0, a) and cofactor_is(select, 1, b):
+                return select, {a: "low", b: "high"}
+    return None
 
 
 def blackbox_library(cells, lef, path, lib=None):
@@ -355,6 +404,11 @@ def build_graph(design, top, lef, lib):
     # register can be built as a mux in front of D with the flop's own Q on one
     # leg. That is a structural fact, not an interpretation, so it belongs here.
     #
+    # Which cells are that mux comes from `selecting_mux`, which reads the
+    # liberty function. The test used to be `"mux2" in the cell name`, and that
+    # also matches `mux2i`, whose output is inverted: a flop fed by one with its
+    # own Q on a leg toggles rather than holds.
+    #
     # It is also only one of the forms a hold takes, and the corpus proves it.
     # Every enabled counter in the corpus declares `if (en) q <= q + 1`, and
     # synthesis absorbs the enable into the carry chain -- `D[0] = q[0] ^ en`,
@@ -367,22 +421,30 @@ def build_graph(design, top, lef, lib):
     for instance, record in flipflops.items():
         record["enable"] = None
         source = driver_of.get(record["data"])
-        if source is None or "mux2" not in source["cell"]:
+        if source is None:
             continue
+        entry = lib.get(source["cell"])
+        if not entry:
+            continue
+        shape = selecting_mux(entry["pins"].get(source["pin"], {}).get("function"))
+        if shape is None:
+            continue
+        select_pin, passed_at = shape
         mux = cells[source["instance"]]
         legs = {pin: bit_key(bits[0])
                 for pin, bits in mux["connections"].items()
-                if pin in ("A0", "A1") and len(bits) == 1}
+                if pin in passed_at and len(bits) == 1}
         held = [pin for pin, net in legs.items() if net == record["q"]]
         if len(held) != 1:
             continue
-        select = mux["connections"].get("S")
+        other = [pin for pin in passed_at if pin != held[0]]
+        select = mux["connections"].get(select_pin)
         record["enable"] = {
             "form": "mux_feedback",
             "net": bit_key(select[0]) if select else None,
             "mux": source["instance"],
-            "held_when": "high" if held[0] == "A1" else "low",
-            "data_leg": legs["A0" if held[0] == "A1" else "A1"],
+            "held_when": passed_at[held[0]],
+            "data_leg": legs.get(other[0]) if other else None,
         }
 
     # --- constants -----------------------------------------------------------
