@@ -271,6 +271,15 @@ def can_exit_non_zero(path):
     `stack_sensitivity.py` are the only two here with no such path, and
     `CLAUDE.md` calls both of them "not a gate" -- arrived at from the other
     direction, which is why it is worth deriving rather than declaring.
+
+    **This answers for a file, and the packet runs command lines.** A tool whose
+    only non-zero exit lives in one mode -- `--selftest`, say -- is a gate by
+    this test for every row that invokes it, including a mode that cannot fail.
+    Four tools here are run in more than one mode and the question is live for
+    all of them. Deciding it properly means asking which exits are reachable
+    from which argv, which is a reachability analysis this file is not going to
+    grow; the honest position is that the kind column is an upper bound on what
+    a row can assert, and the preamble in the packet says so.
     """
     for node in ast.walk(parsed(path)):
         if isinstance(node, ast.Return) and node.value is not None:
@@ -286,6 +295,11 @@ def can_exit_non_zero(path):
                     and not isinstance(inner.value, bool) and inner.value != 0):
                 return True
     return False
+
+
+def count(number, noun):
+    """`1 report`, `17 gates`. The summary line read "1 reports run"."""
+    return f"{number} {noun}" + ("" if number == 1 else "s")
 
 
 def every_tool():
@@ -472,6 +486,11 @@ def main(quick=False):
       "that something held. Which of\nthe two a row is comes from the tool's "
       "source and not from this table: a report used\nto be rendered in the "
       "same **pass** cell as a gate.\n\n")
+    w("The kind is derived from the tool's source **as a whole**, not from the "
+      "command line\nin the row. A tool whose only non-zero exit lives in one "
+      "of its modes reads as a\ngate in every row that runs it, including a "
+      "mode that cannot fail. Read the column\nas an upper bound on what the "
+      "row asserts.\n\n")
     results = []
     for title, command, needs_container, kind in GATES:
         if quick and needs_container:
@@ -515,6 +534,17 @@ def main(quick=False):
       "Mentioning a path in a docstring is not\nreading it, and a tool that "
       "never names a path can still open it through\n"
       "`stage1_cells.TARGETS`.\n\n")
+    w("What the table records is what a tool's own source resolves -- a path it "
+      "names, or\none it reaches through `TARGETS`. It cannot record a tool "
+      "that takes its path from\nthe command line, because there is nothing in "
+      "the source to check such a claim\nagainst. Four here do: "
+      "`tools/read_vcd.py`, which exists to read the VCD, and\n"
+      "`tools/gds_survey.py`, `tools/cell_signature.py` and "
+      "`tools/render_cell.py`, which\nsurvey or draw whatever layout they are "
+      "handed. Any of them will open any of these\nfiles when invoked on one. "
+      "So **nothing** in a row means no tool resolves that file\nof its own "
+      "accord, which is the question worth asking of an answer key -- it does "
+      "not\nmean the file cannot be opened.\n\n")
     w("| File | What it is | Read by |\n|---|---|---|\n")
     for path, what in GROUND_TRUTH:
         rows = READERS.get(path, [])
@@ -589,8 +619,8 @@ def main(quick=False):
     reports = [r for r in results if r[2] == "report"]
     failed = [r[0] for r in results if r[3] not in (0, None)]
     print(f"wrote {OUT}, {len(out.getvalue())} bytes")
-    print(f"  {len(gates)} gates and {len(reports)} reports run, "
-          f"{len(failed)} failing")
+    print(f"  {count(len(gates), 'gate')} and {count(len(reports), 'report')} "
+          f"run, {len(failed)} failing")
     for title in failed:
         print(f"    FAIL {title}")
     return 0
