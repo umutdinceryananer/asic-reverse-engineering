@@ -7,6 +7,8 @@ Recovering an ASIC's function from its layout, for the Jane Street 2026 puzzle.
 
 - `docs/solver-pipeline.md` — what gets built. The build spec, seven stages.
 - `docs/jane-street-asic-roadmap.md` — when. Schedule, phase budgets, gates.
+- `docs/packages.md` — who, and in what order. The supervisor's package map;
+  a package's status line moves in the commit that completes it.
 
 The deliverable is the pipeline, not the answer. The answer is its first test
 case.
