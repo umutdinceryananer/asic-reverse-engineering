@@ -79,6 +79,8 @@ GATES = [
      ["tools/stage3_crosscheck.py", "puzzle"], False, "gate"),
     ("stage 3, and would that cross check notice if it were wrong",
      ["tools/stage3_crosscheck.py", "warmup", "--selftest"], False, "gate"),
+    ("stage 3, the annotations against the RTL the warm up was written from",
+     ["tools/verify_annotations.py", "warmup"], False, "gate"),
     ("stages 1 to 3, the recovered netlist proven equal to the reference",
      ["tools/verify_equiv.py", "warmup"], True, "gate"),
     ("stage 4, liberty functions against the PDK's behavioural models",
@@ -95,6 +97,8 @@ GATES = [
      ["tools/verify_corpus.py"], False, "gate"),
     ("stage 5, and every rule against the corruption it exists to catch",
      ["tools/verify_corpus.py", "--selftest"], False, "gate"),
+    ("stage 4, the composed cone read back by an independent evaluator",
+     ["tools/verify_cone.py", "warmup"], False, "gate"),
     ("stage 6, an input sequence solved for out of the graph",
      ["tools/stage6_invert.py", "warmup"], True, "gate"),
     ("stage 6, and that trace replayed through stage 2's netlist",
@@ -139,13 +143,15 @@ GROUND_TRUTH = [
 #                     Importing TARGETS is not enough on its own: five tools
 #                     import it only to validate a command line argument.
 #
-# `00_source.v` and `02_netlist_with_power_rails.v` are read by nothing, and
-# saying so is the useful part: this section exists because the row above them
-# said the same thing for five stages. `01_netlist.v` stopped being one of them
-# when `verify_equiv.py` was written, which is the first thing in this
-# repository to open the warm up's reference netlist.
+# `02_netlist_with_power_rails.v` is read by nothing, and is the last of the
+# three that were unread for five stages. `01_netlist.v` stopped being one when
+# `verify_equiv.py` was written; `00_source.v` when `verify_annotations.py` was.
+# Both are used as answers -- the RTL says what stage 3's annotations should be
+# -- and neither is consulted about anything the pipeline has to derive.
 READERS = {
-    "puzzle/warmup/00_source.v": [],
+    "puzzle/warmup/00_source.v": [
+        ("tools/verify_annotations.py", "names it"),
+    ],
     "puzzle/warmup/01_netlist.v": [
         ("tools/verify_equiv.py", "names it"),
     ],
@@ -176,9 +182,10 @@ READERS = {
 # a reviewer should assume the check inherits the code's blind spots.
 UNVERIFIED = [
     ("tools/stage4_cone.py",
-     "No check of any kind. It walks a cone, substitutes names and orders the "
-     "result, and nothing confirms the listing matches the netlist. This is the "
-     "artifact the analysis week is meant to read."),
+     "Checked now by tools/verify_cone.py, which shares no code with it and "
+     "proves the warm up's listing equivalent to a + b == 496 over all 65536 "
+     "assignments. That check is exhaustive, so it stops at 22 support bits and "
+     "cannot run on the puzzle's 57 bit success cone at all."),
     ("tools/stage4_registers.py",
      "Scored against a corpus this author wrote, and against the warm up, which "
      "it fails. No criterion is committed. The disagreement between criteria is "
@@ -571,14 +578,8 @@ def main(quick=False):
         who = ", ".join(f"`{tool}` ({how})" for tool, how in rows) or "**nothing**"
         w(f"| `{path}` | {what} | {who} |\n")
     w("\n`00_source.v` and `01_netlist.v` were unread for the first five stages "
-      "of this\nwork. Both name every instance with the hierarchy it came from, "
-      "which is an exact\nblock partition of a real design, and stage 4 was "
-      "being scored against a synthetic\ncorpus instead. "
-      "`tools/verify_blocks.py` uses the DEF now and stage 4 fails it;\n"
-      "`tools/verify_equiv.py` uses `01_netlist.v` and proves the recovered "
-      "netlist equal\nto it. `00_source.v`, the RTL, is still read by nothing, "
-      "and should stay that way:\nit says what the design *is*, which is the "
-      "one thing the pipeline has to derive.\n\n")
+      "of this\nwork. All three of the warm up's answer keys are read now: the DEF by\n"
+      "`verify_blocks.py`, which stage 4 fails; `01_netlist.v` by `verify_equiv.py`,\nwhich proves the recovered netlist equal to it; and the RTL by\n`verify_annotations.py`, which holds stage 3's clock, reset and hold annotations\nto what the design was written as. Each is used as an answer, never as an input\nto a derivation.\n\n")
 
     w("## Repository\n\n")
     rows = inventory()
