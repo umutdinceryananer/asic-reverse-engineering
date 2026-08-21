@@ -265,11 +265,13 @@ every `scale_datapath`, the composed shift-register-into-accumulator, both
 `warmup_twin` widths, and the warm up's own RTL.
 
 One of the terms is weaker than the others. The hold net comes from stage 3's
-structural search, which is a measured lower bound — four ways of hiding a hold
-are recorded in `verify_corpus.py` — so **a hold stage 3 misses is a split
-missed here.** In `scale_datapath` that is exactly what happens: the held output
-register would have been separated by its hold net, and the mapper factored the
-mux away, so it is not.
+structural search, which is a measured lower bound — 46 holds are declared in
+the corpus and 12 are found, with five ways of hiding one recorded in
+`verify_corpus.py` — so **a hold stage 3 misses is a split missed here.** In
+`scale_datapath` that is exactly what happens: the held output register would
+have been separated by its hold net, and the mapper factored the mux away, so
+it is not. Worse, a hold missed on only *some* bits of one register invents a
+split that is not there; `docs/problems.md` 45.
 
 ### The warm up, where the answer is known and stage 4 gets it wrong
 

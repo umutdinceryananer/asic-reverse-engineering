@@ -271,8 +271,11 @@ def control_signature(graph, instance):
     The hold net is included, which is why this is not simply "same clock and
     reset": in the puzzle it separates twelve flops from the other seventy two.
     It is also the weakest term, because stage 3 finds a hold structurally and
-    that search is a measured lower bound -- four ways of hiding a hold are
-    recorded in `verify_corpus.py`, and a hold it misses is a split missed here.
+    that search is a measured lower bound -- 46 holds are declared in the corpus
+    and 12 are found, with five ways of hiding one recorded in
+    `verify_corpus.py`. A hold it misses is a split missed here, and a hold
+    missed on only some bits of one register invents a split that is not there
+    (`docs/problems.md` 45).
     """
     record = graph["flipflops"][instance]
     hold = record.get("enable") or {}
@@ -433,7 +436,6 @@ def run(target):
 
     result = analyse(graph)
     rows = result["registers"]
-    positions = None
     print(f"target {target}: {len(graph['flipflops'])} flip flops")
     print(f"\nwhat each criterion says, none of them committed")
     short = sizes_as

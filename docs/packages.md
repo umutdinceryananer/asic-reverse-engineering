@@ -52,7 +52,7 @@ Carried forward, deliberately not done:
   surface inside the tool whose value is independence. The four fields warmup
   can only disagree about are named in the selftest's own output.
 
-## Package 4 — IN PROGRESS. The register-partition decision matrix
+## Package 4 — DONE. The register-partition decision matrix
 `docs/references.md` §3 and §6 distil the published prior art this package
 implements: DANA (TCHES 2020) for register grouping and scoring, WordRev for
 bit order, and the announcement's two verbatim hints. **The goal is to measure
@@ -76,6 +76,49 @@ is made from.
   announcement's `rst_n` hint says the author will actually do.
 - **F.** The authority recorded: the AI rule's three sentences and the two
   hints, each with its source.
+
+**The matrix.** Exact match is over all 133 netlists; NMI and purity over the
+ten whose ground truth has more than one class. The warm up columns are
+membership, not sizes.
+
+| Criterion | exact | NMI | purity | warm up | warm up NMI |
+|---|---|---|---|---|---|
+| control signature *(committed)* | **117** | 0.0014 | 0.5062 | `[16]` wrong | 0.000 |
+| colour refinement | 97 | 0.1867 | 0.75 | `[16]` wrong | 0.000 |
+| + flow split (DANA) | 91 | 0.3733 | 1.0 | 16 singletons | 0.400 |
+| + connected components | 80 | **0.5476** | 0.80 | **`[8, 8]` correct** | **1.000** |
+| + components + flow split | 49 | 0.3733 | 1.0 | 16 singletons | 0.400 |
+| placement locality | *n/a* | *n/a* | *n/a* | **`[8, 8]` correct** | **1.000** |
+| *null: one group* | *109* | *0.0* | *0.5* | `[16]` | 0.000 |
+| *null: every flop its own* | *7* | *0.3733* | *1.0* | 16 singletons | 0.400 |
+| *null: interleaved, right sizes* | — | — | — | `[8, 8]` **wrong members** | 0.000 |
+
+Four things for the decision, none of them a recommendation:
+
+1. **Exact match and NMI rank the criteria in opposite orders**, and on the ten
+   netlists that ask the question the committed criterion scores the one-group
+   null model's numbers to three decimal places.
+2. **DANA's split pass is not the fix its own paper's sentence predicts.** Run
+   to a fixpoint it is the all-singletons degenerate on every shift register.
+   It has two properties nothing else here has: it does not split a plain
+   register, and on the R0 analogue it is the only criterion that recovers a
+   whole register — two of the seven.
+3. **Placement locality gets the warm up right, membership included, without
+   reading a wire.** The corpus cannot score it: nothing in `out/synth/` was
+   ever placed, so **n = 1**, and its second data point is the puzzle read by
+   the author.
+4. **`verify_blocks` still fails, scored against the control signature.** That
+   is deliberate. Committing a criterion is the author's decision; the rows
+   above are what it is made from.
+
+Commits 30b882e, d107733, 8e89b78, 1d38e99, 1276c7e, b1541c9, and this one.
+
+Two findings came out of it rather than in. Problem 46: the block gate compared
+sizes, so `[8, 8]` with the wrong eight in each group passed, and a deliberately
+interleaved null model is now a permanent row so that column can never be
+silent. Problem 47: the cone's weight solve stopped at its first hit and printed
+one assignment as a derivation, when 24 of 40320 are equivalent — found because
+two independent derivations of the bit order disagreed.
 
 ## Package 5 — QUEUED. Provenance
 Tool pinning; an `open_pdks` test; the writeup skeleton; and the decision on
