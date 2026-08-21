@@ -217,6 +217,12 @@ so in those words rather than printing a reassurance it did not earn. On the
 puzzle four flops stay free, so it is a real question there — over 16 states
 instead of 2^92.
 
+The two modes write **two files**, `solution.json` and
+`solution_post_reset.json`, because they prove different things and the weaker
+claim must not silently replace the stronger one. `sim/replay.py` takes
+`--solution <path>`, so both are replayable and both were replayed: 0 mismatches
+each, `S` high at cycle 8.
+
 **Which mode the author should use on the puzzle: `--post-reset`.** It is the
 state the hint describes, it is the state the submission's own test vector
 starts from, and it is a strictly easier problem than the default solves. The

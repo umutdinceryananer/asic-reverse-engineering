@@ -37,8 +37,44 @@ equivalence checking, SAT and SMT. Model assistance writes the pipeline, it does
 not run in it. A detector must be an algorithm, never a prompt.
 
 **The puzzle rules restrict what an assistant may do with the puzzle files.**
-The published rule is "don't feed the puzzle files directly into an AI tool, nor
-use it to generate your writeups." The working split:
+The rule has three sentences and this file used to quote one of them. All three,
+from the [blog announcement](https://blog.janestreet.com/can-you-reverse-engineer-an-asic/),
+5 August 2026:
+
+> "Please don't feed the puzzle files directly into an AI tool, nor use it to
+> generate your writeups. Feel free to use AI for writing any scripts or code
+> you may need as part of solving the puzzle, though! **It's also fair game to
+> use AI to work through the warm-up puzzle, see below.**"
+
+The third sentence is explicit written authority for what this project does:
+every validation here runs on `warmup` or on `synth`, and the assistant never
+opens `puzzle/puzzle.gds` or `puzzle/example_inputs.vcd`. The working split
+below is *stricter* than the published rule, which is a choice and is
+defensible; the submission is stronger citing the rule than reconstructing it.
+
+**Two hints, quoted verbatim, both verified against the primary source.** There
+are exactly three official documents — the announcement above, the repository
+README, and the submission form — and no hint, FAQ or erratum has appeared since
+launch. Planning against a hint that will not come costs real time.
+
+> "The circuit is physically arranged to hint at its functionality, so look
+> closely at the layout!"
+
+Authorial sanction for a placement-locality criterion in stage 4, which is the
+failing gate. Implemented as `spatial_groups`; on the warm up it is the only
+criterion that gets the answer right without reading a wire, and the synthetic
+corpus cannot score it at all because nothing in it was ever placed.
+
+> "Don't forget to toggle `rst_n` before each input attempt."
+
+A statement about stage 6. Robustness across *every* start state was derived
+from a warm up that needs no reset; on the puzzle it solves for 2^92 starting
+states where the hint describes 2^4. `stage6_invert.py --post-reset` asks the
+smaller question, and `docs/06-inversion.md` says which mode the puzzle run
+should use.
+
+`docs/references.md` §6 holds the three documents and what else was read out of
+them. The working split:
 
 | Assistant does | Author does |
 |---|---|
@@ -118,20 +154,31 @@ python tools/corpus_reach.py puzzle       # not a gate: the size bound on what
 
 python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
 python tools/stage4_registers.py puzzle
-python tools/stage4_registers.py --score  # gate: 117/133 against a recording
-python tools/stage4_registers.py --compare  # gate: all three criteria, same key
+python tools/stage4_registers.py --score  # gate: 117/133 exact, and NMI and
+                                          # purity, against a recording
+python tools/stage4_registers.py --compare  # gate: five criteria, same key
+python tools/stage4_registers.py --selftest  # gate: the metrics against seven
+                                          # hand computed rows
 python tools/verify_blocks.py             # gate: stage 4 against the warm up's
                                           # DEF hierarchy. CURRENTLY FAILING
 python tools/stage4_cone.py puzzle        # the success condition, composed
 python tools/stage4_cone.py puzzle --list # every cone root by size
 python tools/verify_cone.py warmup        # gate: that listing proven equal to
-                                          # a + b == 496 over all 65536
+                                          # a + b == 496 over all 65536, and
+                                          # stage 4's bit order among the 24
+                                          # weight assignments that make it so
+python tools/verify_cone.py warmup --registers out/warmup/scrambled.json
 python tools/verify_functions.py          # gate: liberty vs the PDK's own
                                           # behavioural models, 850 patterns
 python tools/verify_functions.py --selftest  # gate: and which mistakes that
                                           # comparison could actually notice
 
 python tools/stage6_invert.py warmup      # gate: BMC, -> out/warmup/solution.json
+python tools/stage6_invert.py warmup --post-reset  # start states as a toggled
+                                          # rst_n leaves them: 2^0 here, 2^4 on
+                                          # the puzzle instead of 2^92.
+                                          # -> out/warmup/solution_post_reset.json
+python tools/sim/replay.py warmup --solution out/warmup/solution_post_reset.json
 python tools/stage6_invert.py warmup --depth 6   # a bound below the answer:
                                           # exits 1 and says how deep it looked
 python tools/sim/replay.py warmup         # gate: that trace back through stage
@@ -155,17 +202,18 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `stage3_crosscheck.py`: annotations re-derived from stage 2's netlist, forwards; warmup 84/84 nets and puzzle 723/723 agree on roots, cones and flop wiring | passing |
 | 3 | `stage3_crosscheck.py --selftest`: all 17 corruptions caught, one per field group; four fields the warm up can only be made to disagree about are named | passing |
 | 3 | `verify_annotations.py warmup`: 16 flops, all holding on `en` low, async `rst_n` low, one clock root, no sets, against `00_source.v` | passing |
-| 4 | `verify_cone.py warmup`: the composed listing proven equal to `a + b == 496` over all 65536 assignments, by an evaluator sharing no code | passing |
+| 4 | `verify_cone.py warmup`: the composed listing proven equal to `a + b == 496` over all 65536 assignments, by an evaluator sharing no code; and stage 4's structural bit order among the 24 weight assignments that make it so | passing |
 | 5 | `verify_corpus.py`: 12 rules, 738 uses against what stage 3 found, over both mappings of all 96 synthesised circuits and the one pre-mapped witness; a missing or stale `graph.json` fails rather than warning | passing |
 | 5 | `verify_corpus.py --selftest`: all 15 corruptions caught, **and all 12 rules tripped by at least one of them** | passing |
-| 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]` | **failing**: the committed criterion answers `[16]` |
-| 4 | `stage4_registers.py --score`: 117/133 corpus netlists, beside a null model that gets 109/133; on the 24 that declare more than one register it gets 8; every figure against a recording, and a move in either direction fails | passing, and nearly meaningless |
-| 4 | `stage4_registers.py --compare`: all three criteria against their recordings, 117 / 97 / 80 | passing |
+| 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]`, by **membership** and not only by size | **failing**: the committed criterion answers `[16]` |
+| 4 | `stage4_registers.py --score`: 117/133 exact beside a null model that gets 109/133; NMI 0.0014 and purity 0.5062 over the ten netlists whose truth has more than one class, where the same null model scores 0.0 and 0.5; every figure against a recording, and a move in either direction fails | passing, and it says the criterion is the null model |
+| 4 | `stage4_registers.py --compare`: five criteria against their recordings, and two checked demonstrations the scores cannot show | passing |
+| 4 | `stage4_registers.py --selftest`: seven hand computed NMI and purity rows reproduced, including both branches of the 0/0 convention | passing |
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 3 | `verify_equiv.py warmup`: the recovered netlist proven sequentially equivalent to `01_netlist.v`, 153 correspondence points, all proven | passing |
-| 6 | `stage6_invert.py warmup`: a trace found at depth 8, proven to hold from every start state | passing |
+| 6 | `stage6_invert.py warmup`: a trace found at depth 8, proven to hold from every start state; `--post-reset` finds the same depth over the one state a toggled `rst_n` leaves, in 10 solver calls against 28 | passing |
 | 6 | `sim/replay.py warmup`: that trace reproduces against **stage 2's** netlist and the output is high at the predicted cycle | passing |
 
 ## Facts worth not rediscovering
@@ -316,13 +364,46 @@ so the true register partition is `[8, 8]`. `tools/verify_blocks.py` maps it ont
 the recovered instances by position, orientation and cell, 230 of 230.
 
 **Registers, derived by stage 4. No criterion is committed, because measurement
-refuted the first choice.** Control signature scores 116/126 on the corpus,
-colour refinement 96, connected components 74 — but **a criterion that returns
-one group and does nothing scores 108/126**, so the real margin is eight
-netlists and on the 18 that are not trivial the control signature gets 8. On the
-warm up it is wrong and connected components, ranked last by the corpus, is
-right. The three are complementary, not ranked, and presenting them as a ranking
-was the mistake. Where they disagree, that disagreement is the residue.
+refuted the first choice and then refuted the ranking.**
+
+| Criterion | exact /133 | NMI | purity |
+|---|---|---|---|
+| control signature | 117 | 0.0014 | 0.5062 |
+| colour refinement | 97 | 0.1867 | 0.75 |
+| + flow split (DANA) | 91 | 0.3733 | 1.0 |
+| + connected components | 80 | **0.5476** | **0.80** |
+| + components + flow split | 49 | 0.3733 | 1.0 |
+| *null: one group, do nothing* | *109* | *0.0* | *0.5* |
+| *null: every flop its own* | *7* | *0.3733* | *1.0* |
+
+**Exact match and NMI rank these in opposite orders**, and that is the most
+useful thing stage 4 measures. Exact match compares size multisets, 109 of the
+133 netlists declare one register, and the ranking is that majority talking. NMI
+and purity above are over the ten netlists whose ground truth has more than one
+class, and there the control signature scores the one-group null model's numbers
+to three decimal places. On the warm up it is wrong, and connected components
+and placement locality — the two the corpus ranks worst and cannot score at all
+— are right. Where they disagree, that disagreement is the residue.
+
+**A sixth criterion the corpus cannot score.** `spatial_groups` is single
+linkage on stage 1's placements at a recorded 3 row heights. On the warm up it
+answers `[8, 8]` with the correct membership, NMI 1.0, and the two clusters are
+21.76 um apart. Nothing under `out/synth/` was ever placed, so **n = 1** and no
+figure in `--score` or `--compare` covers it.
+
+**A partition is a membership and the block gate was reading a histogram of
+it.** `[8, 8]` says two groups of eight and nothing about which eight; there are
+6435 such splits and `verify_blocks.py` accepted all of them. It now scores
+membership beside sizes and carries a deliberately interleaved null model that
+answers `[8, 8]` from no information at all, so the column has a known-bad input
+standing in it. Problem 46.
+
+**Bit order, where the structure gives one.** `bit_order` follows D <- Q for a
+shift chain and ripple depth for a carry chain, and emits `"method": null` with
+the reason for the 95 corpus groups that have neither — a plain register's bits
+do not depend on one another, so there is nothing to order, and a guessed order
+is worse than none. The warm up's sixteen flops under one control signature come
+out as two chains of eight, which is `sr_a` and `sr_b` exactly.
 
 The puzzle's 92 flops become 4 registers: R0 72 bits (reset), R1 12 bits (reset,
 holds on one net), R2 4 bits (no reset, `dfxtp`), R3 4 bits (set, `dfstp`).

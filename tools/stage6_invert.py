@@ -69,7 +69,9 @@ file, not a solution.
 Usage:
     python tools/stage6_invert.py warmup
     python tools/stage6_invert.py warmup --post-reset     # start states as
-                                                          # rst_n leaves them
+                                                          # rst_n leaves them;
+                                                          # writes
+                                                          # solution_post_reset
     python tools/stage6_invert.py warmup --depth 6        # a bound below the
                                                           # answer: exits 1
     python tools/stage6_invert.py warmup --property S
@@ -659,14 +661,26 @@ def run(target, graph_path, depth, property_port, start, post_reset=False):
         "solver": {"image": IMAGE, "calls": timings,
                    "total_seconds": round(total, 2)},
     }
-    out = os.path.join(out_dir, "solution.json")
+    # A separate file, because the two modes prove different things and the
+    # weaker one must not silently replace the stronger. `sim/replay.py` takes
+    # `--solution <path>`, so both can be replayed.
+    out = os.path.join(out_dir, "solution_post_reset.json" if post_reset
+                       else "solution.json")
     with open(out, "w", encoding="utf-8") as handle:
         json.dump(solution, handle, indent=1)
     print(f"\n  total {total:.1f}s over {len(timings)} solver calls")
     print(f"  wrote {out}")
-    print(f"\n  Not believed yet. Run tools/sim/replay.py {target} to put this "
-          f"trace\n  through stage 2's netlist in simulation; a trace that does "
-          f"not reproduce\n  is a defect in this file's model, not a solution.")
+    replay = f"tools/sim/replay.py {target}"
+    if post_reset:
+        replay += f" --solution {out.replace(os.sep, '/')}"
+    print(f"\n  Not believed yet. Run {replay}\n  to put this trace through "
+          f"stage 2's netlist in simulation; a trace that\n  does not reproduce "
+          f"is a defect in this file's model, not a solution.")
+    if post_reset:
+        print(f"  It will warn that the trace was not proven independent of "
+              f"the starting\n  state. That warning is correct under this "
+              f"mode: the simulation begins at x\n  and this trace was proven "
+              f"from the post-reset states only.")
     print("\nRESULT: pass, a trace was found")
     return 0
 

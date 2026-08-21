@@ -15,7 +15,7 @@ before "these eight flops are one thing", and a flat netlist does not say which
 flops belong together: the puzzle's 92 sit in no declared order, under no shared
 name, on sixteen different clock nets.
 
-### Three criteria, and no committed answer
+### Six criteria, and no committed answer
 
 | Criterion | exact, /133 | NMI | purity |
 |---|---|---|---|
@@ -54,16 +54,18 @@ question is not trivial it gets **8 of 24**. `--score` prints both null models
 beside the score, under all three metrics, so this cannot be read the old way
 again.
 
-The three **fail in mirror image**, which is the useful part. Connected
-components shatters a *plain* register, whose bits do not depend on one another
-at all. Colour refinement shatters a *shift* register, whose chain hands every
-bit a distinct colour once its predecessor has one. Neither is a tuning problem:
-one criterion needs the bits to interact and the other needs them not to.
+They **fail in mirror image**, which is the useful part. Connected components
+shatters a *plain* register, whose bits do not depend on one another at all.
+Colour refinement and the flow split shatter a *shift* register, whose chain
+hands every bit a distinct colour once its predecessor has one. Neither is a
+tuning problem: one criterion needs the bits to interact and the others need
+them not to. Placement locality needs neither, and is the only one of the six
+that reads no wire.
 
 The first version of this document committed the control signature on the
 strength of 116/126. The warm up disproves that choice, and the disproof was
 sitting in the repository the whole time — see below. Nothing is committed now.
-All three are reported, and where they disagree that disagreement is the
+All of them are reported, and where they disagree that disagreement is the
 residue: it is where a person reads, and it is not settled by picking whichever
 scored best on a corpus that mostly does not ask the question.
 
