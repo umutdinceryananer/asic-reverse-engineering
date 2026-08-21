@@ -17,22 +17,37 @@ name, on sixteen different clock nets.
 
 ### Three criteria, and no committed answer
 
-| Criterion | Corpus |
-|---|---|
-| control signature | 116/126 |
-| colour refinement, to a fixed point | 96/126 |
-| control signature + connected components | 74/126 |
+| Criterion | exact, /133 | NMI | purity |
+|---|---|---|---|
+| control signature | 117 | 0.0014 | 0.5062 |
+| colour refinement, to a fixed point | 97 | 0.1867 | 0.75 |
+| control signature + connected components | 80 | **0.5476** | **0.80** |
+| *null model: one group, and do nothing* | *109* | *0.0* | *0.5* |
+| *null model: every flop its own register* | *7* | *0.3733* | *1.0* |
+
+**Exact match and NMI rank these in opposite orders, and that is the most
+useful thing stage 4 measures.** Exact match puts the control signature first
+and connected components last. NMI, over the ten netlists whose ground truth
+actually has more than one class, puts connected components at 0.5476 and the
+control signature at 0.0014 — which is the one-group null model's 0.0 to three
+decimal places. On the question stage 4 exists to answer, the committed
+criterion *is* the null model.
+
+The exact-match ranking was an artefact of the 109 netlists that declare one
+register. `docs/references.md` §3 said so from the published literature (DANA,
+TCHES 2020) before anything here measured it; this is the measurement.
 
 The control signature is the clock root, the reset root and its level, the set
 root and its level, and the hold net — what a register is written and cleared
 by, which its bits share by definition.
 
-**Those numbers are nearly meaningless and were reported as a result anyway.**
-108 of the corpus's 126 netlists hold exactly one register, so a criterion that
-returns one group and does nothing else scores 108/126. The control signature's
-real margin is eight netlists, and on the 18 where the question is not trivial
-it gets **8 of 18**. `--score` now prints the null model beside the score so
-this cannot be read the old way again.
+**Exact match alone is nearly meaningless here and was reported as a result
+anyway.** 109 of the corpus's 133 netlists hold exactly one register, so a
+criterion that returns one group and does nothing else scores 109/133. The
+control signature's real margin is eight netlists, and on the 24 where the
+question is not trivial it gets **8 of 24**. `--score` prints both null models
+beside the score, under all three metrics, so this cannot be read the old way
+again.
 
 The three **fail in mirror image**, which is the useful part. Connected
 components shatters a *plain* register, whose bits do not depend on one another
@@ -47,11 +62,98 @@ All three are reported, and where they disagree that disagreement is the
 residue: it is where a person reads, and it is not settled by picking whichever
 scored best on a corpus that mostly does not ask the question.
 
+### How it is scored, and the 0/0 convention
+
+Exact match compares the *size multiset* — `[8, 8]` against `[8, 8]` — and is
+all or nothing: an answer that gets 71 of a register's 72 bits right scores the
+same as one that gets none. Every partial credit on the puzzle's R0, which is
+the whole of what stage 4 has left to report, rounds to "wrong".
+
+NMI and purity are the field's answer to that, and both need a **membership**:
+which flop belongs to which declared register. The corpus declares sizes, not
+memberships, so one is recovered, in two ways and never invented:
+
+1. A declaration of one register covering every flop *is* a membership. 109 of
+   the 133 netlists are that.
+2. Otherwise the RTL vector name yosys leaves on each flop's Q net — `a_reg[4]`
+   and `a_reg[5]` are bits of one register. **Checked against the declaration
+   rather than trusted:** if the names partition the flops differently from the
+   sizes the generator declared, the netlist is refused. 10 of the 24
+   multi-register netlists survive.
+
+The 14 refused are refused for two measured reasons. `two_clocks` and
+`inverted_clock` declare `[4, 4]` for what the RTL writes as one vector split
+across two clocks, so the names say `[8]`. The `scale_datapath` family loses one
+bit of three registers to a yosys rename, so the names say
+`[16, 16, 16, 15, 15, 7, 2, 1, 1, 1]` against a declared
+`[16, 16, 16, 16, 16, 8, 2]`. Attaching those stragglers to whichever group
+makes the sizes match would be fitting the answer key to the answer.
+
+**NMI normalisation: arithmetic mean, `2 I(C;T) / (H(C) + H(T))`.** Named in the
+tool's output as well as here, because the four normalisations in circulation
+give different numbers for the same partitions — the hand-written table below
+separates them: max-normalisation scores the all-singletons row 0.25 where
+arithmetic scores 0.4.
+
+**The 0/0 case is load-bearing and is not an edge case.** A ground truth with
+one class has zero entropy and therefore zero mutual information with any
+answer: the ratio is 0/0 and there is no value to report. 109 of 133 netlists
+are in that state. The convention, stated once and counted in every aggregate:
+
+| Ground truth | Answer | NMI |
+|---|---|---|
+| two or more classes | anything | as defined |
+| one class | one class | **1.0** — the partitions are equal, which is all NMI ever measures |
+| one class | splits | **undefined**. Excluded from the mean, counted under its own branch, left to purity and exact match, which both see it |
+
+Averaging those 109 in as 0 would say every criterion fails on 82% of the
+corpus; averaging them in as 1 would say every criterion is nearly perfect.
+Both are wrong for the same reason: the netlist does not ask the question.
+
+So **two means are reported, and the second is the one to read**: over all 119
+netlists with a membership, and over the 10 whose truth has more than one class.
+Measured, the first is useless — the one-group null model and the committed
+criterion both score 0.9161, to four decimal places, because 109 of the 119 rows
+were never able to disagree. That is what the warning above looks like when it
+is ignored.
+
+**Neither metric replaces exact match, and none of the three is sufficient.**
+
+| | one group | every flop its own |
+|---|---|---|
+| exact match | 109/133 | 7/133 |
+| NMI | 0.0 | 0.3733 |
+| purity | 0.5 | **1.0** |
+
+Purity does not penalise over-splitting at all — every cluster of one is pure —
+so the common claim that the NMI/purity *pair* kills both degenerates is false
+as stated. What kills all-singletons here is exact match. Three columns are
+printed, not two.
+
+### A hand-computed table the implementation has to reproduce
+
+`stage4_registers.HAND_WRITTEN_METRICS`, in the style of
+`verify_functions.HAND_WRITTEN` and for the same reason: the implementation is
+the only thing that computes these numbers, so agreeing with itself is worth
+nothing. Seven rows, each worked out on paper from the definitions with the
+arithmetic in the comment beside it, and `--score` and `--compare` both run it
+before they measure anything and refuse to continue if a row disagrees.
+
+Demonstrated on three known-bad inputs, all of which the table or the recordings
+catch:
+
+| Corruption | Caught by |
+|---|---|
+| max-normalisation instead of arithmetic mean | 2 of 7 rows disagree; `--selftest` exits 1 |
+| the 0/0 convention averaged in as 0.0 rather than excluded | the "one true class, answer splits" row; exits 1 |
+| a membership fitted to the declaration instead of refused | `--score`: membership 133 where 119 is recorded, and NMI falls to 0.8801 |
+
 ### What it cannot do
 
-It cannot see a boundary that no control signal marks. All 10 of its misses are
+It cannot see a boundary that no control signal marks. All 16 of its misses are
 circuits built from several registers sharing a clock, a reset and a hold:
-every `scale_datapath`, and the composed shift-register-into-accumulator.
+every `scale_datapath`, the composed shift-register-into-accumulator, both
+`warmup_twin` widths, and the warm up's own RTL.
 
 One of the terms is weaker than the others. The hold net comes from stage 3's
 structural search, which is a measured lower bound — four ways of hiding a hold
@@ -125,9 +227,10 @@ hidden in it.
 
 Two scores, and they disagree, which is the finding.
 
-`--score` runs the corpus: 116 of 126 exact, 34 of them held out — beside a null
-model that gets 108. `verify_blocks.py` runs the warm up against its own DEF
-hierarchy: **fail**.
+`--score` runs the corpus: 117 of 133 exact, 34 of them held out — beside a null
+model that gets 109, and beside NMI and purity on the ten netlists where the
+question is real, where it scores the null model's numbers.
+`verify_blocks.py` runs the warm up against its own DEF hierarchy: **fail**.
 
 The declared corpus partitions are themselves checked: `verify_corpus.py`
 confirms the widths a generator declares add up to the flip flops stage 3 found.

@@ -5,22 +5,26 @@ said before "these eight flops are one thing", and a flat netlist does not say
 which flops belong together -- the puzzle's 92 sit in no declared order, under no
 shared name, on sixteen different clock nets.
 
-Three criteria are computed and **none is committed**, because measurement
-refuted the first attempt at choosing between them.
+Criteria are computed and **none is committed**, because measurement refuted
+the first attempt at choosing between them, and then refuted the ranking.
 
-    control signature      116/126   clock root, reset root and level, set root
-                                     and level, hold net
-    colour refinement       96/126   shatters a shift register: the chain gives
-                                     every bit a distinct colour once its
-                                     predecessor has one
-    connected components    74/126   shatters a plain register, whose bits do
-                                     not depend on one another at all
+                                    exact/133      NMI   purity
+    control signature                     117   0.0014   0.5062
+    colour refinement                      97   0.1867     0.75
+    + connected components                 80   0.5476     0.80
+    null: one group, do nothing           109      0.0      0.5
+    null: every flop its own                7   0.3733      1.0
 
-Those corpus numbers are nearly meaningless on their own, and `--score` now
-prints the reason beside them: **108 of the corpus's 126 netlists hold exactly
-one register**, so a criterion that returns one group and does nothing else
-scores 108/126. The control signature's real margin is eight circuits, and on
-the 18 netlists where the question is not trivial it gets 8.
+**Exact match and NMI rank these in opposite orders.** Exact match compares
+size multisets and is all or nothing; 109 of the corpus's 133 netlists hold
+exactly one register, so a criterion that returns one group and does nothing
+else scores 109/133 and the whole ranking is that majority talking. NMI and
+purity above are over the ten netlists whose ground truth has more than one
+class -- the ones that ask the question -- and there the control signature
+scores the one-group null model's numbers to three decimal places.
+
+The metrics, the membership ground truth they need, and the convention for the
+0/0 case are below and in `docs/04-detectors.md`.
 
 On the warm up, whose true partition the DEF states outright -- two eight bit
 shift registers, `sr_a` and `sr_b` -- the control signature is **wrong** and
@@ -44,11 +48,15 @@ Usage:
     python tools/stage4_registers.py warmup
     python tools/stage4_registers.py puzzle
     python tools/stage4_registers.py --score      # gate: against the corpus
-    python tools/stage4_registers.py --compare    # gate: all three criteria
+    python tools/stage4_registers.py --compare    # gate: every criterion
+    python tools/stage4_registers.py --selftest   # gate: the metrics against
+                                                  # a hand computed table
 """
 
 import json
+import math
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 
@@ -67,12 +75,28 @@ REFINEMENT_ROUNDS = 3
 # A number that falls below its recording fails. A number that rises is printed
 # loudly and also fails, deliberately: an unexplained improvement is a change to
 # something, and re-recording it has to be a decision rather than a side effect.
+#
+# Exact match is a size multiset comparison and needs no membership, so it is
+# recorded over all 133. NMI and purity need one, so they are recorded over the
+# subset that has one and the subset is recorded too.
 RECORDED = {
     "exact": 117,           # netlists the control signature partitions exactly
     "netlists": 133,        # netlists with flops and a declared partition
     "null model": 109,      # what "one group, and do nothing" scores
     "multi": 24,            # netlists declaring more than one register
     "multi hits": 8,        # of those, what the control signature gets
+    "membership": 119,      # netlists with a flop level ground truth at all
+    "nmi": 0.9161,          # mean NMI over all of those
+    "nmi over": 119,        # how many rows that was
+    "purity": 0.9585,       # mean purity over all of those
+    # The pair that means something, and the pair that indicts the committed
+    # criterion. Over the ten netlists whose ground truth has more than one
+    # class the control signature scores 0.0014 NMI against the one-group null
+    # model's 0.0, and 0.5062 purity against its 0.5. On the question stage 4
+    # exists to answer it is the null model to three decimal places.
+    "nmi real": 0.0014,     # mean NMI where the truth has >1 class
+    "purity real": 0.5062,  # mean purity there
+    "real over": 10,        # and how many netlists that is
 }
 
 # Per criterion, for --compare. Same rule.
@@ -90,10 +114,21 @@ RECORDED = {
 # answers [8, 8]. On the fast mapping only 11 do, and all three criteria come
 # apart: [11, 5], then [3,2,2,2,2,1,1,1,1,1], then sixteen singletons. See
 # `docs/problems.md` 45.
+# **Exact match and NMI rank these three in opposite orders, and that is the
+# most useful thing this file now measures.** Exact match puts the control
+# signature first at 117 and connected components last at 80; over the ten
+# netlists that actually ask the question, NMI puts connected components at
+# 0.5476 and the control signature at 0.0014, which is the one-group null
+# model's 0.0 to three places. The exact-match ranking was an artefact of the
+# 109 netlists that declare one register, and `docs/references.md` section 3
+# said so from the literature before anything here measured it.
 RECORDED_CRITERIA = {
-    "control signature": 117,
-    "colour refinement, fixed point": 97,
-    "+ connected components": 80,
+    "control signature": {"exact": 117, "nmi real": 0.0014,
+                          "purity real": 0.5062},
+    "colour refinement, fixed point": {"exact": 97, "nmi real": 0.1867,
+                                       "purity real": 0.75},
+    "+ connected components": {"exact": 80, "nmi real": 0.5476,
+                               "purity real": 0.8},
 }
 
 
@@ -345,6 +380,290 @@ def expected_registers(truth, graph):
     return [len(graph["flipflops"])]
 
 
+# --------------------------------------------------------------------------
+# Metrics.
+#
+# Exact match on the size multiset is what this file has always scored, and it
+# is all or nothing: an answer that gets 71 of a register's 72 bits right scores
+# the same as one that gets none of them. Every partial credit on the puzzle's
+# R0 -- which is the whole of what stage 4 has left to report -- rounds to
+# "wrong".
+#
+# The literature this belongs to settled on normalised mutual information and
+# purity instead; `docs/references.md` section 3 is where that reading is
+# written down. Both are computed over a flop-level *membership* rather than
+# over sizes, which the corpus does not declare, so `truth_membership` below
+# recovers one where it can and refuses where it cannot.
+#
+# Neither metric replaces exact match, and the three are printed together
+# because each one is blind to something the others see:
+#
+#   exact match   one group scores 109/133 here. All singletons scores 0.
+#   NMI           one group scores 0, because a single cluster has no entropy
+#                 and therefore no mutual information with anything.
+#   purity        all singletons scores 1.0, exactly. Purity does not penalise
+#                 over-splitting at all -- every cluster of one is pure -- so
+#                 the claim that purity kills that degenerate is false, and the
+#                 pair that does kill it is NMI with exact match. Measured
+#                 below and printed rather than asserted.
+
+NMI_NORMALISATION = "arithmetic mean, 2 I(C;T) / (H(C) + H(T))"
+
+# A vector bit as yosys leaves it on a net name: `a_reg[4]` is bit 4 of the
+# register `a_reg`.
+VECTOR_BIT = re.compile(r"\[\d+\]$")
+
+
+def labels_of(groups):
+    """{name: [flop, ...]} as {flop: name}, which is what the metrics read."""
+    return {flop: name for name, members in groups.items() for flop in members}
+
+
+def _entropy(sizes, total):
+    return -sum((n / total) * math.log2(n / total) for n in sizes if n)
+
+
+def contingency(answer, truth):
+    """counts[(cluster, class)], and the two marginals."""
+    counts = Counter((answer[f], truth[f]) for f in truth)
+    clusters, classes = Counter(), Counter()
+    for (cluster, klass), n in counts.items():
+        clusters[cluster] += n
+        classes[klass] += n
+    return counts, clusters, classes
+
+
+def purity(answer, truth):
+    """The fraction of flops in the majority true class of their cluster.
+
+    One cluster per flop scores 1.0. That is not a defect in the measure, it is
+    what the measure is for: purity says nothing about over-splitting and is
+    only ever read beside something that does.
+    """
+    counts, clusters, _classes = contingency(answer, truth)
+    best = Counter()
+    for (cluster, _klass), n in counts.items():
+        best[cluster] = max(best[cluster], n)
+    return sum(best.values()) / len(truth)
+
+
+def nmi(answer, truth):
+    """Normalised mutual information. Returns (value or None, branch).
+
+    **The 0/0 case is load-bearing here and is not an edge case.** 109 of the
+    corpus's 133 netlists declare exactly one register, so their ground truth
+    has one class, zero entropy, and zero mutual information with any answer:
+    the ratio is 0/0 and there is no value to report. Averaging those in as 0
+    would say every criterion fails on 82% of the corpus; averaging them in as
+    1 would say every criterion is nearly perfect. Both are wrong for the same
+    reason, which is that the netlist does not ask the question.
+
+    The convention, stated once and counted in every aggregate:
+
+        truth has two or more classes      NMI as defined.
+        truth has one class, answer too    1.0. The two partitions are equal,
+                                           which is the only thing NMI ever
+                                           measures, and 0/0 is resolved by
+                                           that agreement rather than by a
+                                           limit.
+        truth has one class, answer splits None. Excluded from the NMI mean,
+                                           reported under its own count, and
+                                           left to purity and exact match --
+                                           both of which do see it.
+
+    An aggregate that does not say how many netlists went down each branch is
+    not reporting a measurement, and every caller below prints the counts.
+    """
+    counts, clusters, classes = contingency(answer, truth)
+    total = len(truth)
+    h_truth = _entropy(classes.values(), total)
+    h_answer = _entropy(clusters.values(), total)
+    if h_truth == 0:
+        if h_answer == 0:
+            return 1.0, "one class, answer agrees"
+        return None, "one class, answer splits"
+    info = 0.0
+    for (cluster, klass), n in counts.items():
+        joint = n / total
+        info += joint * math.log2(joint /
+                                  ((clusters[cluster] / total) *
+                                   (classes[klass] / total)))
+    return 2 * info / (h_answer + h_truth), "defined"
+
+
+# Hand computed, in the style of `verify_functions.HAND_WRITTEN`, and for the
+# same reason: the implementation above is the only thing that computes these
+# numbers, so agreeing with itself is worth nothing. Each row was worked out on
+# paper from the definitions and is written here with that arithmetic beside it.
+#
+# n = 16 unless the row says otherwise. Truth and answer are lists of lists of
+# flop indices.
+_A = list(range(8))
+_B = list(range(8, 16))
+HAND_WRITTEN_METRICS = [
+    # Identical partitions: I = H(C) = H(T), so the ratio is 1 whatever the
+    # normalisation, and every flop sits in the majority class of its cluster.
+    ("perfect, [8, 8]", [_A, _B], [_A, _B], 1.0, 1.0),
+
+    # One cluster: H(C) = 0 and I = 0, so NMI = 0 exactly. Purity is the
+    # largest true class over n, 8/16.
+    ("one group vs [8, 8]", [_A, _B], [list(range(16))], 0.0, 0.5),
+
+    # Sixteen clusters of one. H(C) = log2(16) = 4, H(T) = 1, and I = H(T) = 1
+    # because knowing the cluster names the class. NMI = 2(1)/(4+1) = 0.4.
+    # Purity is 1.0, which is the degenerate purity cannot see.
+    ("all singletons vs [8, 8]", [_A, _B], [[i] for i in range(16)], 0.4, 1.0),
+
+    # n = 8. Truth [4, 4]; the answer moves one flop across the boundary.
+    #   p(c0) = 5/8, p(c1) = 3/8, p(t0) = p(t1) = 1/2
+    #   H(C) = -(0.625 log2 0.625 + 0.375 log2 0.375) = 0.954434
+    #   I    = 0.5 log2(1.6) + 0.125 log2(0.4) + 0.375 log2(2)
+    #        = 0.339036 - 0.165241 + 0.375 = 0.548795
+    #   NMI  = 2(0.548795) / (0.954434 + 1) = 0.561601
+    #   purity = (4 + 3)/8 = 0.875
+    ("one flop across the boundary, [4, 4]",
+     [[0, 1, 2, 3], [4, 5, 6, 7]], [[0, 1, 2, 3, 4], [5, 6, 7]],
+     0.5616, 0.875),
+
+    # Eight clusters, each holding one flop of each true class. Cluster and
+    # class are statistically independent: every joint probability is 1/16 and
+    # every product of marginals is (1/8)(1/2) = 1/16, so I = 0 and NMI = 0
+    # even though the answer is not degenerate. Purity is 8(1)/16.
+    ("paired across [8, 8]", [_A, _B], [[i, i + 8] for i in range(8)],
+     0.0, 0.5),
+
+    # The 0/0 branch, both ways. n = 4, one true class.
+    ("one true class, answer agrees", [[0, 1, 2, 3]], [[0, 1, 2, 3]],
+     1.0, 1.0),
+    ("one true class, answer splits", [[0, 1, 2, 3]], [[0, 1], [2, 3]],
+     None, 1.0),
+]
+
+
+def metric_selftest(verbose=True):
+    """Every hand computed row reproduced by the implementation."""
+    wrong = 0
+    if verbose:
+        print(f"metric selftest, {len(HAND_WRITTEN_METRICS)} hand computed "
+              f"rows")
+        print(f"  NMI normalisation: {NMI_NORMALISATION}")
+    for label, truth_groups, answer_groups, want_nmi, want_purity in \
+            HAND_WRITTEN_METRICS:
+        truth = labels_of({f"t{i}": g for i, g in enumerate(truth_groups)})
+        answer = labels_of({f"c{i}": g for i, g in enumerate(answer_groups)})
+        got_nmi, branch = nmi(answer, truth)
+        got_purity = purity(answer, truth)
+        bad = []
+        if want_nmi is None:
+            if got_nmi is not None:
+                bad.append(f"NMI {got_nmi:.4f}, expected undefined")
+        elif got_nmi is None or abs(got_nmi - want_nmi) > 5e-5:
+            bad.append(f"NMI {got_nmi}, expected {want_nmi}")
+        if abs(got_purity - want_purity) > 5e-5:
+            bad.append(f"purity {got_purity:.4f}, expected {want_purity}")
+        shown = "undefined" if got_nmi is None else f"{got_nmi:.4f}"
+        if verbose:
+            print(f"  {'WRONG' if bad else '    '} {label:<38} "
+                  f"NMI {shown:>9}  purity {got_purity:.4f}   [{branch}]")
+        for problem in bad:
+            print(f"          {problem}")
+        wrong += bool(bad)
+    if verbose:
+        print(f"  {len(HAND_WRITTEN_METRICS) - wrong}/"
+              f"{len(HAND_WRITTEN_METRICS)} rows reproduced")
+    return wrong
+
+
+def truth_membership(graph, expected):
+    """Which declared register each flop belongs to, or None and why not.
+
+    The corpus declares register *sizes* -- `"registers": [8, 8]` -- and NMI
+    and purity need memberships. Two sources, in order:
+
+    1. A declaration of one register covering every flop is a membership
+       already, and 109 of the 133 netlists are that.
+    2. Otherwise the RTL vector name yosys leaves on each flop's Q net:
+       `a_reg[4]` and `a_reg[5]` are bits of one register. This is **checked
+       against the declaration** rather than trusted -- if the names partition
+       the flops differently from the sizes the generator declared, the
+       netlist is refused rather than scored against a membership invented
+       here. 10 of the 24 multi-register netlists survive that check.
+
+    The 14 that do not are refused for two measured reasons, both real:
+    `two_clocks` and `inverted_clock` declare `[4, 4]` for what the RTL writes
+    as one vector split across two clocks, so the names say `[8]`; and the
+    `scale_datapath` family loses one bit of three registers to a yosys rename,
+    so the names say `[16, 16, 16, 15, 15, 7, 2, 1, 1, 1]` against a declared
+    `[16, 16, 16, 16, 16, 8, 2]`. Attaching those stragglers to whichever group
+    makes the sizes match would be fitting the answer key to the answer.
+    """
+    flops = sorted(graph["flipflops"])
+    if expected == [len(flops)]:
+        return {f: "(one register)" for f in flops}, "declared as one register"
+    groups = defaultdict(list)
+    for flop in flops:
+        name = graph["net_names"].get(graph["flipflops"][flop]["q"])
+        groups[VECTOR_BIT.sub("", name) if name else f"(unnamed {flop})"] \
+            .append(flop)
+    sizes = sorted((len(v) for v in groups.values()), reverse=True)
+    if sizes != expected:
+        return None, (f"RTL vector names partition these flops {sizes}, the "
+                      f"generator declares {expected}")
+    return labels_of(groups), "RTL vector names on the flops' Q nets"
+
+
+def measure(groups, truth, membership):
+    """One criterion's answer against one netlist's truth, all three metrics.
+
+    `groups` is the criterion's output, `truth` the declared sizes and
+    `membership` the flop level ground truth or None.
+    """
+    got = sorted((len(m) for m in groups.values()), reverse=True)
+    row = {"exact": got == truth, "sizes": got, "nmi": None,
+           "purity": None, "branch": "no membership"}
+    if membership is not None:
+        answer = labels_of({str(k): v for k, v in groups.items()})
+        row["nmi"], row["branch"] = nmi(answer, membership)
+        row["purity"] = purity(answer, membership)
+    return row
+
+
+def aggregate(rows):
+    """Means over a criterion's per netlist rows, with the branch counts.
+
+    **Two means, not one, and the second is the one to read.** The convention
+    hands 1.0 to every netlist whose truth is a single class and whose answer
+    is too, and 109 of 133 netlists are that, so a mean over everything is
+    109 parts agreement and 10 parts measurement. Measured: the null model that
+    returns one group scores the same 0.9161 as the committed criterion under
+    that mean, which is the aggregate saying nothing in four decimal places.
+
+    So `nmi` and `purity` are the means over every netlist with a membership,
+    and `nmi real` and `purity real` are the means over the netlists whose
+    ground truth has more than one class -- the ones that ask the question.
+    Both are reported, both are recorded, and the counts under each are printed
+    so neither can be quoted without its denominator.
+    """
+    scored = [r for r in rows if r["nmi"] is not None]
+    pure = [r for r in rows if r["purity"] is not None]
+    real = [r for r in rows if r["branch"] == "defined"]
+    branches = Counter(r["branch"] for r in rows)
+    mean = lambda values: (round(sum(values) / len(values), 4) if values
+                           else None)
+    return {
+        "exact": sum(r["exact"] for r in rows),
+        "netlists": len(rows),
+        "nmi": mean([r["nmi"] for r in scored]),
+        "nmi over": len(scored),
+        "purity": mean([r["purity"] for r in pure]),
+        "purity over": len(pure),
+        "nmi real": mean([r["nmi"] for r in real]),
+        "purity real": mean([r["purity"] for r in real]),
+        "real over": len(real),
+        "branches": dict(branches),
+    }
+
+
 def connected_components(graph):
     """Control groups, then split by weak connectivity of the flop graph.
 
@@ -394,11 +713,15 @@ CRITERIA = {
 
 
 def corpus():
-    """Every scored netlist as (entry, truth, expected, graph), loaded once.
+    """Every scored netlist, loaded once, as a list of dicts.
 
     Both entry points below used to walk the index themselves, `score` twice
     over, which is how its score and its null model could end up counting
     different denominators without anything saying so.
+
+    `membership` is the flop level ground truth or None, and `why` says which
+    of the two sources it came from or why there is none. Every metric that
+    reads a membership counts the Nones rather than dropping them.
     """
     with open(f"{OUT_DIR}/index.json", encoding="utf-8") as handle:
         entries = json.load(handle)["circuits"]
@@ -413,7 +736,11 @@ def corpus():
             continue
         with open(f"{directory}/truth.json", encoding="utf-8") as handle:
             truth = json.load(handle)
-        rows.append((entry, truth, expected_registers(truth, graph), graph))
+        expected = expected_registers(truth, graph)
+        membership, why = truth_membership(graph, expected)
+        rows.append({"entry": entry, "truth": truth, "expected": expected,
+                     "graph": graph, "membership": membership,
+                     "membership from": why})
     return rows
 
 
@@ -428,8 +755,11 @@ def against_recording(measured):
     lines, failed = [], False
     for key, value in measured.items():
         recorded = RECORDED.get(key)
-        if recorded is None:
+        if key not in RECORDED or recorded is None:
             lines.append(f"  {key}: {value}, NOT RECORDED -- add it to RECORDED")
+            failed = True
+        elif value is None:
+            lines.append(f"  {key}: not measured, recorded {recorded}")
             failed = True
         elif value < recorded:
             lines.append(f"  REGRESSION  {key}: {value}, recorded {recorded}")
@@ -445,35 +775,66 @@ def against_recording(measured):
 
 def compare():
     """Every criterion against the same answer key, in one run."""
+    if metric_selftest():
+        print("\nRESULT: fail, the metric implementation does not reproduce "
+              "its own hand computed table")
+        return 1
+    print()
     rows = corpus()
-    tally = {name: 0 for name in CRITERIA}
-    for _, _, expected, graph in rows:
+    tally = {name: [] for name in CRITERIA}
+    for row in rows:
         for name, criterion in CRITERIA.items():
-            got = sorted((len(m) for m in criterion(graph).values()), reverse=True)
-            tally[name] += got == expected
+            tally[name].append(measure(criterion(row["graph"]),
+                                       row["expected"], row["membership"]))
     total = len(rows)
+    summaries = {name: aggregate(measured) for name, measured in tally.items()}
+    with_membership = sum(r["membership"] is not None for r in rows)
+
     print(f"register grouping criteria, over {total} netlists with a declared "
-          f"partition\n")
-    for name, hits in sorted(tally.items(), key=lambda kv: -kv[1]):
+          f"partition")
+    real = sum(1 for r in rows if r["membership"] is not None
+               and r["expected"] != [len(r["graph"]["flipflops"])])
+    print(f"exact match is over all {total}. NMI and purity are over the "
+          f"{real} netlists that have a")
+    print(f"flop level membership AND a ground truth with more than one class; "
+          f"the other")
+    print(f"{with_membership - real} with a membership are the 0/0 convention "
+          f"and would only dilute it.")
+    print(f"NMI normalisation: {NMI_NORMALISATION}\n")
+    print(f"  {'':<34}{'exact':>10}{'NMI':>9}{'purity':>9}   recording")
+    off = []
+    for name, summary in sorted(summaries.items(),
+                                key=lambda kv: -kv[1]["exact"]):
         recorded = RECORDED_CRITERIA.get(name)
+        got = {k: summary[k] for k in ("exact", "nmi real", "purity real")}
         mark = ""
         if recorded is None:
-            mark = "   NOT RECORDED"
-        elif hits < recorded:
-            mark = f"   REGRESSION, recorded {recorded}"
-        elif hits > recorded:
-            mark = f"   above its recording of {recorded}, re-record it"
-        print(f"  {hits:>4}/{total}   {name}{mark}")
+            mark, bad = "NOT RECORDED", True
+        else:
+            bad = any(got[k] != recorded.get(k) for k in got)
+            mark = "" if not bad else f"differs from {recorded}"
+        off += [name] if bad else []
+        cell = f"{summary['exact']}/{total}"
+        print(f"  {name:<34}{cell:>10}"
+              f"{str(summary['nmi real']):>9}"
+              f"{str(summary['purity real']):>9}   {mark}")
     missing = sorted(set(RECORDED_CRITERIA) - set(CRITERIA))
     for name in missing:
-        print(f"     --/{total}   {name}   RECORDED, BUT NO LONGER COMPUTED")
+        print(f"  {name:<34}{'--':>10}{'--':>9}{'--':>9}   RECORDED, BUT NO "
+              f"LONGER COMPUTED")
+
+    branches = Counter()
+    for summary in summaries.values():
+        branches.update(summary["branches"])
+    print(f"\n  0/0 convention branches, summed over every criterion above:")
+    for branch, count in sorted(branches.items()):
+        print(f"    {count:>5}  {branch}")
     print(f"\n  The two alternatives fail in mirror image. Connected components")
     print(f"  shatters a plain register, whose bits do not depend on one")
     print(f"  another. Refinement shatters a shift register, whose chain gives")
     print(f"  every bit a distinct colour. Neither failure is a tuning problem.")
 
-    off = sorted([n for n, h in tally.items() if RECORDED_CRITERIA.get(n) != h]
-                 + missing)
+    off = sorted(off + missing)
     if off:
         print(f"\nRESULT: fail, {len(off)} criterion(s) do not match their "
               f"recording: {off}")
@@ -482,16 +843,33 @@ def compare():
     return 0
 
 
+NULL_MODELS = {
+    "one group, and do nothing": lambda g: {"all": sorted(g["flipflops"])},
+    "every flop its own register": lambda g: {f: [f] for f in
+                                              sorted(g["flipflops"])},
+}
+
+
 def score():
     """Sensitivity of the committed criterion, on circuits with a known answer."""
+    if metric_selftest():
+        print("\nRESULT: fail, the metric implementation does not reproduce "
+              "its own hand computed table")
+        return 1
+    print()
     rows = corpus()
     exact, wrong, held_out = 0, [], Counter()
     # The null model and the non-trivial subset, counted in the same pass over
     # the same rows as the score, so the denominators cannot drift apart.
     trivial = multi = multi_hits = 0
-    for entry, truth, expected, graph in rows:
+    measured_rows = []
+    for row in rows:
+        entry, truth = row["entry"], row["truth"]
+        expected, graph = row["expected"], row["graph"]
         got = sorted((len(m) for m in control_groups(graph).values()),
                      reverse=True)
+        measured_rows.append(measure(control_groups(graph), expected,
+                                     row["membership"]))
         hit = got == expected
         if hit:
             exact += 1
@@ -509,6 +887,9 @@ def score():
             # can go negative was never counting what its sentence said.
             multi_hits += hit
     total = len(rows)
+    summary = aggregate(measured_rows)
+    with_membership = sum(r["membership"] is not None for r in rows)
+
     print(f"register grouping by control signature, over the corpus")
     print(f"  {exact}/{total} netlists partitioned exactly {dict(held_out)}")
     print(f"  {trivial}/{total} would be got right by a criterion that returns "
@@ -518,6 +899,52 @@ def score():
     print(f"  of those {multi}, this criterion gets {multi_hits}")
     print(f"\n  On the warm up, whose true partition the DEF states, it is "
           f"wrong: see tools/verify_blocks.py")
+
+    print(f"\nthe same answers under NMI and purity, which are not all or "
+          f"nothing")
+    print(f"  membership ground truth on {with_membership}/{total} netlists; "
+          f"{total - with_membership} have none and are")
+    print(f"  scored by exact match alone. NMI normalisation: "
+          f"{NMI_NORMALISATION}")
+    print(f"  which branch of the 0/0 convention each netlist took:")
+    for branch, count in sorted(summary["branches"].items()):
+        print(f"    {count:>4}  {branch}")
+
+    print(f"\nthe two degenerate answers, under all three metrics and both "
+          f"denominators")
+    print(f"  {'':<30}{'exact':>10}{'NMI':>8}{'purity':>8}   "
+          f"{'NMI':>8}{'purity':>8}")
+    print(f"  {'':<30}{'':>10}{'all ' + str(with_membership):>16}   "
+          f"{'truth splits':>16}")
+    shown = dict(NULL_MODELS)
+    table = [(name, aggregate([measure(model(r["graph"]), r["expected"],
+                                       r["membership"]) for r in rows]))
+             for name, model in shown.items()]
+    table.append(("the control signature", summary))
+    for name, entry in table:
+        cell = f"{entry['exact']}/{total}"
+        print(f"  {name:<30}{cell:>10}{str(entry['nmi']):>8}"
+              f"{str(entry['purity']):>8}   {str(entry['nmi real']):>8}"
+              f"{str(entry['purity real']):>8}")
+    print(f"  the right hand pair is over the {summary['real over']} netlists "
+          f"whose ground truth has")
+    print(f"  more than one class. The left hand pair is over all "
+          f"{with_membership} and is mostly the")
+    print(f"  convention: one group and the committed criterion score the same "
+          f"there, to")
+    print(f"  four decimal places, which is what an aggregate looks like when "
+          f"109 of its")
+    print(f"  119 rows were never able to disagree.")
+    print(f"\n  Each degenerate is bad on at least one axis, and no single "
+          f"axis catches")
+    print(f"  both. One group scores zero NMI, because a single cluster has no "
+          f"entropy.")
+    print(f"  All singletons scores 1.0 purity, exactly -- purity does not "
+          f"penalise")
+    print(f"  over-splitting at all, so the claim that it kills that "
+          f"degenerate is false.")
+    print(f"  What kills that one here is exact match. Three columns, not "
+          f"two.")
 
     print(f"\n  the {len(wrong)} it does not get:")
     for name, variant, family, expected, got in wrong[:20]:
@@ -545,7 +972,12 @@ def score():
 
     lines, failed = against_recording({
         "exact": exact, "netlists": total, "null model": trivial,
-        "multi": multi, "multi hits": multi_hits})
+        "multi": multi, "multi hits": multi_hits,
+        "membership": with_membership,
+        "nmi": summary["nmi"], "nmi over": summary["nmi over"],
+        "purity": summary["purity"],
+        "nmi real": summary["nmi real"], "purity real": summary["purity real"],
+        "real over": summary["real over"]})
     print(f"\nagainst the recorded expectation")
     print("\n".join(lines) if lines else "  every figure matches its recording")
     if failed:
@@ -557,11 +989,16 @@ def score():
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args == ["--selftest"]:
+        wrong = metric_selftest()
+        print(f"\nRESULT: {'fail' if wrong else 'pass'}")
+        sys.exit(1 if wrong else 0)
     if args == ["--score"]:
         sys.exit(score())
     if args == ["--compare"]:
         sys.exit(compare())
     if len(args) != 1 or args[0] not in TARGETS:
         sys.exit(f"usage: python tools/stage4_registers.py "
-                 f"[{' | '.join(TARGETS)} | --score | --compare]")
+                 f"[{' | '.join(TARGETS)} | --score | --compare | "
+                 f"--selftest]")
     sys.exit(run(args[0]))
