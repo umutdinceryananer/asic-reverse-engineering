@@ -102,6 +102,8 @@ python tools/sim/run.py puzzle --netlist out/puzzle/graph.v   # gate: round trip
 python tools/stage3_crosscheck.py warmup  # gate: annotations derived a second
 python tools/stage3_crosscheck.py puzzle  # way, forwards instead of backwards
 python tools/stage3_crosscheck.py warmup --selftest
+python tools/verify_annotations.py warmup # gate: stage 3's annotations against
+                                          # the RTL in 00_source.v
 python tools/verify_equiv.py warmup       # gate: the recovered netlist proven
                                           # equal to 01_netlist.v, 153 points
 
@@ -122,6 +124,8 @@ python tools/verify_blocks.py             # gate: stage 4 against the warm up's
                                           # DEF hierarchy. CURRENTLY FAILING
 python tools/stage4_cone.py puzzle        # the success condition, composed
 python tools/stage4_cone.py puzzle --list # every cone root by size
+python tools/verify_cone.py warmup        # gate: that listing proven equal to
+                                          # a + b == 496 over all 65536
 python tools/verify_functions.py          # gate: liberty vs the PDK's own
                                           # behavioural models, 850 patterns
 python tools/verify_functions.py --selftest  # gate: and which mistakes that
@@ -149,7 +153,9 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 2 | `stage2_unionfind.py`: independent extractor agrees, 86/86 and 725/725 | passing |
 | 3 | round trip: graph back to Verilog still passes the stage 2 simulation | passing |
 | 3 | `stage3_crosscheck.py`: annotations re-derived from stage 2's netlist, forwards; warmup 84/84 nets and puzzle 723/723 agree on roots, cones and flop wiring | passing |
-| 3 | `stage3_crosscheck.py --selftest`: all 6 corruptions caught | passing |
+| 3 | `stage3_crosscheck.py --selftest`: all 17 corruptions caught, one per field group; four fields the warm up can only be made to disagree about are named | passing |
+| 3 | `verify_annotations.py warmup`: 16 flops, all holding on `en` low, async `rst_n` low, one clock root, no sets, against `00_source.v` | passing |
+| 4 | `verify_cone.py warmup`: the composed listing proven equal to `a + b == 496` over all 65536 assignments, by an evaluator sharing no code | passing |
 | 5 | `verify_corpus.py`: 12 rules, 680 uses against what stage 3 found, over both mappings of all 93 circuits; a missing or stale `graph.json` fails rather than warning | passing |
 | 5 | `verify_corpus.py --selftest`: all 15 corruptions caught, **and all 12 rules tripped by at least one of them** | passing |
 | 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]` | **failing**: the committed criterion answers `[16]` |
@@ -226,6 +232,13 @@ function — single output equal to single input, possibly inverted — never fr
 the cell's name, so `clkbuf`, `inv`, `buf` and `clkinv` are all covered and
 `diode` and `conb_1` are correctly excluded. The corpus's `clock_tree` family
 exists to make the failure visible, and `verify_corpus.py` asserts one root.
+
+**A mux is identified by its function, never by its name.** `mux2i` is an
+*inverting* mux, `(!A0&!S)|(!A1&S)`, so a flop whose D comes from one with its
+own Q on a leg toggles rather than holds. The test was `"mux2" in the cell
+name`, which admits it. The rule is now the cofactor: for some pin S the
+function at S=0 must be identically another pin, positively. Across the
+library's 429 cells exactly four outputs pass, the four `mux2_*`.
 
 **A held register has no single structure.** Stage 3's search for a mux in front
 of D with Q fed back finds 6 of the corpus's 30 declared enables. Four measured

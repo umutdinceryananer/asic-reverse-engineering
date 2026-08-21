@@ -65,6 +65,8 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 39 | `clock_nets` is the nets at the flop pins, not the clock tree | inversion | understood |
 | 40 | An equivalence proof that proved nothing, twice over | inversion | understood |
 | 41 | A bounded model checker answering from a start state nothing has | inversion | understood |
+| 42 | The hold search identified a mux by its name, and one of them inverts | normalisation | understood |
+| 43 | The RTL reader found no flip flops in a design that is mostly flip flops | tooling | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1080,11 +1082,67 @@ preamble would have been wrong rather than merely unnecessary.
 to fail*: a query that can be satisfied the easy way will be, and the fix is to
 ask the harder question rather than to constrain the answer by hand.
 
+### 42. The hold search identified a mux by its name, and one of them inverts
+
+**Symptom.** None. This one had never fired, which is why it is worth an entry.
+
+**Cause.** Stage 3 decides a register holds by looking for a mux in front of D
+with the flop's own Q on a leg, and it found the mux with
+`if "mux2" not in source["cell"]: continue`. That substring also matches
+`mux2i`, and `mux2i` is an *inverting* mux:
+
+    mux2   X = (A0&!S) | (A1&S)          passes A0, then A1
+    mux2i  Y = (!A0&!S) | (!A1&S)        passes !A0, then !A1
+
+A flop fed by a `mux2i` with its own Q on a leg does not hold. It toggles. The
+annotation would have said "this register can keep its value" about a register
+that inverts every cycle, and every later stage reads it that way.
+
+**Why it never fired.** All 56 structurally found holds across the warm up and
+the corpus are `mux2_1`. The corpus's one `mux2i` sits behind a synchronous
+reset's `nor2b`, more than one cell back from D, so the search never reaches it.
+Nothing in the repository could produce the wrong answer, which is why nothing
+noticed the wrong rule.
+
+**Fix.** The test is functional: for some pin S, the function with S=0 must be
+identically some other pin, positively. Across the library's 429 cells exactly
+four outputs pass it -- the four `mux2_*` -- and the three `mux2i_*` are
+rejected. `stage3_crosscheck.py` applies the same rule by a different route,
+scanning the whole truth table rather than testing cofactors.
+
+**Verdict: understood.** And incomplete: a witness circuit putting a `mux2i`
+directly in front of a D is what would make the fix demonstrable rather than
+merely argued, and the corpus does not have one yet. Recorded in
+`docs/packages.md` as carried forward. This is the repository's own rule --
+*exercise a check against a known-bad input once, or it is only silence* --
+applied to a rule rather than to a check.
+
+### 43. The RTL reader found no flip flops in a design that is mostly flip flops
+
+**Symptom.** `verify_annotations.py`, on its first run, reported
+`16 found, 0 declared` and failed.
+
+**Cause.** It read `reg` declarations out of each module's *body*, and
+`00_source.v` declares its state in the port list:
+`output reg [7:0] parallel_out`. Both shift registers were therefore empty and
+the design declared no state at all.
+
+**Fix.** The port list is searched as well as the body. A second one went with
+it: the per-instance count was accumulated into a `set`, so `sr_a` and `sr_b` --
+the same module twice -- collapsed into one entry and the tool declared 8 holds
+in a design with 16.
+
+**Verdict: understood.** Worth recording because of how it surfaced. The tool's
+whole purpose is to disagree with stage 3 when stage 3 is wrong, and the first
+thing it did was disagree with stage 3 when *it* was wrong -- loudly, with both
+numbers printed side by side. A reader that had silently returned a plausible
+count would have been believed.
+
 ---
 
 ## The shapes these fall into
 
-Forty one problems, six recurring shapes.
+Forty three problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

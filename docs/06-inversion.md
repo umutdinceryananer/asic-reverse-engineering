@@ -70,6 +70,16 @@ watching it fail:
 is then proven by SAT, and `equiv_status -assert` fails unless all of them are.
 A wrong proposal is a failure, not a shortcut.
 
+**What the miter proves, and what it does not.** Both netlists are read through
+the same `celllib.py`, so what it establishes is that the two have the same
+structure and connectivity: the same state, wired the same way, computing the
+same functions of it. It says nothing about whether those functions describe the
+silicon, because an error in this repository's reading of liberty appears
+identically on both sides and cancels. That half is covered twice elsewhere --
+by `verify_functions.py`, which compares 850 exhaustive truth tables against the
+PDK's own behavioural models, and by the replay gate below, which puts a solver
+trace back through those same models in simulation.
+
 **Demonstrated failing.** One `nand2_2` in `graph.v` swapped for `nor2_2` — same
 pins, different function, nothing else changed:
 

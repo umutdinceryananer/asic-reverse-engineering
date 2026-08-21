@@ -20,7 +20,31 @@ depth on a negative. `sim/replay.py` replays any trace through stage 2's
 netlist before it is believed — demonstrated catching a corrupted-model trace.
 The puzzle run is the author's. Commits bc8f15c, 59b2798, 06ddfe1.
 
-## Package 3 — NEXT. Annotation blind spots, corpus additions
+## Package 3 — PART DONE. Annotation blind spots, corpus additions
+Done: `stage3_crosscheck.compare()` extended to the seven field groups it never
+read (hold, reset/set level, cell and kind, cone root values, constant nets, net
+names, transparent types, carried cell_functions), 17 corruptions, all caught,
+subject checked to agree before it is broken. Stage 3's hold search no longer
+tests the cell's name: `mux2i` is an inverting mux and the rule is now the
+liberty function's cofactor, which accepts exactly the four `mux2_*` outputs in
+the library and rejects the three `mux2i_*`. `verify_annotations.py` holds the
+warm up's annotations to `00_source.v`. `verify_cone.py` proves the composed
+cone equivalent to `a + b == 496`, sharing no code with anything.
+Commits e9560c0, 56ea75f.
+
+NOT DONE, and carried forward:
+- Task 1's corpus subjects for the selftest. The corpus has no `netlist.json`
+  -- it is synthesised, never laid out -- so this pass cannot read it without a
+  second Verilog netlist reader with alias resolution, which is a new unchecked
+  surface inside the one tool whose value is independence. The two fields the
+  warm up cannot confirm positively (set level, constant nets) are named in the
+  selftest's own output instead of being implied.
+- Task 4 in full: warmup_twin, `00_source.v` as a corpus entry, the mux2i
+  witness netlist, and the two undeclared enables. Nothing in the corpus has
+  changed, so no recording moved and none needed to.
+- Task 5's `docs/06` sentence is done; the rest of Task 5 follows Task 4.
+
+## Package 3 (original scope) — Annotation blind spots, corpus additions
 - Extend `stage3_crosscheck.compare()` to the fields it never reads (enable/
   hold, reset/set levels, cone_roots values, constant_nets, net_names), one
   selftest corruption per new field.
