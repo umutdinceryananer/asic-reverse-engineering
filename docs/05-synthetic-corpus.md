@@ -335,6 +335,14 @@ four distinct ways, all measured against ground truth we wrote:
 | `composed_counter_compare` | the counter's shape again, `D[0] = xor2(q[0], en)` |
 | `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and `D` |
 
+One entry is not synthetic at all. `adder_demo` is `puzzle/warmup/00_source.v`
+unmodified -- the only circuit here whose Verilog this pipeline's author did not
+write, and the only one whose declared partition `[8, 8]` comes from a DEF
+hierarchy rather than from a decision made here. It is also the same function
+reaching stage 3 by a second route: the warm up target arrives as a layout
+through stages 1 and 2, this arrives as RTL through Yosys. It found a gap in the
+synthesis flow on its first run, which is `docs/problems.md` 44.
+
 `mux2i` in that row is not incidental. It is an *inverting* mux, and stage 3's
 hold search used to find its mux by name -- `"mux2" in the cell type` -- which
 matches it. Nothing here could produce the wrong answer, because in every

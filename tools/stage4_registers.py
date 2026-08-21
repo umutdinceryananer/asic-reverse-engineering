@@ -69,23 +69,31 @@ REFINEMENT_ROUNDS = 3
 # something, and re-recording it has to be a decision rather than a side effect.
 RECORDED = {
     "exact": 117,           # netlists the control signature partitions exactly
-    "netlists": 131,        # netlists with flops and a declared partition
+    "netlists": 133,        # netlists with flops and a declared partition
     "null model": 109,      # what "one group, and do nothing" scores
-    "multi": 22,            # netlists declaring more than one register
+    "multi": 24,            # netlists declaring more than one register
     "multi hits": 8,        # of those, what the control signature gets
 }
 
 # Per criterion, for --compare. Same rule.
 #
-# `+ connected components` overtook nothing here and lost nothing; it went 75 to
-# 79 because the four `warmup_twin` netlists arrived and it gets all four. The
-# control signature gets none of them, which is the point of that family: it is
-# the warm up's shape, and `verify_blocks.py` has been failing the warm up on
-# exactly this since it was written. The corpus finally agrees with it.
+# `+ connected components` went 75 to 80 across two corpus additions, because
+# `warmup_twin` and the warm up's own RTL are the shape it handles and the
+# control signature cannot: two registers sharing every control signal. The
+# control signature gets none of those six netlists, which is the point of
+# adding them -- `verify_blocks.py` has been failing the warm up on exactly this
+# since it was written, and until now nothing in the corpus agreed.
+#
+# It went up by five and not by six, and the one it misses is worth more than
+# the five it gets. `adder_demo` and `adder_demo__fast` are the same RTL mapped
+# two ways. On the base mapping all 16 holds survive as muxes and components
+# answers [8, 8]. On the fast mapping only 11 do, and all three criteria come
+# apart: [11, 5], then [3,2,2,2,2,1,1,1,1,1], then sixteen singletons. See
+# `docs/problems.md` 45.
 RECORDED_CRITERIA = {
     "control signature": 117,
     "colour refinement, fixed point": 97,
-    "+ connected components": 79,
+    "+ connected components": 80,
 }
 
 

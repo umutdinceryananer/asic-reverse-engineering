@@ -67,6 +67,8 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 41 | A bounded model checker answering from a start state nothing has | inversion | understood |
 | 42 | The hold search identified a mux by its name, and one of them inverts | normalisation | understood |
 | 43 | The RTL reader found no flip flops in a design that is mostly flip flops | tooling | understood |
+| 44 | The corpus flow had no `flatten`, and no circuit that needed one | scale | understood |
+| 45 | One design, two mappings, three different register partitions | detectors | **open** |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1144,11 +1146,67 @@ thing it did was disagree with stage 3 when *it* was wrong -- loudly, with both
 numbers printed side by side. A reader that had silently returned a plausible
 count would have been believed.
 
+### 44. The corpus flow had no `flatten`, and no circuit that needed one
+
+**Symptom.** Adding `puzzle/warmup/00_source.v` to the corpus stopped stage 3
+dead: `KeyError: 'shift_register'` from `functional_pins(lef[cell_type])`.
+
+**Cause.** `stage5_corpus.synthesise` runs
+`hierarchy -check -top NAME; proc; opt; fsm; opt; memory; opt; techmap; opt`
+and never flattened. It never had to: every one of the 96 circuits this corpus
+generates is a single module, so the mapped netlist held nothing but sky130
+cells. `00_source.v` is three modules under `adder_demo`, the sub-modules
+survived mapping as hierarchy, and stage 3 went looking for `shift_register` in
+the PDK's LEF.
+
+**Fix.** `flatten` after `proc`. A no-op on the other 96, and the corpus's
+numbers moved only by what the new entry contributes.
+
+**Verdict: understood.** Worth an entry for which circuit found it. The review
+packet has carried a line for months saying the corpus is the answer key most
+of stage 4 is scored against and the same author wrote both. This is that
+sentence in miniature: a synthesis flow written alongside the circuits it
+synthesises quietly inherits their shape, and the *only* entry whose Verilog
+this author did not write is the one that broke it. One outside circuit found a
+gap 96 inside ones could not.
+
+### 45. One design, two mappings, three different register partitions
+
+**Symptom.** `adder_demo` and `adder_demo__fast` are `puzzle/warmup/00_source.v`
+put through the same synthesis and mapped two ways. The declared partition is
+`[8, 8]` for both. Measured:
+
+    base mapping                     fast mapping
+      control signature  [16]          [11, 5]
+      connected comps    [8, 8]        [3,2,2,2,2,1,1,1,1,1]
+      colour refinement  [16]          sixteen singletons
+
+**Cause.** The base mapping keeps all 16 of the design's holds as a `mux2` in
+front of D and stage 3 finds every one. The fast mapping keeps 11. The five it
+folds away are not distinguishable from the eleven by anything in the design --
+`abc -fast` simply made a different choice on five bits -- but the control
+signature includes the hold net, so five flops get a different signature from
+their eleven neighbours and the criterion reports a register boundary that does
+not exist.
+
+**Why this is worse than the known weakness.** `CLAUDE.md` already says *a hold
+stage 3 misses is a split missed here*, which describes under-splitting. This is
+the other direction: a hold missed on *some* bits of one register **invents** a
+split. A false boundary is worse than a missed one, because a missed boundary
+leaves a group a person still has to read and a false one looks like an answer.
+
+**Verdict: open.** Nothing here is fixed. The finding is that the structural
+hold search is not merely a lower bound on holds but a source of spurious
+register boundaries, and that the corpus's two-mapping design is what exposed
+it -- one circuit, mapped twice, disagreeing with itself. `docs/04-detectors.md`
+says the answer to "does this register hold" is functional and belongs to a
+solver; this is the measurement that says it is not optional.
+
 ---
 
 ## The shapes these fall into
 
-Forty three problems, six recurring shapes.
+Forty five problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

@@ -605,6 +605,35 @@ def scale_datapath(width, branches):
         "note": "the corpus at the size of the target, blocks interacting"}
 
 
+def warmup_source():
+    """The warm up's own RTL, unmodified, as a corpus entry.
+
+    The only circuit here whose Verilog this pipeline's author did not write,
+    and that is worth more than one entry usually would be. The corpus is the
+    answer key most of stage 4 is scored against and the same person wrote both
+    -- `docs/05-synthetic-corpus.md` says so and the review packet lists it
+    under what is unverified. This entry is outside that: it is the design the
+    warm up target *is*, and the partition declared for it, `[8, 8]`, is what
+    `03_post_place_and_route.def` states the hierarchy to be rather than what
+    anybody here decided it should be.
+
+    It is also the same function reaching stage 3 by a second route. The warm up
+    target arrives as a *layout*, through stages 1 and 2 and a GDS; this arrives
+    as RTL, through Yosys. Anything stage 3 concludes about one and not the
+    other would be worth knowing, and nothing else in the repository would show
+    it.
+    """
+    path = os.path.join("puzzle", "warmup", "00_source.v")
+    if not os.path.exists(path):
+        sys.exit(f"{path} missing; run git submodule update --init")
+    with open(path, encoding="utf-8") as handle:
+        verilog = handle.read()
+    return verilog, {"family": "warmup", "top": "adder_demo", "width": 8,
+                     "flops": 16, "registers": [8, 8], "enable": True,
+                     "reset": "async_reset", "clock_roots": 1,
+                     "source": path}
+
+
 def warmup_twin(width):
     """Two structurally identical registers sharing every control signal.
 
@@ -794,6 +823,7 @@ def catalogue():
     # The shape verify_blocks.py fails the warm up on, which the corpus lacked.
     for width in (8, 16):
         add(warmup_twin(width), "structure")
+    add(warmup_source(), "structure")
 
     # Size. Everything above is an order of magnitude below the target: the
     # largest holds 32 flops and 125 cells against the puzzle's 92 and 738, and
@@ -869,7 +899,13 @@ def synthesise(name, rtl_path, out_dirs):
     steps = [f"read_verilog -lib {SINKS_PATH}",
              f"read_verilog {rtl_path}",
              f"hierarchy -check -top {name}",
-             "proc; opt; fsm; opt; memory; opt",
+             # `flatten` because one entry has hierarchy. Every circuit this
+             # corpus generates is a single module, so the step was never
+             # needed and never noticed missing -- until `00_source.v` arrived,
+             # which is three modules under `adder_demo`, and stage 3 met a
+             # netlist still instantiating `shift_register`. A no-op on the
+             # other 96.
+             "proc; flatten; opt; fsm; opt; memory; opt",
              "techmap; opt",
              "design -save premap"]
     for variant, extra in VARIANTS.items():
@@ -920,7 +956,10 @@ def main(list_only=False):
     seen = Counter()
     failures = []
     for verilog, truth, group in items:
-        name = module_name(verilog)
+        # `top` where a file holds several modules and the first is not the one
+        # wanted: 00_source.v opens with `shift_register` and the design is
+        # `adder_demo`.
+        name = truth.get("top") or module_name(verilog)
         seen[truth["family"]] += 1
         truth = dict(truth, name=name, group=group,
                      held_out=seen[truth["family"]] % HELD_OUT_EVERY == 0)

@@ -151,6 +151,7 @@ GROUND_TRUTH = [
 READERS = {
     "puzzle/warmup/00_source.v": [
         ("tools/verify_annotations.py", "names it"),
+        ("tools/stage5_corpus.py", "names it"),
     ],
     "puzzle/warmup/01_netlist.v": [
         ("tools/verify_equiv.py", "names it"),
