@@ -46,12 +46,30 @@ That loop is also why no reset gets baked in: if a reset is needed the solver
 finds it, and if it is not -- the warm up's registers are fully overwritten
 after eight shifts -- it does not waste a cycle on one.
 
+**`--post-reset` asks the smaller question, and the announcement says it is the
+right one.** The published hint is "Don't forget to toggle `rst_n` before each
+input attempt", quoted verbatim in `docs/references.md` section 6. Somebody who
+has just toggled `rst_n` is not starting from an arbitrary state: every flop
+with an asynchronous clear is at 0 and every flop with an asynchronous preset is
+at 1, and only the flops with neither are unknown. Under `--post-reset` those
+are pinned and the rest stay free, so the solver quantifies over 2^(free flops)
+starting states instead of 2^(all of them).
+
+The default stays universal, because a trace good from every state is good from
+the post-reset ones too and the reverse does not hold. But on the puzzle the
+difference is 92 free bits against 4 -- 88 of its 92 flops carry `rst_n`, 84 as
+a clear and 4 as a preset -- and solving for robustness across all 2^92 is
+solving a harder problem than the author poses. Both modes print the set they
+quantified over, so the two runs can be compared rather than assumed equal.
+
 Nothing here is believed until `tools/sim/replay.py` reproduces it against
 stage 2's netlist. A trace that does not reproduce is a modelling defect in this
 file, not a solution.
 
 Usage:
     python tools/stage6_invert.py warmup
+    python tools/stage6_invert.py warmup --post-reset     # start states as
+                                                          # rst_n leaves them
     python tools/stage6_invert.py warmup --depth 6        # a bound below the
                                                           # answer: exits 1
     python tools/stage6_invert.py warmup --property S
@@ -170,6 +188,26 @@ class Design:
         # is only a definition and not a loop while the reset cone reaches no
         # flop, and a synchronous reset folded into D would break it.
         self.state_controlled = sorted(self.controls_touching_state())
+
+    def post_reset_state(self):
+        """Every flop an asynchronous control pins, and to what.
+
+        A partial assignment: flops with neither a reset nor a set are absent
+        and stay free. Set dominates clear, matching how liberty orders the two
+        on the cells that carry both and matching `common/celllib.py`.
+
+        The *level* of the control is not consulted and must not be. This is
+        the state after the reset has been asserted and released, not a
+        statement about which polarity asserts it -- a `dfrtp` leaves 0 whether
+        its clear is active high or active low.
+        """
+        pinned = {}
+        for instance, record in self.flops.items():
+            if record.get("set"):
+                pinned[instance] = True
+            elif record.get("reset"):
+                pinned[instance] = False
+        return pinned
 
     def support(self, net, seen=None):
         """Every net reachable backwards from this one, through cells."""
@@ -317,7 +355,10 @@ def encode(design, depth, copies, property_port, pinned=None, want=True,
                 clear = active(record, "reset", copy, cycle)
                 preset = active(record, "set", copy, cycle)
                 if cycle == 0:
-                    if initial is not None:
+                    # A partial assignment: `--post-reset` pins the flops an
+                    # asynchronous control settles and leaves the rest free, so
+                    # membership is tested rather than assumed.
+                    if initial is not None and instance in initial:
                         assertions.append(
                             f"(assert (= {now} "
                             f"{'true' if initial[instance] else 'false'}))")
@@ -429,11 +470,18 @@ def predicted_of(design, values, depth, names):
     return rows
 
 
-def search(design, depth, property_port, out_dir, start=0):
-    """Iterative deepening, with the robustness loop at each depth."""
+def search(design, depth, property_port, out_dir, start=0, initial=None):
+    """Iterative deepening, with the robustness loop at each depth.
+
+    `initial` is the constraint on every copy's starting state: None for a free
+    one, or a partial {flop: bit} map. The robustness question is asked inside
+    the same constraint, so `--post-reset` looks for a start state *among the
+    post-reset ones* that defeats the trace, and the default looks among all of
+    them.
+    """
     timings = []
     for k in range(start, depth + 1):
-        copies, rounds = [None], 0
+        copies, rounds = [initial], 0
         while True:
             path = os.path.join(out_dir, f"bmc_k{k}.smt2")
             names = {}
@@ -455,14 +503,22 @@ def search(design, depth, property_port, out_dir, start=0):
             # fail from? An unsat here is what makes the trace usable.
             check = os.path.join(out_dir, f"bmc_k{k}_anystart.smt2")
             with open(check, "w", encoding="utf-8") as handle:
-                handle.write(encode(design, k, [None], property_port,
+                handle.write(encode(design, k, [initial], property_port,
                                     pinned=rows, want=False))
             broken, counter, seconds = solve(check)
             timings.append({"depth": k, "check": "any start state",
                             "sat": broken, "seconds": round(seconds, 2)})
             if not broken:
-                print(f"          no start state defeats it: the trace holds "
-                      f"from every one ({seconds:.2f}s)")
+                if initial is None:
+                    print(f"          no start state defeats it: the trace "
+                          f"holds from every one ({seconds:.2f}s)")
+                else:
+                    free = len(design.flops) - len(initial)
+                    note = (" -- which is one state, so this query could not "
+                            "have failed" if not free else "")
+                    print(f"          no start state defeats it, among the "
+                          f"2^{free} this mode allows{note}")
+                    print(f"          ({seconds:.2f}s)")
                 initial = {i: bool(values.get(f"q0_0_{i}"))
                            for i in design.flops}
                 return (k, rows, initial,
@@ -474,12 +530,14 @@ def search(design, depth, property_port, out_dir, start=0):
                 print(f"          {MAX_ROUNDS} rounds without a trace good "
                       f"from every start state; trying a deeper unrolling")
                 break
-            copies.append({i: bool(counter.get(f"q0_0_{i}"))
+            pinned = dict(initial or {})
+            pinned.update({i: bool(counter.get(f"q0_0_{i}"))
                            for i in design.flops})
+            copies.append(pinned)
     return None, None, None, None, timings
 
 
-def run(target, graph_path, depth, property_port, start):
+def run(target, graph_path, depth, property_port, start, post_reset=False):
     with open(graph_path, encoding="utf-8") as handle:
         graph = json.load(handle)
     design = Design(graph)
@@ -521,11 +579,41 @@ def run(target, graph_path, depth, property_port, start):
         sys.exit(f"{property_port} is not an output of this design: "
                  f"{sorted(design.outputs)}")
     print(f"  property     {property_port} high, at the deepest cycle")
+
+    # The set of starting states the answer is quantified over, printed under
+    # both modes so the two runs can be compared rather than assumed equal.
+    pinned = design.post_reset_state() if post_reset else {}
+    free = [i for i in design.flops if i not in pinned]
+    if post_reset:
+        clear = sum(1 for v in pinned.values() if not v)
+        preset = sum(1 for v in pinned.values() if v)
+        print(f"  start states --post-reset: {len(pinned)} of "
+              f"{len(design.flops)} flops pinned by an asynchronous")
+        print(f"               control, {clear} cleared and {preset} preset; "
+              f"{len(free)} free, so the")
+        print(f"               trace is proven over 2^{len(free)} = "
+              f"{2 ** len(free) if len(free) < 64 else '2^' + str(len(free))} "
+              f"starting states.")
+        if free:
+            print(f"               free: "
+                  f"{sorted(free)[:8]}{' ...' if len(free) > 8 else ''}")
+        print(f"               The announcement says to toggle rst_n before "
+              f"each attempt, so")
+        print(f"               this is the set the author actually starts "
+              f"from. See docs/06.")
+    else:
+        print(f"  start states default: none pinned, so the trace is proven "
+              f"over all")
+        print(f"               2^{len(design.flops)} starting states. "
+              f"--post-reset asks the smaller")
+        print(f"               question the announcement's rst_n hint "
+              f"describes.")
     print(f"\nsearching depths {start} to {depth}")
 
     started = time.time()
     found, rows, initial, predicted, timings = search(
-        design, depth, property_port, out_dir, start)
+        design, depth, property_port, out_dir, start,
+        pinned if post_reset else None)
     total = time.time() - started
 
     if found is None:
@@ -556,7 +644,18 @@ def run(target, graph_path, depth, property_port, start):
         "trace": rows,
         "predicted_outputs": predicted,
         "initial_state": initial,
-        "initial_state_independent": True,
+        # True only under the default. Under --post-reset the trace is proven
+        # over the post-reset states and no further, and `sim/replay.py` starts
+        # its simulation from x -- so it warns, correctly, rather than being
+        # told a robustness that was not established.
+        "initial_state_independent": not post_reset,
+        "start_states": {
+            "mode": "post reset" if post_reset else "every state",
+            "pinned": pinned,
+            "free": sorted(free),
+            "quantified_over": f"2^{len(free)}" if post_reset
+                               else f"2^{len(design.flops)}",
+        },
         "solver": {"image": IMAGE, "calls": timings,
                    "total_seconds": round(total, 2)},
     }
@@ -576,11 +675,14 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     target, graph_path = None, None
     depth, property_port, start = DEFAULT_DEPTH, None, 0
+    post_reset = False
     rest = []
     index = 0
     while index < len(args):
         token = args[index]
-        if token == "--depth":
+        if token == "--post-reset":
+            post_reset, index = True, index + 1
+        elif token == "--depth":
             depth, index = int(args[index + 1]), index + 2
         elif token == "--start":
             start, index = int(args[index + 1]), index + 2
@@ -595,7 +697,7 @@ if __name__ == "__main__":
         if len(rest) != 1 or rest[0] not in TARGETS:
             sys.exit(f"usage: python tools/stage6_invert.py "
                      f"[{' | '.join(TARGETS)}] [--depth N] [--start K] "
-                     f"[--property PORT]\n"
+                     f"[--property PORT] [--post-reset]\n"
                      f"       python tools/stage6_invert.py --graph PATH "
                      f"[--depth N]")
         target = rest[0]
@@ -605,4 +707,5 @@ if __name__ == "__main__":
             os.path.dirname(graph_path))
     if not os.path.exists(graph_path):
         sys.exit(f"{graph_path} missing; run tools/stage3_graph.py first")
-    sys.exit(run(target, graph_path, depth, property_port, start))
+    sys.exit(run(target, graph_path, depth, property_port, start,
+                 post_reset))

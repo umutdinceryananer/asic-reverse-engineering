@@ -165,6 +165,71 @@ Depth 8 is the first that survives, and the trace **uses no reset at all** —
 both registers completely. A tool with a reset preamble baked in would have
 spent a cycle on one and reported depth 9.
 
+## `--post-reset`, and which mode the puzzle run should use
+
+The robustness above was derived from a warm up that **needs no reset**. Carried
+to the puzzle it solves a harder problem than the author is posed. The
+announcement says, verbatim (`docs/references.md` §6):
+
+> "Don't forget to toggle `rst_n` before each input attempt."
+
+Somebody who has just toggled `rst_n` is not starting from an arbitrary state.
+Every flop with an asynchronous clear is at 0, every flop with an asynchronous
+preset is at 1, and only flops with neither are unknown. `--post-reset` pins
+those and leaves the rest free.
+
+The *level* of the control is deliberately not consulted. This is the state
+after a reset has been asserted and released, not a claim about which polarity
+asserts it: a `dfrtp` leaves 0 whether its clear is active high or active low.
+
+| | default | `--post-reset` |
+|---|---|---|
+| warm up | 2^16 start states | **2^0** — all 16 flops carry `rst_n`, 16 cleared |
+| puzzle | 2^92 | **2^4** — 88 of 92 pinned, 84 cleared and 4 preset; only the `dfxtp` bits stay free |
+
+Both modes find the warm up's trace, at the same depth 8:
+
+```
+default      depth 8, 2 start state(s)   trace found
+             no start state defeats it: the trace holds from every one
+             total 72.4s over 28 solver calls
+
+--post-reset depth 8, 1 start state       trace found
+             no start state defeats it, among the 2^0 this mode allows
+             -- which is one state, so this query could not have failed
+             total 25.7s over 10 solver calls
+```
+
+Three things in that comparison are worth keeping.
+
+**The depth is the same.** The reset does not shorten the answer here, because
+eight shifts overwrite both registers anyway.
+
+**`--post-reset` says "no trace" at depths 0 to 7, where the default says "trace
+found" eight times and then throws each one away.** Those eight traces were
+never wrong; they were answers to a question with a free initial state, and the
+counterexample loop existed to reject them. Constraining the start state up
+front removes the need to, which is most of the 72.4s against 25.7s — and on 92
+flops rather than 16 that gap is the difference between a run and a wait.
+
+**The robustness query becomes vacuous when nothing is free**, and the tool says
+so in those words rather than printing a reassurance it did not earn. On the
+puzzle four flops stay free, so it is a real question there — over 16 states
+instead of 2^92.
+
+**Which mode the author should use on the puzzle: `--post-reset`.** It is the
+state the hint describes, it is the state the submission's own test vector
+starts from, and it is a strictly easier problem than the default solves. The
+default remains the default because a trace good from every state is good from
+the post-reset ones and the converse does not hold, so nothing is silently
+weakened — the mode has to be asked for, `solution.json` records
+`start_states.mode` and `quantified_over`, and `initial_state_independent`
+becomes **false**, which makes `sim/replay.py` print its warning that simulation
+from `x` may legitimately disagree. That warning is correct under this mode and
+must not be suppressed: the replay does start from `x`, and a puzzle testbench
+that means to reproduce a post-reset trace has to toggle `rst_n` first, exactly
+as the hint says.
+
 ## The answer, which nothing told it
 
 ```
@@ -318,12 +383,19 @@ that needs one more cycle are the same output otherwise.
    `clkbuf_8` branches from one root, and `rst_n` to be both reset and set root.
    Neither should trip the checks, but if one does the message says which flop
    and why, and that is a finding rather than an obstacle.
-4. **`sim/replay.py puzzle` before believing anything.** The 4 `dfstp` cells
+4. **`--post-reset`.** See above. 88 of the puzzle's 92 flops are pinned by
+   `rst_n`, so the trace is proven over 16 starting states rather than 2^92 —
+   the question the announcement's hint actually poses. Run the default too if
+   it is affordable; it proves strictly more.
+5. **`sim/replay.py puzzle` before believing anything.** The 4 `dfstp` cells
    mean part of the design leaves reset holding a non-zero value; the model
    handles set the same way it handles reset, and the replay is what confirms
-   that on the real target.
-5. **Stage 7.** Not started. Turning a trace into the string the puzzle wants is
-   its own step.
+   that on the real target. Under `--post-reset` it will print its
+   starting-state warning, which is correct: the replay begins at `x`, and a
+   testbench meaning to reproduce a post-reset trace must toggle `rst_n`
+   first.
+6. **Stage 7.** Not started. Turning a trace into the string the puzzle wants
+   is its own step.
 
 ## What this stage does not establish
 
@@ -335,4 +407,12 @@ that needs one more cycle are the same output otherwise.
 * The robustness loop stops after 8 rounds and moves to a deeper unrolling. On
   everything measured it converged in 1 to 4, but a design needing more would be
   reported as "no trace at this depth", which is true and incomplete.
+* Under `--post-reset` the trace is proven over the post-reset states and no
+  further. That is a weaker claim than the default's and `solution.json` says
+  which one was made, in `start_states.mode`.
+* `--post-reset` reads `reset` and `set` out of `graph.json`. If stage 3 were
+  wrong about which flops carry an asynchronous control, this mode would pin the
+  wrong bits and the default would not. `verify_annotations.py` holds those
+  fields to `00_source.v` on the warm up and `stage3_crosscheck.py` re-derives
+  them forwards on both targets, which is what that mode rests on.
 * Nothing here has run on the puzzle.
