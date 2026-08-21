@@ -69,6 +69,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 43 | The RTL reader found no flip flops in a design that is mostly flip flops | tooling | understood |
 | 44 | The corpus flow had no `flatten`, and no circuit that needed one | scale | understood |
 | 45 | One design, two mappings, three different register partitions | detectors | **open** |
+| 46 | The block gate compared sizes, and would have passed the wrong eight bits | verification | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1204,9 +1205,43 @@ solver; this is the measurement that says it is not optional.
 
 ---
 
+### 46. The block gate compared sizes, and would have passed the wrong eight bits
+
+**Symptom.** None, for as long as it existed. `verify_blocks.py` compared
+`sorted((len(m) for m in criterion(graph).values()), reverse=True)` against
+`[8, 8]` and printed CORRECT when they matched. Adding a null model that deals
+the sixteen flops alternately into two groups — eight bits of `sr_a` and eight
+of `sr_b` in each, from no information whatsoever — produced `[8, 8]`, and the
+tool printed it in the list of criteria that *get the warm up right*, inside its
+own summary sentence.
+
+**Cause.** A partition is a membership and the gate was reading a histogram of
+it. `[8, 8]` says two groups of eight and says nothing about which eight. There
+are 6435 ways to split sixteen flops into two eights and exactly one of them is
+the answer; the gate accepted all of them.
+
+**Fix.** Membership is compared as sets of frozensets, and NMI and purity are
+printed beside the sizes. A right-sized wrong-membered answer is now labelled
+`RIGHT SIZES, WRONG MEMBERS` and scores NMI 0.000, and the winners list filters
+on membership rather than on sizes. The interleaved model **stays in the
+criteria table permanently**, because a check whose failing column is never
+exercised is the repository's own recorded mistake — *a passing test that was
+never able to fail is not evidence* — and this is the column's known-bad input.
+
+**Verdict: understood.** Worth its entry for how long it survived rather than
+for its depth. This gate was written specifically because the corpus score was
+being read as evidence when a null model achieved it, and it then made the same
+class of mistake one level down: the corpus score could not fail because most
+circuits do not ask the question, and this could not fail on membership because
+it never looked. **The remedy for a measurement that cannot fail is not a
+better measurement, it is a known-bad input standing beside it in the same
+table.**
+
+---
+
 ## The shapes these fall into
 
-Forty five problems, six recurring shapes.
+Forty six problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

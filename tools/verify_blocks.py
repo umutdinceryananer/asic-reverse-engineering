@@ -7,13 +7,24 @@ hierarchy it came from -- `sr_a/_16_`, `add0/_31_`, `cmp0/_02_` -- and
 *real* design: not a corpus we wrote, not a shape we chose, the actual answer.
 
 It was never used. Stage 4's register grouping was scored only against the
-synthetic corpus, where 108 of 126 circuits hold exactly one register, so a
-criterion that returns one group scores 86% and says nothing. This is the test
+synthetic corpus, where 109 of 133 netlists hold exactly one register, so a
+criterion that returns one group scores 82% and says nothing. This is the test
 that says something.
 
 **Nothing here adjusts what counts as a register to make the score better.** The
 DEF says the warm up holds two eight bit registers; a criterion answering "one
 of sixteen" is wrong, and is reported wrong.
+
+Sizes are not enough, and membership is scored beside them. A criterion can
+answer `[8, 8]` with the wrong eight in each group and a size comparison calls
+that correct; the DEF names every flop's block, so NMI and purity are exact here
+in a way they are not on the corpus, and a right-sized wrong-membered answer is
+labelled as one.
+
+**The verdict is scored against the control signature, which is the committed
+criterion, and it fails.** Criteria that get the warm up right -- connected
+components, and placement locality -- appear as rows, not as a changed verdict.
+Committing one of them is the author's decision and not this tool's.
 
 Usage:
     python tools/verify_blocks.py            # score stage 4 against the truth
@@ -27,20 +38,39 @@ from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from compare_def import parse_components, read
-from stage4_registers import (control_groups, connected_components,
-                              refined_to_fixed_point)
+from stage4_registers import (LINK_ROWS, ROW_HEIGHT, connected_components,
+                              sizes_as,
+                              control_groups, control_then_flow,
+                              components_then_flow, labels_of, nmi,
+                              placements, purity, refined_to_fixed_point,
+                              spatial_groups, spatial_profile)
 
 DEF_PATH = "puzzle/warmup/03_post_place_and_route.def"
 TARGET = "warmup"
 
+# Every criterion stage 4 computes, plus the two null models. The spatial one
+# is passed the placements separately, because it is the only criterion here
+# that reads something other than the graph -- and the only one the synthetic
+# corpus cannot score at all, since nothing in `out/synth/` was ever placed.
 CRITERIA = {
     "control signature": control_groups,
     "connected components": connected_components,
     "colour refinement, fixed point": refined_to_fixed_point,
-    # The null model. Any score that this also achieves is not a result, and
-    # printing it beside the others is the only way that stays visible.
+    "control + flow split": control_then_flow,
+    "components + flow split": components_then_flow,
+    # The null models. Any score that these also achieve is not a result, and
+    # printing them beside the others is the only way that stays visible.
     "everything is one register": lambda g: {"all": list(g["flipflops"])},
     "every flop is its own": lambda g: {f: [f] for f in g["flipflops"]},
+    # And a third, which exists only so the membership columns can never be
+    # silent. It deals the flops alternately into two groups, so it answers
+    # `[8, 8]` -- the right sizes, from no information at all -- with eight bits
+    # of `sr_a` and eight of `sr_b` mixed into each. A tool that compared sizes
+    # alone would print CORRECT beside it. See `docs/problems.md` 46.
+    "interleaved, right sizes": lambda g: {
+        side: sorted(f for i, f in enumerate(sorted(g["flipflops"]))
+                     if i % 2 == side)
+        for side in (0, 1)},
 }
 
 
@@ -130,13 +160,88 @@ def run(show=False):
         for block, flops in sorted(registers.items()):
             print(f"  {block}: {sorted(flops)}")
 
-    print(f"\nstage 4's criteria against it")
-    results = {}
-    for name, criterion in CRITERIA.items():
-        got = sorted((len(m) for m in criterion(graph).values()), reverse=True)
+    # The DEF partition as a membership, which is what the metrics need and
+    # what the corpus mostly cannot supply. Here it is exact: 230 of 230
+    # instances matched, so every flop's block is known by name.
+    membership = {flop: block for block, flops in registers.items()
+                  for flop in flops}
+    positions = placements(TARGET)
+    criteria = dict(CRITERIA)
+    if positions:
+        criteria["placement locality"] = \
+            lambda g: spatial_groups(g, positions)
+
+    print(f"\nstage 4's criteria against it, by size and by membership")
+    print(f"  {'':<32}{'sizes':<24}{'':<27}{'NMI':>7}{'purity':>8}")
+    results, correct = {}, {}
+    for name, criterion in criteria.items():
+        groups = criterion(graph)
+        got = sorted((len(m) for m in groups.values()), reverse=True)
         results[name] = got
+        answer = labels_of({str(key): members
+                            for key, members in groups.items()})
+        value, _branch = nmi(answer, membership)
+        # Membership, not only sizes. A criterion can answer [8, 8] with the
+        # wrong eight in each, and the size comparison would call that correct.
+        same = {frozenset(m) for m in groups.values()} == \
+               {frozenset(m) for m in registers.values()}
+        correct[name] = same
         verdict = "CORRECT" if got == expected else "wrong"
-        print(f"  {name:<32} {str(got):<16} {verdict}")
+        if got == expected and not same:
+            verdict = "RIGHT SIZES, WRONG MEMBERS"
+        print(f"  {name:<32}{sizes_as(got):<24}{verdict:<27}"
+              f"{value:>7.3f}{purity(answer, membership):>8.3f}")
+
+    if positions:
+        print(f"\nplacement locality, and why it is reported and not scored")
+        print(f"  Sanctioned verbatim by the announcement -- \"The circuit is "
+              f"physically")
+        print(f"  arranged to hint at its functionality, so look closely at "
+              f"the layout!\" --")
+        print(f"  and named by DANA as its own unexploited idea and an open "
+              f"question.")
+        print(f"  **The synthetic corpus cannot score it.** Nothing under "
+              f"out/synth/ was ever")
+        print(f"  placed, so this criterion has exactly one design with a "
+              f"known answer: this")
+        print(f"  one. n = 1. Nothing below is a rate.")
+        print(f"  single linkage at {LINK_ROWS} row heights "
+              f"({LINK_ROWS * ROW_HEIGHT:.2f} um); cluster sizes against the "
+              f"threshold:")
+        for link, sizes in spatial_profile(graph, positions):
+            mark = "   <- committed" if link == LINK_ROWS else ""
+            print(f"    {link:>3} rows  {link * ROW_HEIGHT:6.2f} um   "
+                  f"{sizes_as(sizes)}{mark}")
+        print(f"  The plateau is what makes the threshold a reading rather "
+              f"than a knob: the")
+        print(f"  answer is the same from 3 row heights to 8, and 3 is the "
+              f"lower edge of it.")
+        print(f"  That edge was chosen because it is the smallest threshold "
+              f"at which this")
+        print(f"  design's two registers connect -- one parameter fitted to "
+              f"one data point,")
+        print(f"  which is said here rather than hidden. The profile is "
+              f"printed so the")
+        print(f"  author can pick differently on a design whose answer is not "
+              f"known.")
+        clusters = spatial_groups(graph, positions)
+        print(f"\n  the clusters, against the blocks the DEF names")
+        for key in sorted(clusters, key=lambda k: (-len(clusters[k]), str(k))):
+            members = clusters[key]
+            blocks = sorted({membership.get(f, "?") for f in members})
+            box = [min(positions[f][axis] for f in members if f in positions)
+                   for axis in (0, 1)] + \
+                  [max(positions[f][axis] for f in members if f in positions)
+                   for axis in (0, 1)]
+            print(f"    {len(members):>3} flops  x {box[0]:7.2f}..{box[2]:<7.2f}"
+                  f" y {box[1]:7.2f}..{box[3]:<7.2f}   DEF blocks {blocks}")
+        print(f"  sr_a and sr_b DO separate spatially, and by a wide margin: "
+              f"the two")
+        print(f"  clusters are 21.76 um apart and no flop inside either is "
+              f"more than 5.44")
+        print(f"  um from its nearest neighbour in it. This is the only "
+              f"criterion that gets")
+        print(f"  the warm up right without reading a single wire.")
 
     committed = "control signature"
     if results[committed] != expected:
@@ -145,12 +250,27 @@ def run(show=False):
         print(f"  It merges the two shift registers because they share a clock,")
         print(f"  a reset and an enable, and nothing in the control signature")
         print(f"  can separate two registers that share all three.")
+        # Membership, not sizes. This list was `g == expected`, and the
+        # deliberately wrong `interleaved, right sizes` model walked straight
+        # into it -- the tool's own summary sentence naming a null model as a
+        # criterion that gets the warm up right. `docs/problems.md` 46.
         winners = [n for n, g in results.items()
-                   if g == expected and not n.startswith(("everything", "every flop"))]
+                   if g == expected and correct[n]
+                   and not n.startswith(("everything", "every flop",
+                                         "interleaved"))]
         if winners:
-            print(f"  {winners} get it right, and one of them is the criterion")
-            print(f"  the corpus score ranked last. The three are complementary")
-            print(f"  and were presented as a ranking, which was a mistake.")
+            print(f"  {winners}")
+            print(f"  get it right, and one of them is the criterion the "
+                  f"corpus score ranked")
+            print(f"  last. They are complementary and were presented as a "
+                  f"ranking, which was")
+            print(f"  the mistake. **The verdict below is still scored "
+                  f"against the control")
+            print(f"  signature**, which is the committed criterion, and a "
+                  f"criterion that passes")
+            print(f"  here appears as a row above and not as a changed "
+                  f"verdict. Committing one")
+            print(f"  is the author's decision and not this tool's.")
         print("\nRESULT: fail")
         return 1
 

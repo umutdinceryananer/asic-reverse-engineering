@@ -21,9 +21,14 @@ name, on sixteen different clock nets.
 |---|---|---|---|
 | control signature | 117 | 0.0014 | 0.5062 |
 | colour refinement, to a fixed point | 97 | 0.1867 | 0.75 |
+| control signature + flow split | 91 | 0.3733 | 1.0 |
 | control signature + connected components | 80 | **0.5476** | **0.80** |
+| + connected components + flow split | 49 | 0.3733 | 1.0 |
 | *null model: one group, and do nothing* | *109* | *0.0* | *0.5* |
 | *null model: every flop its own register* | *7* | *0.3733* | *1.0* |
+
+A sixth, **placement locality**, is not in that table because the corpus cannot
+score it at all — see below.
 
 **Exact match and NMI rank these in opposite orders, and that is the most
 useful thing stage 4 measures.** Exact match puts the control signature first
@@ -148,6 +153,108 @@ catch:
 | the 0/0 convention averaged in as 0.0 rather than excluded | the "one true class, answer splits" row; exits 1 |
 | a membership fitted to the declaration instead of refused | `--score`: membership 133 where 119 is recorded, and NMI falls to 0.8801 |
 
+### DANA's successor/predecessor split, measured rather than assumed
+
+`docs/references.md` §3 singles out one of DANA's nine passes for our exact
+symptom — *"Split by Successor/Predecessor Groupings ... becomes essential in
+later iterations, where different metrics combined resulted in too large
+groupings"* — and both of stage 4's failures are too-large groupings: the warm
+up answers `[16]` for a true `[8, 8]`, and R0 is 72 bits under one signature.
+
+`split_by_flow` implements it. Within a candidate group each flop is signed by
+**which groups** its data reaches and which reach it, at group level rather than
+flop level, with primary ports counted by port *name* — `d[0]` and `d[1]` are
+the port `d`, and they have to be, or a plain register reading distinct bits of
+one input bus would be split by its own inputs. A group whose members disagree
+splits; groups only ever split, so the loop ends when a round adds nothing. Run
+over two seeds, the control signature and control + connected components.
+
+**It is not what the quotation predicts, and the measurement is the deliverable
+here.** On the ten netlists whose ground truth has more than one class it scores
+NMI 0.3733 and purity 1.0 — *identical to the all-singletons null model*,
+because on those ten it is all singletons. Every one of them is a shift register
+or a pair of them, and a chain hands each bit a different predecessor group as
+soon as its predecessor has one. On the warm up it answers sixteen singletons,
+at every round count from one to the fixpoint:
+
+| rounds | warm up | `warmup_twin_w8` |
+|---|---|---|
+| 1 | `[14, 1, 1]` | `[7, 7, 1, 1]` |
+| 2 | `[12, 1, 1, 1, 1]` | `[6, 6, …]` |
+| 4 | `[8, 1×8]` | `[4, 4, …]` |
+| fixpoint | 16 singletons | 16 singletons |
+
+That is not DANA being wrong: DANA applies nine passes in ordered *pairs* with a
+majority vote and never runs one to a fixpoint alone, which is what this
+measures. This instantiation is one pass, and it is reported as one.
+
+Two things it does that no other criterion here does:
+
+**It does not split a plain register.** `register_w8_async_reset` stays `[8]`
+under the flow split and shatters into eight singletons under connected
+components. That is the pass's designed advantage over components, and
+`--compare` checks it rather than describing it — a run where it stops holding
+fails.
+
+**On the R0 analogue it recovers whole registers.** `scale_datapath_w16_b8` is
+90 flops in seven declared registers, and the control signature answers one
+group of 82 — the shape of the puzzle's R0, 72 of 92 under one signature. The
+flow split answers `[16, 8]` and 66 singletons, and those two groups are
+*complete RTL registers*, each one split across two names by a yosys rename.
+Nothing else in the table produces a complete register on this family at all.
+The check is on **bit indices** — the names on a group's Q nets must cover
+`0 … n-1` once each — because the rename is also why this family has no
+membership ground truth, so names would not settle it.
+
+### Placement locality, and why n = 1
+
+The announcement sanctions this outright: *"The circuit is physically arranged
+to hint at its functionality, so look closely at the layout!"* DANA names the
+same idea as its own **unexploited** one and an open research question. Stage 1
+already records `lower_left` and `orient` for every placement, and
+`verify_blocks.py` already keys on both, 230 of 230.
+
+`spatial_groups` is single linkage: two flops join when they sit within
+`LINK_ROWS = 3` row heights (8.16 µm) of each other, and a group is the
+transitive closure. Single linkage rather than a centroid method because a
+register laid out along a row is a chain of near neighbours and not a ball, and
+anything measuring distance to a centre would cut it in half.
+
+On the warm up it is **right, membership included** — NMI 1.0, purity 1.0:
+
+```
+  8 flops  x  26.22..36.34  y  59.84..76.16   DEF block sr_a
+  8 flops  x  26.22..36.34  y  21.76..38.08   DEF block sr_b
+```
+
+The two clusters are 21.76 µm apart and no flop is more than 5.44 µm from its
+nearest neighbour inside its own cluster. `sr_a` and `sr_b` **do** separate
+spatially, measured and not assumed, and this is the only criterion that gets
+the warm up right without reading a single wire.
+
+The threshold is printed as a profile, not as a number, because that is the
+difference between a reading and a knob:
+
+| rows | µm | clusters |
+|---|---|---|
+| 1 | 2.72 | 16 singletons |
+| 2 | 5.44 | `[7, 6, 2, 1]` |
+| **3 – 8** | **8.16 – 21.76** | **`[8, 8]`** |
+| 9 – 12 | 24.48 – 32.64 | `[16]` |
+
+Six consecutive thresholds give the same answer. `LINK_ROWS = 3` is the lower
+edge of that plateau, and it was chosen because it is the smallest threshold at
+which this design's two registers connect — **one parameter fitted to one data
+point**, which is said here rather than hidden. The profile is printed so the
+author can pick differently on a design whose answer is not known.
+
+**The synthetic corpus cannot score this.** Every circuit under `out/synth/` is
+synthesised and never placed, so there is no `instances.json` for any of them
+and no figure in `--score` or `--compare` covers this criterion. Its only ground
+truth is the warm up — **n = 1** — and later the puzzle, read by a person.
+Nothing about it is a rate, and both the tool and this document say so wherever
+it appears.
+
 ### What it cannot do
 
 It cannot see a boundary that no control signal marks. All 16 of its misses are
@@ -231,6 +338,13 @@ Two scores, and they disagree, which is the finding.
 model that gets 109, and beside NMI and purity on the ten netlists where the
 question is real, where it scores the null model's numbers.
 `verify_blocks.py` runs the warm up against its own DEF hierarchy: **fail**.
+
+`verify_blocks.py` scores **membership** beside sizes. It did not, and would
+have called an interleaved answer correct — `[8, 8]` with eight bits of `sr_a`
+and eight of `sr_b` in each group, from no information at all. That answer is
+now a permanent row in its table, labelled `RIGHT SIZES, WRONG MEMBERS` at NMI
+0.000, because the column needs a known-bad input standing in it or it is only
+silence. `docs/problems.md` 46.
 
 The declared corpus partitions are themselves checked: `verify_corpus.py`
 confirms the widths a generator declares add up to the flip flops stage 3 found.
