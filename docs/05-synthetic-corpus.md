@@ -331,6 +331,8 @@ four distinct ways, all measured against ground truth we wrote:
 |---|---|
 | `register` | mux survives in front of `D` — found |
 | `counter` | enable folded into the carry chain, `D[0] = q[0] ^ en`. No mux exists |
+| `accumulator` | gated into the addend: `D = q + (en ? d : 0)`, measured as `D[0] = xnor2(q[0], nand2(en, d[0]))` |
+| `composed_counter_compare` | the counter's shape again, `D[0] = xor2(q[0], en)` |
 | `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and `D` |
 
 `mux2i` in that row is not incidental. It is an *inverting* mux, and stage 3's

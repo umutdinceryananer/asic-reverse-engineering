@@ -134,7 +134,8 @@ def accumulator(width):
     return _sequential("accumulator", f"accumulator_w{width}",
                        width, True, "async_reset", "if (en) q <= q + d;",
                        ports={"d": f"[{width-1}:0]", "q": f"[{width-1}:0]"},
-                       truth={"family": "accumulator", "width": width})
+                       truth={"family": "accumulator", "width": width,
+                              "enable": True})
 
 
 def serial_adder(width):
@@ -470,7 +471,7 @@ def counter_compare(width, limit):
   assign q = count;
 endmodule
 """, {"family": "composed", "parts": ["counter", "comparator"],
-      "width": width, "limit": limit}
+      "width": width, "limit": limit, "enable": True}
 
 
 def shift_accumulate(width):

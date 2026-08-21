@@ -109,7 +109,7 @@ python tools/verify_equiv.py warmup       # gate: the recovered netlist proven
 
 python tools/stage5_corpus.py             # 94 circuits, 187 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
-python tools/verify_corpus.py             # gate: 12 rules, 686 uses vs stage 3,
+python tools/verify_corpus.py             # gate: 12 rules, 696 uses vs stage 3,
                                           # and fails if any graph is missing
 python tools/verify_corpus.py --selftest  # gate: 15 corruptions, and every one
                                           # of the 12 rules tripped by one
@@ -156,7 +156,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `stage3_crosscheck.py --selftest`: all 17 corruptions caught, one per field group; four fields the warm up can only be made to disagree about are named | passing |
 | 3 | `verify_annotations.py warmup`: 16 flops, all holding on `en` low, async `rst_n` low, one clock root, no sets, against `00_source.v` | passing |
 | 4 | `verify_cone.py warmup`: the composed listing proven equal to `a + b == 496` over all 65536 assignments, by an evaluator sharing no code | passing |
-| 5 | `verify_corpus.py`: 12 rules, 686 uses against what stage 3 found, over both mappings of all 93 synthesised circuits and the one pre-mapped witness; a missing or stale `graph.json` fails rather than warning | passing |
+| 5 | `verify_corpus.py`: 12 rules, 696 uses against what stage 3 found, over both mappings of all 93 synthesised circuits and the one pre-mapped witness; a missing or stale `graph.json` fails rather than warning | passing |
 | 5 | `verify_corpus.py --selftest`: all 15 corruptions caught, **and all 12 rules tripped by at least one of them** | passing |
 | 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]` | **failing**: the committed criterion answers `[16]` |
 | 4 | `stage4_registers.py --score`: 117/127 corpus netlists, beside a null model that gets 109/127 and a real margin of 8; every figure against a recording, and a move in either direction fails | passing, and nearly meaningless |

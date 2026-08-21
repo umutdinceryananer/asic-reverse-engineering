@@ -58,25 +58,41 @@ STATELESS_FAMILIES = {"adder", "subtractor", "comparator", "multiplexer",
 #
 #   counter          the enable is folded into the carry chain -- `D[0] = q[0] ^
 #                    en`, `D[1] = q[1] ^ (q[0] & en)`. No mux exists at all.
+#   composed         the same, because the composed circuit's state *is* a
+#                    counter: `D[0] = xor2(q[0], en)` measured, and `a21oi` from
+#                    bit 1 up. One shape, reached from two families.
+#   accumulator      a different mechanism, and the reason this table is a list
+#                    rather than a rule. A counter has no data operand, so its
+#                    enable becomes the increment; an accumulator has one, and
+#                    the mapper gates *that* instead: `D = q + (en ? d : 0)`,
+#                    measured as `D[0] = xnor2(q[0], nand2(en, d[0]))`. The
+#                    enable is upstream of the adder rather than inside it.
 #   register + sync  the mux exists, `mux2i` with A0 on Q and S on `en`, but the
 #     reset          synchronous reset's `nor2b` sits between it and D, and the
 #                    search only looks one cell back.
 #   scale_datapath   the mux is factored away entirely. `D = en ? (acc ^ lfsr) :
 #                    outr` maps to one `a21oi`, `Y = !B1 & (!A1 | !A2)`, with
 #                    `en` on A1 and Q arriving through a `nor2` two cells back.
-#                    This is the general case and the other two are the special
+#                    This is the general case and the others are the special
 #                    ones: a plain register keeps its mux only because the data
 #                    leg is a port. Once that leg is computed, the mapper folds
 #                    the select into the logic that computes it, which is what a
 #                    technology mapper is for.
 #
-# Three shapes, one conclusion: whether a register holds is a question about
+# Five shapes, one conclusion: whether a register holds is a question about
 # behaviour, not about what stands in front of D. Stage 4 answers it with a
 # solver -- is there an input assignment under which D equals Q -- and this
 # table exists so that the answer can be scored against the cases known to
 # defeat the structural version.
+#
+# The count moved from 30 declared holds to 40 when `accumulator` and
+# `composed` stopped leaving theirs undeclared, and the structural search still
+# finds 6. It always found 6. What changed is that the corpus now admits how
+# many it is missing.
 ENABLE_HIDDEN_BY = {
     "counter": "absorbed into the carry chain",
+    "composed": "absorbed into the carry chain, the counter's shape",
+    "accumulator": "gated into the addend, D = q + (en ? d : 0)",
     "register+sync": "displaced from D by the reset logic",
     "scale_datapath": "factored into an AOI gate, Q entering two cells back",
 }
