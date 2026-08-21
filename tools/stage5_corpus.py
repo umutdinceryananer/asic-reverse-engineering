@@ -605,6 +605,45 @@ def scale_datapath(width, branches):
         "note": "the corpus at the size of the target, blocks interacting"}
 
 
+def warmup_twin(width):
+    """Two structurally identical registers sharing every control signal.
+
+    The one shape the corpus did not have, and the shape the warm up actually
+    is. Every other multi-register circuit here differs from this in a way a
+    control signature can see: `two_clocks` differs in clock, `inverted_clock`
+    in edge, `composed_shift_accumulate` in structure, `scale_datapath` in all
+    of them. Here `a_reg` and `b_reg` are the same bits twice, on one clock, one
+    reset and one enable, and *nothing in a control signature can separate
+    them*.
+
+    Which means adding this makes `stage4_registers.py --score` worse, on
+    purpose. It was 117/127 against a corpus that mostly did not ask the
+    question. The number drops because the corpus now contains the failure mode
+    the real target has -- `tools/verify_blocks.py` has been failing on exactly
+    this since it was written, and until now nothing in the corpus agreed with
+    it. A score that only ever rose when the corpus grew would be measuring the
+    corpus.
+    """
+    name = f"warmup_twin_w{width}"
+    top = width - 1
+    return f"""module {name} (input clk, input rst_n, input en,
+                  input a_in, input b_in,
+                  output [{top}:0] a_out, output [{top}:0] b_out);
+  reg [{top}:0] a_reg, b_reg;
+  always @(posedge clk or negedge rst_n)
+    if (!rst_n) a_reg <= 0;
+    else if (en) a_reg <= {{a_reg[{width - 2}:0], a_in}};
+  always @(posedge clk or negedge rst_n)
+    if (!rst_n) b_reg <= 0;
+    else if (en) b_reg <= {{b_reg[{width - 2}:0], b_in}};
+  assign a_out = a_reg;
+  assign b_out = b_reg;
+endmodule
+""", {"family": "warmup_twin", "width": width, "flops": 2 * width,
+      "registers": [width, width], "enable": True, "reset": "async_reset",
+      "clock_roots": 1}
+
+
 def mux2i_witness():
     """A flop fed by an *inverting* mux with its own Q on a leg. Pre-mapped.
 
@@ -752,6 +791,9 @@ def catalogue():
     # "is there a mux holding this register" has something it must say no to,
     # and so that saying yes to it is a failure something notices.
     add(mux2i_witness(), "structure")
+    # The shape verify_blocks.py fails the warm up on, which the corpus lacked.
+    for width in (8, 16):
+        add(warmup_twin(width), "structure")
 
     # Size. Everything above is an order of magnitude below the target: the
     # largest holds 32 flops and 125 cells against the puzzle's 92 and 738, and

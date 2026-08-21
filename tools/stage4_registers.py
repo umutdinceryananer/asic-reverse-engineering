@@ -69,17 +69,23 @@ REFINEMENT_ROUNDS = 3
 # something, and re-recording it has to be a decision rather than a side effect.
 RECORDED = {
     "exact": 117,           # netlists the control signature partitions exactly
-    "netlists": 127,        # netlists with flops and a declared partition
+    "netlists": 131,        # netlists with flops and a declared partition
     "null model": 109,      # what "one group, and do nothing" scores
-    "multi": 18,            # netlists declaring more than one register
+    "multi": 22,            # netlists declaring more than one register
     "multi hits": 8,        # of those, what the control signature gets
 }
 
 # Per criterion, for --compare. Same rule.
+#
+# `+ connected components` overtook nothing here and lost nothing; it went 75 to
+# 79 because the four `warmup_twin` netlists arrived and it gets all four. The
+# control signature gets none of them, which is the point of that family: it is
+# the warm up's shape, and `verify_blocks.py` has been failing the warm up on
+# exactly this since it was written. The corpus finally agrees with it.
 RECORDED_CRITERIA = {
     "control signature": 117,
     "colour refinement, fixed point": 97,
-    "+ connected components": 75,
+    "+ connected components": 79,
 }
 
 
