@@ -173,6 +173,98 @@ def flop_edges(graph):
     return fanin, fanout
 
 
+def bit_order(graph, members):
+    """The order of the bits inside one register, where the structure gives one.
+
+    Stage 4 has emitted registers as *sets* since it was written, and stage 7
+    needs a word: `O[7:0]` is not the same eight flops in some other order, and
+    an operand's bits carry different arithmetic weight. WordRev
+    (`docs/references.md` section 3) derives the order from the direction data
+    flows through the register, and this is that, in two shapes:
+
+    **A shift chain.** Drop self edges -- a flop whose Q returns to its own D is
+    holding, not shifting, and every held register has one -- and if what is
+    left gives every bit at most one predecessor and at most one successor
+    inside the group, the group decomposes into simple paths. Those are the
+    chains, head first. Two disjoint paths is a normal answer and not a
+    failure: the warm up's sixteen flops under one control signature are two
+    chains of eight, which is the boundary the control signature cannot see
+    said in a second language.
+
+    **A carry chain.** Otherwise, if the induced graph is acyclic, the longest
+    path to each bit is its ripple depth, and if those depths are distinct the
+    register is ordered by them. A counter is this shape: bit *i* depends on
+    every bit below it and on nothing above.
+
+    **Otherwise nothing.** A plain register's bits do not depend on one another
+    at all, so every depth is 0 and no order exists to derive. That is emitted
+    as a fact -- `"method": null` with the reason -- and not as a guess, because
+    a guessed bit order is worse than none: it is the kind of answer stage 7
+    would build a string out of.
+    """
+    inside = set(members)
+    fanin, fanout = flop_edges(graph)
+    before = {f: sorted((fanin.get(f, set()) & inside) - {f}) for f in members}
+    after = {f: sorted((fanout.get(f, set()) & inside) - {f}) for f in members}
+
+    if all(len(before[f]) <= 1 and len(after[f]) <= 1 for f in members):
+        chains, seen = [], set()
+        for start in sorted(f for f in members if not before[f]):
+            chain, node = [], start
+            while node is not None and node not in seen:
+                seen.add(node)
+                chain.append(node)
+                node = after[node][0] if after[node] else None
+            chains.append(chain)
+        if len(seen) == len(members):
+            if all(len(chain) == 1 for chain in chains):
+                # A plain register: no bit depends on another, so the "paths"
+                # are all of length one and there is no order in them. Saying
+                # "8 chains" here would be a decomposition wearing a bit
+                # order's clothes.
+                return {"method": None, "chains": [],
+                        "why": f"the {len(members)} bits do not depend on one "
+                               f"another; nothing here orders them"}
+            return {"method": "shift chain, following D <- Q",
+                    "chains": chains,
+                    "why": f"{len(chains)} path(s) covering all "
+                           f"{len(members)} bits, head first"}
+        # Everything left is on a cycle: a ring counter, or a chain whose last
+        # bit feeds its first. Reported rather than cut at an arbitrary bit.
+        return {"method": None, "chains": [],
+                "why": f"{len(members) - len(seen)} bits lie on a cycle; a "
+                       f"ring has no first bit to name"}
+
+    depth, mark = {}, {}
+
+    def ripple(node):
+        if node in depth:
+            return depth[node]
+        if mark.get(node):
+            raise ValueError("cycle")
+        mark[node] = True
+        depth[node] = 1 + max((ripple(p) for p in before[node]), default=-1)
+        mark[node] = False
+        return depth[node]
+
+    try:
+        for flop in members:
+            ripple(flop)
+    except (ValueError, RecursionError):
+        return {"method": None, "chains": [],
+                "why": "the bits depend on one another cyclically, so no "
+                       "ripple depth exists"}
+    if len(set(depth.values())) == len(members):
+        return {"method": "carry chain, by ripple depth",
+                "chains": [sorted(members, key=lambda f: depth[f])],
+                "why": f"{len(members)} distinct ripple depths, least "
+                       f"dependent first"}
+    return {"method": None, "chains": [],
+            "why": f"{len(set(depth.values()))} distinct ripple depths over "
+                   f"{len(members)} bits, and no chain: nothing here orders "
+                   f"these bits"}
+
+
 def control_signature(graph, instance):
     """What a register is written and cleared by, which its bits share.
 
@@ -290,6 +382,12 @@ def describe(graph, name_groups):
             "hold": named((record.get("enable") or {}).get("net")),
             "cells": dict(kinds),
             "flops": members,
+            # `flops` stays in instance order, because `stage4_cone.py` names a
+            # boundary signal `R0[i]` by its position in this list and every
+            # cone listing already written reads that way. The order below is a
+            # separate field, and `verify_cone.py` checks it against the
+            # arithmetic weights it derives on its own.
+            "bit_order": bit_order(graph, members),
         })
     return rows
 

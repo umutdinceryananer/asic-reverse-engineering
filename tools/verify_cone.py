@@ -30,6 +30,16 @@ so every gate whose support is exactly two register bits names one such pair.
 Eight pairs, partitioning all sixteen bits, is a property of the listing that
 has to hold before any weight is tried.
 
+**And the bit order, cross checked.** Stage 4 orders a register's bits by
+following D <- Q through the netlist -- a walk over wires that knows nothing
+about arithmetic. This file solves for one weight per operand pair -- a search
+over functions that knows nothing about wires. In a shift register those two
+have to run together: the bit that entered first has been shifted the furthest
+and carries the largest weight, or the smallest, but position determines
+significance either way and does so monotonically. That agreement is the second
+thing asserted here, and it is the only check in the repository where a
+structural derivation and a functional one meet.
+
 **What it cannot do.** The evaluation is exhaustive over 2^support, so it stops
 at a support the machine cannot enumerate. The puzzle's success cone depends on
 57 bits and this will refuse it and say so; that cone is stage 6's miter to
@@ -38,9 +48,11 @@ check, not this one's.
 Usage:
     python tools/verify_cone.py warmup
     python tools/verify_cone.py warmup --cone out/warmup/broken_cone.json
+    python tools/verify_cone.py warmup --registers out/warmup/scrambled.json
 """
 
 import json
+import math
 import os
 import re
 import sys
@@ -200,12 +212,26 @@ def satisfying(rows, order):
 
 
 def weigh(pairs, order, found, total, constant):
-    """One weight per pair, such that the weighted sum is `constant` exactly.
+    """**Every** weight assignment making the cone equivalent, not the first.
 
     Searched, not supplied: every assignment of the powers of two to the pairs
-    is tried, and the winner has to satisfy the *converse* too -- no assignment
+    is tried, and a survivor has to satisfy the *converse* too -- no assignment
     outside the satisfying set may weigh `constant`. Agreeing on 15 rows and
     disagreeing on the other 65521 would not be equivalence.
+
+    This returned the first survivor and stopped, and printed it as though the
+    search had determined it. **It has not.** For the warm up 24 of the 40320
+    assignments are equivalent, because `a + b == 496` with both operands under
+    256 does not distinguish the four most significant pairs from one another
+    at all -- 4! of them -- and which of the 24 came out depended on the order
+    `permutations` happens to emit. `docs/problems.md` 47.
+
+    The equivalence claim was never wrong. The weights beside it were being
+    read as a derivation, and they are one member of a set. Returning the whole
+    set is what lets the bit order cross check below mean something: stage 4
+    derives an order from wires alone, and asking whether that order is *among*
+    the arithmetically valid ones is a real question with 24 chances in 40320
+    of passing by luck.
     """
     index_of = {bit: index for index, bit in enumerate(order)}
     counts = []
@@ -215,17 +241,145 @@ def weigh(pairs, order, found, total, constant):
             for a, b in pairs))
     inside = set(found)
     powers = [1 << k for k in range(len(pairs))]
-    for weights in permutations(powers):
-        if any(sum(c * w for c, w in zip(counts[m], weights)) != constant
-               for m in found):
+    # The satisfying rows first, which is cheap and cuts 40320 to 24 here, then
+    # the converse over every assignment on what is left.
+    survivors = [w for w in permutations(powers)
+                 if all(sum(c * x for c, x in zip(counts[m], w)) == constant
+                        for m in found)]
+    return [w for w in survivors
+            if all((sum(c * x for c, x in zip(counts[m], w)) == constant)
+                   == (m in inside) for m in range(total))]
+
+
+def chain_positions(path):
+    """Where each register bit sits in its chain, from a `registers.json`.
+
+    This file reads no code from the repository and this does not change that:
+    what is loaded here is stage 4's *output*, a JSON document, and the point of
+    the check below is that two derivations of the same fact -- one structural,
+    one arithmetic -- agree. Importing the code that produced one of them would
+    remove the only thing being tested.
+
+    `R0[i]` is bit *i* of the boundary naming, which is position *i* in that
+    register's `flops` list; `bit_order.chains` names the same instances in the
+    order the netlist shifts them.
+    """
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    positions, methods = {}, {}
+    for row in data.get("registers", ()):
+        order = row.get("bit_order") or {}
+        methods[row["register"]] = order.get("method")
+        place = {}
+        for index, chain in enumerate(order.get("chains") or ()):
+            for offset, flop in enumerate(chain):
+                place[flop] = (index, offset, len(chain))
+        for index, flop in enumerate(row.get("flops", ())):
+            if flop in place:
+                positions[f"{row['register']}[{index}]"] = place[flop]
+    return positions, methods
+
+
+def cross_check(pairs, solutions, positions, methods):
+    """Structural bit order against arithmetic weight. Returns (lines, verdict).
+
+    Two derivations that share nothing. Stage 4 orders a register's bits by
+    following D <- Q through the netlist, which is a walk over wires and knows
+    nothing about arithmetic. This file solves for the weight assignments that
+    make the cone equivalent to `a + b == 496` over all 65536 assignments,
+    which is a search over functions and knows nothing about wires. **In a
+    shift register the two have to run together**: the bit that entered first
+    has been shifted the furthest and carries the largest weight, or the
+    smallest, but either way position determines significance monotonically.
+
+    So the check is in two parts, and the first is the sharper one:
+
+    1. the two bits of each operand pair sit in **different chains at the same
+       position**. An adder couples bit *i* of one operand with bit *i* of the
+       other, and stage 4 found the two chains without knowing that.
+    2. the weights that order implies -- 2^position, or 2^(width-1-position) --
+       are **among the assignments that actually make the cone equivalent**.
+
+    Part 2 is asked against the whole solution set rather than against one
+    member of it, because the set has 24 members here and picking one and
+    comparing to it would be comparing to an artefact of iteration order. Which
+    direction runs is reported rather than assumed: it depends on which end of
+    the shift register the serial input enters, which is a property of the
+    design.
+
+    `verdict` is "pass", "fail", or "not applicable" when stage 4 derived no
+    order to check.
+    """
+    lines = []
+    missing = sorted({bit for pair in pairs for bit in pair}
+                     - set(positions))
+    if missing:
+        registers = sorted({bit.split("[")[0] for bit in missing})
+        for register in registers:
+            lines.append(f"    {register}: stage 4 derived no bit order "
+                         f"({methods.get(register)!r})")
+        lines.append(f"    {len(missing)} of the cone's bits have no position, "
+                     f"so there is nothing to")
+        lines.append(f"    cross check. A register whose bits do not depend on "
+                     f"one another has no")
+        lines.append(f"    structural order, and stage 4 says so rather than "
+                     f"guessing one.")
+        return lines, "not applicable"
+
+    problems, place = [], {}
+    width = len(pairs)
+    for pair in pairs:
+        one, other = positions[pair[0]], positions[pair[1]]
+        if one[0] == other[0]:
+            problems.append(f"{pair[0]} and {pair[1]} are one operand pair and "
+                            f"stage 4 puts both in chain {one[0]}; a pair "
+                            f"couples one bit of each operand")
             continue
-        if all((sum(c * w for c, w in zip(counts[m], weights)) == constant)
-               == (m in inside) for m in range(total)):
-            return weights
-    return None
+        if one[1] != other[1]:
+            problems.append(f"{pair[0]} and {pair[1]} are one operand pair and "
+                            f"stage 4 puts them at positions {one[1]} and "
+                            f"{other[1]}; a pair sits at one depth in both "
+                            f"chains")
+            continue
+        lines.append(f"    position {one[1]}   {pair[0]:<8} {pair[1]:<8} "
+                     f"chains {one[0]} and {other[0]}")
+        place[pair] = one[1]
+
+    if not problems:
+        if sorted(place.values()) != list(range(width)):
+            problems.append(f"the {width} pairs sit at positions "
+                            f"{sorted(place.values())}, which is not "
+                            f"0 .. {width - 1} once each")
+        else:
+            valid = {tuple(w) for w in solutions}
+            rising = tuple(1 << place[pair] for pair in pairs)
+            falling = tuple(1 << (width - 1 - place[pair]) for pair in pairs)
+            lines.append(f"    all {width} pairs lie at one position in each "
+                         f"of two chains, 0 .. {width - 1} once each")
+            if rising in valid:
+                lines.append(f"    and 2^position is one of the "
+                             f"{len(valid)} assignments that make the cone")
+                lines.append(f"    equivalent: the chain head is the least "
+                             f"significant bit, so the")
+                lines.append(f"    first bit shifted in ends up as bit 0.")
+            elif falling in valid:
+                lines.append(f"    and 2^({width - 1} - position) is one of "
+                             f"the {len(valid)} assignments that make the cone")
+                lines.append(f"    equivalent: the chain head is the most "
+                             f"significant bit.")
+            else:
+                problems.append(f"neither 2^position nor "
+                                f"2^({width - 1} - position) is among the "
+                                f"{len(valid)} weight assignments that make "
+                                f"this cone equivalent; the order stage 4 "
+                                f"derived from wires is not one the "
+                                f"arithmetic allows")
+    for problem in problems:
+        lines.append(f"    MISMATCH  {problem}")
+    return lines, "fail" if problems else "pass"
 
 
-def run(target, path=None):
+def run(target, path=None, registers_path=None):
     path = path or os.path.join("out", target, "cone.json")
     if not os.path.exists(path):
         sys.exit(f"{path} missing; run tools/stage4_cone.py {target}")
@@ -289,16 +443,43 @@ def run(target, path=None):
         print("\nRESULT: fail")
         return 1
 
-    weights = weigh(pairs, order, found, total, spec["constant"])
-    if weights is None:
+    solutions = weigh(pairs, order, found, total, spec["constant"])
+    if not solutions:
         problems.append(f"no assignment of bit weights makes this cone "
                         f"equivalent to a sum of {spec['operands']} operands "
                         f"equal to {spec['constant']}")
     else:
         print(f"  equivalent   to (a + b == {spec['constant']}) over all "
-              f"{total} assignments, with")
-        for pair, weight in sorted(zip(pairs, weights), key=lambda x: x[1]):
+              f"{total} assignments, under")
+        print(f"               {len(solutions)} of the "
+              f"{math.factorial(len(pairs))} possible weight assignments. "
+              f"One of them, and it is")
+        print(f"               one and not the one -- `a + b == "
+              f"{spec['constant']}` with both operands under 256")
+        print(f"               does not tell the four most significant pairs "
+              f"apart at all:")
+        for pair, weight in sorted(zip(pairs, solutions[0]),
+                                   key=lambda x: x[1]):
             print(f"                 {pair[0]} and {pair[1]} at weight {weight}")
+
+    verdict = "not run"
+    if solutions:
+        registers = registers_path or os.path.join("out", target,
+                                                   "registers.json")
+        if not os.path.exists(registers):
+            print(f"\n  {registers} missing; run tools/stage4_registers.py "
+                  f"{target}")
+            print(f"  RESULT: fail, the bit order cross check has nothing to "
+                  f"read")
+            return 1
+        positions, methods = chain_positions(registers)
+        print(f"\n  bit order, from {registers.replace(os.sep, '/')}, against "
+              f"the weights above")
+        lines, verdict = cross_check(pairs, solutions, positions, methods)
+        print("\n".join(lines))
+        if verdict == "fail":
+            problems.append("stage 4's bit order and the arithmetic weights "
+                            "disagree")
 
     if problems:
         for problem in problems:
@@ -307,16 +488,26 @@ def run(target, path=None):
               "published function")
         return 1
     print(f"\nRESULT: pass, the listing computes a + b == {spec['constant']} "
-          f"and nothing else")
+          f"and nothing else,")
+    print(f"  and stage 4's bit order agrees with the weights: {verdict}")
     return 0
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    override = None
-    if len(args) >= 3 and args[1] == "--cone":
-        override, args = args[2], args[:1]
-    if len(args) != 1 or args[0] not in TARGETS:
+    override = registers = None
+    rest = []
+    index = 0
+    while index < len(args):
+        if args[index] == "--cone":
+            override, index = args[index + 1], index + 2
+        elif args[index] == "--registers":
+            registers, index = args[index + 1], index + 2
+        else:
+            rest.append(args[index])
+            index += 1
+    if len(rest) != 1 or rest[0] not in TARGETS:
         sys.exit(f"usage: python tools/verify_cone.py "
-                 f"[{' | '.join(TARGETS)}] [--cone <path>]")
-    sys.exit(run(args[0], override))
+                 f"[{' | '.join(TARGETS)}] [--cone <path>] "
+                 f"[--registers <path>]")
+    sys.exit(run(rest[0], override, registers))

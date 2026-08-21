@@ -70,6 +70,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 44 | The corpus flow had no `flatten`, and no circuit that needed one | scale | understood |
 | 45 | One design, two mappings, three different register partitions | detectors | **open** |
 | 46 | The block gate compared sizes, and would have passed the wrong eight bits | verification | understood |
+| 47 | The cone's weight solve printed one answer out of twenty four | verification | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1239,9 +1240,44 @@ table.**
 
 ---
 
+### 47. The cone's weight solve printed one answer out of twenty four
+
+**Symptom.** Stage 4's structurally derived bit order disagreed with the
+arithmetic weights `verify_cone.py` reports — position mapped onto significance
+as `[0, 1, 2, 3, 5, 6, 4, 7]`, monotone in five places out of eight. Both
+derivations looked right and one of them had to be wrong.
+
+**Cause.** Neither was. `weigh()` iterated `permutations(powers)`, returned the
+first assignment that made the cone equivalent to `a + b == 496`, and stopped.
+**24 of the 40320 assignments are equivalent.** `a + b == 496` with both
+operands below 256 forces the four low pairs and says nothing whatsoever about
+which of the four high pairs carries which of 16, 32, 64 and 128 — 4! = 24 — so
+the printed weights were an artefact of the order `permutations` emits.
+
+The equivalence claim was never wrong: the cone *is* equivalent to `a + b ==
+496` under an assignment of bit weights, which is what the file's docstring
+says. What was wrong was reading the weights beside it as a derivation. A
+search that stops at its first hit has determined that a solution exists, not
+what it is.
+
+**Fix.** `weigh` returns the whole solution set, the report says "24 of the
+40320 possible ... one of them, and it is one and not the one", and the bit
+order cross check asks whether stage 4's order is **among** them rather than
+equal to one of them.
+
+**Verdict: understood.** And the fix made the check stronger than it would have
+been. Comparing a structural order to one arbitrary member of a 24-element set
+would have been comparing it to an artefact of iteration order; comparing it to
+the set is a real question, with 24 chances in 40320 of passing by luck. **The
+disagreement between two independent derivations found a defect in the one that
+looked more rigorous** — which is the entire argument for deriving anything
+twice.
+
+---
+
 ## The shapes these fall into
 
-Forty six problems, six recurring shapes.
+Forty seven problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

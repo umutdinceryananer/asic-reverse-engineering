@@ -403,6 +403,67 @@ Reading what that condition *means* is the author's work and deliberately not
 the pipeline's. What the pipeline owes is the listing above and the guarantee
 that it is faithful.
 
+### Bit order, and two derivations meeting
+
+Stage 4 emitted registers as *sets* from the day it was written. Stage 7 needs
+words: `O[7:0]` is not the same eight flops in some other order, and an
+operand's bits carry different arithmetic weight. `bit_order` derives one where
+the structure gives one, following WordRev (`docs/references.md` §3):
+
+| Shape | Rule | Corpus |
+|---|---|---|
+| shift chain | drop self edges — a flop whose Q returns to its own D is *holding*, not shifting — and if every bit then has at most one predecessor and one successor inside the group, the group is a set of simple paths, head first | 19 |
+| carry chain | otherwise, if the induced graph is acyclic and the longest path to each bit is distinct, order by ripple depth | 34 |
+| none | otherwise, emit `"method": null` and the reason | 95 |
+
+The third row is the point. A plain register's bits do not depend on one
+another at all, so there is nothing to order and the tool says so; an LFSR's
+bits depend on one another cyclically, so there is no first bit and the tool
+says that. **A guessed bit order is worse than none** — it is exactly the kind
+of answer stage 7 would build a string out of.
+
+On the warm up, the sixteen flops under one control signature come out as **two
+chains of eight**, which is `sr_a` and `sr_b` exactly: the boundary the control
+signature cannot see, said in a second language.
+
+#### The cross-check, and what it caught
+
+`verify_cone.py` now checks that order against the arithmetic, and the two
+derivations share nothing:
+
+- stage 4 orders bits by following `D <- Q` through the netlist — a walk over
+  wires that knows nothing about arithmetic;
+- `verify_cone` solves for the weight assignments that make the cone equivalent
+  to `a + b == 496` over all 65536 assignments — a search over functions that
+  knows nothing about wires.
+
+In a shift register the two must run together. The check is in two parts:
+
+1. the two bits of each operand pair sit in **different chains at the same
+   position**. All eight do, at positions 0–7 once each — and stage 4 found the
+   two chains without knowing an adder pairs bit *i* with bit *i*.
+2. the weights that order implies, `2^position` or `2^(width-1-position)`, are
+   **among** the assignments that make the cone equivalent. `2^position` is,
+   so the chain head is the least significant bit: the first bit shifted in
+   ends up as bit 0.
+
+**Running it found a defect in the more rigorous-looking half.** The two
+derivations disagreed, and the fault was in the weight solve: it stopped at its
+first hit and printed one assignment as though the search had determined it,
+when **24 of the 40320 are equivalent** — `a + b == 496` with both operands
+below 256 does not tell the four most significant pairs apart at all.
+`docs/problems.md` 47. Asking whether the structural order is *among* the 24 is
+a stronger question than comparing it to one arbitrary member: 24 chances in
+40320 of passing by luck.
+
+Demonstrated failing, on two scrambles of `registers.json` passed with
+`--registers`:
+
+| Scramble | Caught by |
+|---|---|
+| swap two bits in one chain | part 1: two pairs land at positions 2 and 5 |
+| swap the same two positions in **both** chains | part 2: the pairs still align, and neither `2^position` nor `2^(7-position)` is among the 24 |
+
 ### What guarantees the listing
 
 Composing cells means evaluating liberty's `function` expressions, and from here
