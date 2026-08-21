@@ -21,7 +21,7 @@ case.
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | steps 1 and 2 built, **register grouping fails the warm up's own hierarchy**. Naming not started |
-| 5, synthetic corpus | **done**, 93 circuits x 2 mappings, gated by `verify_corpus.py` |
+| 5, synthetic corpus | **done**, 94 circuits / 187 netlists, gated by `verify_corpus.py` |
 | 6, inversion | **machinery built and gated on `warmup`**: BMC out of `graph.json`, trace replayed in simulation. The puzzle run is the author's |
 | 7, output extraction | not started |
 
@@ -107,9 +107,9 @@ python tools/verify_annotations.py warmup # gate: stage 3's annotations against
 python tools/verify_equiv.py warmup       # gate: the recovered netlist proven
                                           # equal to 01_netlist.v, 153 points
 
-python tools/stage5_corpus.py             # 93 circuits, 186 netlists -> synth/
+python tools/stage5_corpus.py             # 94 circuits, 187 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
-python tools/verify_corpus.py             # gate: 12 rules, 680 uses vs stage 3,
+python tools/verify_corpus.py             # gate: 12 rules, 686 uses vs stage 3,
                                           # and fails if any graph is missing
 python tools/verify_corpus.py --selftest  # gate: 15 corruptions, and every one
                                           # of the 12 rules tripped by one
@@ -118,7 +118,7 @@ python tools/corpus_reach.py puzzle       # not a gate: the size bound on what
 
 python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
 python tools/stage4_registers.py puzzle
-python tools/stage4_registers.py --score  # gate: 116/126 against a recording
+python tools/stage4_registers.py --score  # gate: 117/127 against a recording
 python tools/stage4_registers.py --compare  # gate: all three criteria, same key
 python tools/verify_blocks.py             # gate: stage 4 against the warm up's
                                           # DEF hierarchy. CURRENTLY FAILING
@@ -156,11 +156,11 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `stage3_crosscheck.py --selftest`: all 17 corruptions caught, one per field group; four fields the warm up can only be made to disagree about are named | passing |
 | 3 | `verify_annotations.py warmup`: 16 flops, all holding on `en` low, async `rst_n` low, one clock root, no sets, against `00_source.v` | passing |
 | 4 | `verify_cone.py warmup`: the composed listing proven equal to `a + b == 496` over all 65536 assignments, by an evaluator sharing no code | passing |
-| 5 | `verify_corpus.py`: 12 rules, 680 uses against what stage 3 found, over both mappings of all 93 circuits; a missing or stale `graph.json` fails rather than warning | passing |
+| 5 | `verify_corpus.py`: 12 rules, 686 uses against what stage 3 found, over both mappings of all 93 synthesised circuits and the one pre-mapped witness; a missing or stale `graph.json` fails rather than warning | passing |
 | 5 | `verify_corpus.py --selftest`: all 15 corruptions caught, **and all 12 rules tripped by at least one of them** | passing |
 | 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]` | **failing**: the committed criterion answers `[16]` |
-| 4 | `stage4_registers.py --score`: 116/126 corpus netlists, beside a null model that gets 108/126 and a real margin of 8; every figure against a recording, and a move in either direction fails | passing, and nearly meaningless |
-| 4 | `stage4_registers.py --compare`: all three criteria against their recordings, 116 / 96 / 74 | passing |
+| 4 | `stage4_registers.py --score`: 117/127 corpus netlists, beside a null model that gets 109/127 and a real margin of 8; every figure against a recording, and a move in either direction fails | passing, and nearly meaningless |
+| 4 | `stage4_registers.py --compare`: all three criteria against their recordings, 117 / 97 / 75 | passing |
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
@@ -238,7 +238,10 @@ exists to make the failure visible, and `verify_corpus.py` asserts one root.
 own Q on a leg toggles rather than holds. The test was `"mux2" in the cell
 name`, which admits it. The rule is now the cofactor: for some pin S the
 function at S=0 must be identically another pin, positively. Across the
-library's 429 cells exactly four outputs pass, the four `mux2_*`.
+library's 429 cells exactly four outputs pass, the four `mux2_*`. The corpus's
+`mux2i_witness` is a pre-mapped netlist that exists only so this rule has
+something to reject: the detector as it stood before the fix records a hold on
+it, and the detector now records none.
 
 **A held register has no single structure.** Stage 3's search for a mux in front
 of D with Q fed back finds 6 of the corpus's 30 declared enables. Four measured

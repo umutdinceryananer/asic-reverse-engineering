@@ -604,6 +604,62 @@ def scale_datapath(width, branches):
         "note": "the corpus at the size of the target, blocks interacting"}
 
 
+def mux2i_witness():
+    """A flop fed by an *inverting* mux with its own Q on a leg. Pre-mapped.
+
+    Every other circuit here is RTL that Yosys maps. This one is written at the
+    gate level and handed to stage 3 as it stands, because no RTL produces it:
+    `mux2i` in front of a D with Q on a leg is not a hold, it is a toggle, and a
+    synthesiser asked for a hold emits `mux2`.
+
+    Which is exactly why the corpus needed it. Stage 3 used to find the mux in
+    front of D with `"mux2" in the cell name`, and that substring matches
+    `mux2i` too:
+
+        mux2   X = (A0&!S) | (A1&S)          passes A0, then A1
+        mux2i  Y = (!A0&!S) | (!A1&S)        passes !A0, then !A1
+
+    Under the old rule this circuit records a hold on `en`. It does not hold. It
+    inverts every cycle that `en` is low. Problem 42 records the defect, and its
+    verdict was `understood and incomplete` precisely because nothing in the
+    repository could produce the wrong answer -- all 56 holds found anywhere are
+    `mux2_1`, so the rule was fixed by argument and never seen to reject
+    anything. This is the known-bad input that argument was missing.
+
+    No enable is declared, because there is none.
+    """
+    name = "mux2i_witness"
+    netlist = f"""module {name}(clk, rst_n, en, d, q);
+  input clk;
+  input rst_n;
+  input en;
+  input d;
+  output q;
+  wire clk_b;
+  wire nd;
+  sky130_fd_sc_hd__clkbuf_1 _00_ (
+    .A(clk),
+    .X(clk_b)
+  );
+  sky130_fd_sc_hd__mux2i_1 _01_ (
+    .A0(q),
+    .A1(d),
+    .S(en),
+    .Y(nd)
+  );
+  sky130_fd_sc_hd__dfrtp_1 _02_ (
+    .CLK(clk_b),
+    .D(nd),
+    .Q(q),
+    .RESET_B(rst_n)
+  );
+endmodule
+"""
+    return netlist, {"family": "mux2i_witness", "premapped": True,
+                     "flops": 1, "clock_roots": 1, "reset": "async_reset",
+                     "registers": [1]}
+
+
 def _sequential(family, name, width, enable, reset, body, ports, truth):
     """Shared skeleton for the clocked generators."""
     declared = ", ".join(
@@ -691,6 +747,10 @@ def catalogue():
     for width in (8, 16):
         add(two_clocks(width), "structure")
         add(inverted_clock(width), "structure")
+    # Not a circuit anyone would write. It exists so that stage 3's rule for
+    # "is there a mux holding this register" has something it must say no to,
+    # and so that saying yes to it is a failure something notices.
+    add(mux2i_witness(), "structure")
 
     # Size. Everything above is an order of magnitude below the target: the
     # largest holds 32 flops and 125 cells against the puzzle's 92 and 738, and
@@ -825,20 +885,30 @@ def main(list_only=False):
         rtl_path = f"{RTL_DIR}/{name}.v"
         with open(rtl_path, "w", encoding="utf-8") as handle:
             handle.write(verilog)
+        premapped = truth.get("premapped", False)
 
         # Held out is decided once per circuit and inherited by every variant of
         # it. Splitting variants across the boundary would let a held out
         # circuit reach development work through its other mapping.
+        # A pre-mapped entry has exactly one mapping, because it was not
+        # mapped: the two variants would be the same file twice and would
+        # report a structural invariance the circuit does not have.
         out_dirs = {variant: f"{OUT_DIR}/{name}" if variant == "base"
                     else f"{OUT_DIR}/{name}__{variant}"
-                    for variant in VARIANTS}
+                    for variant in (["base"] if premapped else VARIANTS)}
         for path in out_dirs.values():
             os.makedirs(path, exist_ok=True)
 
-        code, log = synthesise(name, rtl_path, out_dirs)
-        if code != 0:
-            failures.append((name, log.strip().splitlines()[-1] if log else "?"))
-            continue
+        if premapped:
+            with open(f"{out_dirs['base']}/netlist.v", "w",
+                      encoding="utf-8") as handle:
+                handle.write(verilog)
+        else:
+            code, log = synthesise(name, rtl_path, out_dirs)
+            if code != 0:
+                failures.append((name,
+                                 log.strip().splitlines()[-1] if log else "?"))
+                continue
 
         for variant, out_dir in out_dirs.items():
             entry = dict(truth, variant=variant, dir=out_dir)

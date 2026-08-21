@@ -1110,10 +1110,16 @@ four outputs pass it -- the four `mux2_*` -- and the three `mux2i_*` are
 rejected. `stage3_crosscheck.py` applies the same rule by a different route,
 scanning the whole truth table rather than testing cofactors.
 
-**Verdict: understood.** And incomplete: a witness circuit putting a `mux2i`
-directly in front of a D is what would make the fix demonstrable rather than
-merely argued, and the corpus does not have one yet. Recorded in
-`docs/packages.md` as carried forward. This is the repository's own rule --
+**Demonstrated.** The corpus now holds `mux2i_witness`, a pre-mapped netlist
+whose only purpose is to be rejected. Running the detector as it stood before
+the fix -- checked out of git, not reimplemented -- against the same file:
+
+    OLD, name based      1 hold(s): _02_ holds when low, through a mux2i_1
+    NEW, function based  no holds
+
+**Verdict: understood.** The circuit is not one anyone would write, which is
+why no synthesised corpus entry could produce it and why the rule went eight
+months unable to be wrong out loud. This is the repository's own standard --
 *exercise a check against a known-bad input once, or it is only silence* --
 applied to a rule rather than to a check.
 

@@ -332,6 +332,16 @@ four distinct ways, all measured against ground truth we wrote:
 | `register` | mux survives in front of `D` — found |
 | `counter` | enable folded into the carry chain, `D[0] = q[0] ^ en`. No mux exists |
 | `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and `D` |
+
+`mux2i` in that row is not incidental. It is an *inverting* mux, and stage 3's
+hold search used to find its mux by name -- `"mux2" in the cell type` -- which
+matches it. Nothing here could produce the wrong answer, because in every
+circuit the corpus synthesises the `mux2i` sits more than one cell back from D
+and the search never reaches it. `mux2i_witness` is a hand-written pre-mapped
+netlist that puts one directly in front of a D, so the rule has a known-bad
+input. It is the only entry in the corpus that was not synthesised, because no
+RTL produces it: a `mux2i` with Q on a leg is a toggle, and a synthesiser asked
+for a hold emits `mux2`.
 | `scale_datapath` | the mux is factored away entirely |
 
 The fourth came in with the scale family and it is the one that settles the

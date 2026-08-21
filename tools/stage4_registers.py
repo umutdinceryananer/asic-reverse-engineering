@@ -68,18 +68,18 @@ REFINEMENT_ROUNDS = 3
 # loudly and also fails, deliberately: an unexplained improvement is a change to
 # something, and re-recording it has to be a decision rather than a side effect.
 RECORDED = {
-    "exact": 116,           # netlists the control signature partitions exactly
-    "netlists": 126,        # netlists with flops and a declared partition
-    "null model": 108,      # what "one group, and do nothing" scores
+    "exact": 117,           # netlists the control signature partitions exactly
+    "netlists": 127,        # netlists with flops and a declared partition
+    "null model": 109,      # what "one group, and do nothing" scores
     "multi": 18,            # netlists declaring more than one register
     "multi hits": 8,        # of those, what the control signature gets
 }
 
 # Per criterion, for --compare. Same rule.
 RECORDED_CRITERIA = {
-    "control signature": 116,
-    "colour refinement, fixed point": 96,
-    "+ connected components": 74,
+    "control signature": 117,
+    "colour refinement, fixed point": 97,
+    "+ connected components": 75,
 }
 
 
