@@ -31,7 +31,14 @@ visibly right. `verify_annotations.py` holds the warm up's annotations to
 `00_source.v`; `verify_cone.py` proves the composed cone equal to
 `a + b == 496`, sharing no code with anything. Corpus grew to 97 circuits / 193
 netlists: the two undeclared enables, `warmup_twin`, and the warm up's own RTL.
-Commits e9560c0, 56ea75f, 897903b, b7e983c, 4602a40, fe96f15, and this one.
+Commits e9560c0, 56ea75f, 897903b, b7e983c, 4602a40, fe96f15, 53deadb.
+
+Final numbers: corpus 97 circuits / 193 netlists, `verify_corpus` 12 rules and
+738 uses; `--score` 117/133 beside a null model of 109/133, and 8 of the 24
+netlists that declare more than one register; `--compare` 117 / 97 / 80. Holds
+**declared 46, found structurally 12** -- the other 34 are accounted for by name
+in `ENABLE_HIDDEN_BY`, five mechanisms, which is the corpus admitting how many
+the structural search misses rather than the search improving.
 
 Two findings came out of it rather than in: problem 45, where one design mapped
 two ways gives three different register partitions because a missed hold
@@ -45,9 +52,34 @@ Carried forward, deliberately not done:
   surface inside the tool whose value is independence. The four fields warmup
   can only disagree about are named in the selftest's own output.
 
-## Package 4 — PENDING, low priority
-Stage-1 fallback-tier experiment under `compare_def` (force mux2_1 through
-tier 2 on warmup); stale doc numbers not already fixed in passing.
+## Package 4 — IN PROGRESS. The register-partition decision matrix
+`docs/references.md` §3 and §6 distil the published prior art this package
+implements: DANA (TCHES 2020) for register grouping and scoring, WordRev for
+bit order, and the announcement's two verbatim hints. **The goal is to measure
+the options, not to pick a winner.** The committed criterion stays the control
+signature and `verify_blocks` keeps scoring against it -- and keeps failing --
+until the author decides otherwise. The deliverable is the matrix that decision
+is made from.
+
+- **A.** NMI and purity beside exact match in `--score` and `--compare`, with a
+  stated convention for the 109 netlists whose ground truth is a single class
+  and whose NMI is therefore 0/0, and a hand-computed table the implementation
+  has to reproduce.
+- **B.** DANA's successor/predecessor split as a pass over two seeds, measured
+  on the corpus, on `verify_blocks`, and on the `scale_datapath` family, with
+  the plain-register non-split demonstrated.
+- **C.** Placement locality, warmup only and labelled as n=1, because the
+  synthetic corpus is never placed and cannot score it.
+- **D.** Bit order within a register, cross-checked against the arithmetic
+  weights `verify_cone.py` derives independently.
+- **E.** `stage6_invert.py --post-reset`, scoping the initial state to what the
+  announcement's `rst_n` hint says the author will actually do.
+- **F.** The authority recorded: the AI rule's three sentences and the two
+  hints, each with its source.
+
+## Package 5 — QUEUED. Provenance
+Tool pinning; an `open_pdks` test; the writeup skeleton; and the decision on
+whether `docs/references.md` is committed.
 
 ## Out of scope for workers, always
 Anything touching `puzzle/puzzle.gds`, `puzzle/example_inputs.vcd`,
