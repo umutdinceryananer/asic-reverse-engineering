@@ -131,15 +131,22 @@ Added by Package 4, both out of its scope:
   runtime as eleven failing gates, and `out/review.md` is what a reviewer
   reads. It needs a preflight and a verdict distinct from **FAIL** for a row
   that could not run. Package 4 admitted `review_packet.py` for rows only.
-- **Two audits that are not yet programs the repository runs.** Package 4's
-  adversarial review lost five of its six lenses to a session limit; two of
-  them were reconstructed by hand — an independent second implementation of NMI
-  and purity, via `H(C) + H(T) - H(C,T)`, agreeing with `stage4_registers` on
-  the hand table, on 4000 random partitions and on four invariants; and a
-  mechanical check of all 35 documented Package 4 figures against the runs that
-  produce them. Both passed. **Both currently live in a scratch directory**,
-  which is precisely *a measurement that is not a program is a measurement that
-  happened once*. They belong in `tools/`.
+- **Three audits that are not yet programs the repository runs.** Package 4's
+  adversarial review lost five of its six lenses to a session limit; all five
+  were then reconstructed by hand, and three of them as scripts. **Those
+  scripts live in a scratch directory and will be lost**, which is precisely
+  *a measurement that is not a program is a measurement that happened once*.
+  They belong in `tools/`, and what each checks is recorded here so it can be
+  rebuilt rather than re-derived:
+
+  | Audit | What it establishes |
+  |---|---|
+  | the metrics, a second way | NMI recomputed as `H(C) + H(T) − H(C,T)` rather than as a sum over joint probabilities, and purity from a different data structure. Agrees on all 7 hand rows, on **4000 random partitions**, and on four invariants — `NMI(T,T)=1`, symmetry, range `[0,1]`, purity monotone under refinement. Also checks the degenerates by definition: one cluster exactly 0.0, all singletons exactly 1.0 purity and 0.4 NMI |
+  | the documented figures | all **35** numeric claims in Package 4's diff, each against the run that is supposed to produce it, plus the reverse direction — a figure quoted in a doc that appears in no run |
+  | spatial and bit order | single linkage recomputed by brute-force transitive closure at all 12 thresholds; the clustering identical under 100 shuffles of the flop and placement dicts; every consecutive pair of every chain verified against the netlist as a real `D <- Q` link and the only one; the unplaced branch exercised by removing a placement; and ripple depth shown to take the **longest** path by a chain-with-skip-edge, which discriminates it from shortest — a diamond does not |
+
+  All three passed. The middle one is close to what `review_packet.py` already
+  claims to do, and may belong there rather than beside it.
 
 ## Out of scope for workers, always
 Anything touching `puzzle/puzzle.gds`, `puzzle/example_inputs.vcd`,
