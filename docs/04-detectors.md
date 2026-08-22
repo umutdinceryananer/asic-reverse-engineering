@@ -203,7 +203,22 @@ fails.
 group of 82 — the shape of the puzzle's R0, 72 of 92 under one signature. The
 flow split answers `[16, 8]` and 66 singletons, and those two groups are
 *complete RTL registers*, each one split across two names by a yosys rename.
-Nothing else in the table produces a complete register on this family at all.
+That count is a **derived column**, not a sentence: every criterion is scored
+for whole RTL vectors on this netlist, and the flow split's two are the most any
+of them recovers.
+
+| Criterion | sizes | whole registers |
+|---|---|---|
+| control signature | `[82, 8]` | 0 |
+| + connected components | `[56, 18, 8, 5, 3]` | 1 |
+| colour refinement | `[26]` + 64 singletons | 0 |
+| control + flow split | `[16, 8]` + 66 singletons | **2** |
+| + components + flow split | `[16, 8]` + 66 singletons | **2** |
+
+The column replaced the sentence *"no other criterion produces a complete
+register here at all"*, which was printed unconditionally and was false in the
+run that printed it, twice over — the components seed returns the identical
+partition, and connected components alone recovers one. `docs/problems.md` 48.
 The check is on **bit indices** — the names on a group's Q nets must cover
 `0 … n-1` once each — because the rename is also why this family has no
 membership ground truth, so names would not settle it.

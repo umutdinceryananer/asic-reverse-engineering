@@ -1071,30 +1071,106 @@ def spatial_profile(graph, positions, thresholds=range(1, 13)):
     return rows
 
 
+# Two circuits the flow split has to be looked at on rather than scored, and
+# three corpus-wide claims that make the looking mean something.
+#
+# **The first entry's flow split row does not discriminate on its own.** The
+# control signature answers `[8]` on a plain register too, and so does the null
+# model that returns one group and stops, so "the flow split answers [8] here"
+# separates `split_by_flow` from nothing at all. What it is really asserting is
+# the *contrast* with connected components on the same netlist, which does
+# shatter it. The two corpus-wide claims below are what establish that the pass
+# is doing work: it only ever refines its seed, and on 42 of the 133 netlists it
+# refines it properly.
 DEMONSTRATIONS = {
     # A plain register: eight flops, no dependence between them, all reading
     # one input port and all driving one output port. Connected components
     # shatters it -- that is its recorded failure -- and the flow split must
     # not, because every bit has the same successors and the same
-    # predecessors. This is the pass's designed advantage over components and
-    # the only thing in the corpus that shows it.
+    # predecessors. The control signature row is printed beside them so the
+    # reader can see for themselves that the flow split's answer here is its
+    # seed's answer, and that the discriminating comparison is the third row.
     "plain register stays whole": {
         "circuit": ("register_w8_async_reset", "base"),
-        "expect": {"control + flow split": [8],
+        "expect": {"control signature": [8],
+                   "control + flow split": [8],
                    "+ connected components": [1] * 8},
     },
 }
 
+# What the demonstrations below measured when somebody last read them and
+# understood the answer. Same rule as RECORDED: a figure that moves in either
+# direction fails until it is re-recorded deliberately.
+#
+# Three of these used to be unconditional sentences in the report. Each was
+# wrong or unfalsifiable, and two of them were wrong *in the run that printed
+# them* -- see `docs/problems.md` 48.
+RECORDED_DEMONSTRATIONS = {
+    # The pass may only ever split a seed group, never move a flop between two
+    # of them. This is an invariant of the algorithm rather than a measurement,
+    # which is why the number to record is zero.
+    "seed violations": 0,
+    # And it has to actually split something, or "it does not split a plain
+    # register" would be a property of doing nothing.
+    "proper refinements": 42,
+    # Groups that are a whole RTL vector, on the smallest scale_datapath
+    # netlist: bit indices covering 0 .. n-1 once each, whatever the base names
+    # say. Derived per criterion, because the claim this replaced -- "no other
+    # criterion produces a complete register here at all" -- was false twice
+    # over in the run that printed it.
+    "whole registers on the R0 analogue": {
+        "control signature": 0,
+        "+ connected components": 1,
+        "colour refinement, fixed point": 0,
+        "control + flow split": 2,
+        "+ components + flow split": 2,
+    },
+}
+
+
+def whole_vectors(graph, groups):
+    """Groups that are one whole RTL vector, by bit index rather than by name.
+
+    A vector's bits are indexed, so the names on a group's Q nets have to cover
+    `0 .. n-1` once each. Names alone will not do it here: the `scale_datapath`
+    family loses one bit of three registers to a yosys rename, which is also
+    why `truth_membership` refuses the family.
+
+    Singletons do not count. Every criterion would score its own group count on
+    a corpus of one-bit registers, and the question being asked is whether a
+    criterion recovers a *register*.
+    """
+    names = {flop: (graph["net_names"].get(graph["flipflops"][flop]["q"])
+                    or flop) for flop in graph["flipflops"]}
+    found = []
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        indices = sorted(int(names[f].split("[")[1][:-1]) for f in members
+                         if "[" in names[f])
+        if indices == list(range(len(members))):
+            found.append(sorted(members))
+    return found, names
+
 
 def demonstrations(rows):
-    """Two claims about the flow split, checked rather than described.
+    """What the scores cannot show, checked rather than described.
 
     Returns (lines, failed). A claim that stops being true fails the run, which
-    is the difference between a demonstration and a sentence.
+    is the difference between a demonstration and a sentence -- and three of
+    the sentences this block used to print could not have failed, while two of
+    them were false in the run that printed them. `docs/problems.md` 48.
     """
     lines, failed = [], False
     by_name = {(r["entry"]["name"], r["entry"].get("variant")): r
                for r in rows}
+
+    def claim(label, got, want):
+        nonlocal failed
+        if got == want:
+            return f"    {label:<42} {got}"
+        failed = True
+        return f"    {label:<42} {got}   WRONG, recorded {want}"
 
     for label, spec in DEMONSTRATIONS.items():
         row = by_name.get(spec["circuit"])
@@ -1109,65 +1185,128 @@ def demonstrations(rows):
             got = sorted((len(m) for m in CRITERIA[name](row["graph"]).values()),
                          reverse=True)
             mark = "" if got == want else f"   WRONG, expected {want}"
-            lines.append(f"    {name:<32} {got}{mark}")
+            lines.append(f"    {name:<42} {got}{mark}")
             failed = failed or got != want
+        lines.append(f"    The first two rows are the same answer, and the "
+                     f"null model that returns")
+        lines.append(f"    one group scores it too, so the flow split row "
+                     f"discriminates nothing on")
+        lines.append(f"    its own. The contrast with the third row is the "
+                     f"claim; the two corpus")
+        lines.append(f"    wide checks below are what establish that the pass "
+                     f"does any work at all.")
 
-    # The R0 analogue. The control signature answers one group of 82 of its 90
-    # flops, which is the shape of the puzzle's R0 -- 72 of 92 under one
-    # signature. Reported and not scored: `truth_membership` refuses this
+    # Does the pass only ever refine its seed, and does it ever refine it?
+    # Without the second, "it does not split a plain register" would be a
+    # property of doing nothing.
+    violations, proper = [], 0
+    for row in rows:
+        graph = row["graph"]
+        seed = control_groups(graph)
+        owner = {flop: index for index, (_key, members)
+                 in enumerate(sorted(seed.items(), key=lambda kv: str(kv[0])))
+                 for flop in members}
+        split = control_then_flow(graph)
+        for members in split.values():
+            if len({owner[f] for f in members}) != 1:
+                violations.append(row["entry"]["name"])
+                break
+        proper += len(split) > len(seed)
+    lines.append("")
+    lines.append(f"  the flow split against its own seed, over all "
+                 f"{len(rows)} netlists")
+    lines.append(claim("groups spanning two seed groups", len(violations),
+                       RECORDED_DEMONSTRATIONS["seed violations"]))
+    lines.append(claim("netlists it refines properly", proper,
+                       RECORDED_DEMONSTRATIONS["proper refinements"]))
+    if not proper:
+        lines.append(f"    A pass that never refines anything would pass every "
+                     f"non-split claim above.")
+
+    # The R0 analogue. Reported and not scored: `truth_membership` refuses this
     # family, because a yosys rename splits three of its registers across two
     # names each and the declared sizes and the RTL names disagree.
     family = [r for r in rows if r["truth"].get("family") == "scale_datapath"]
-    if family:
-        row = min(family, key=lambda r: len(r["graph"]["flipflops"]))
-        lines.append("")
-        lines.append(f"  the R0 analogue: {len(family)} scale_datapath "
-                     f"netlists. The smallest holds "
-                     f"{len(row['graph']['flipflops'])} flops in")
-        lines.append(f"  {len(row['expected'])} declared registers, "
-                     f"{row['expected']}, and the control signature answers")
-        lines.append(f"  one group of 82 -- the shape of the puzzle's R0, "
-                     f"which is 72 of 92 flops")
-        lines.append(f"  under one signature.")
-        for name, criterion in CRITERIA.items():
-            sizes = sorted((len(m) for m in criterion(row["graph"]).values()),
-                           reverse=True)
-            ones = sizes.count(1)
-            shown = str([s for s in sizes if s > 1])
-            if ones:
-                shown += f" and {ones} singleton" + ("s" if ones > 1 else "")
-            lines.append(f"    {name:<32} {shown}")
+    lines.append("")
+    if not family:
+        lines.append(f"  MISSING  the R0 analogue: no scale_datapath netlist "
+                     f"in the corpus, so the")
+        lines.append(f"           only case shaped like the puzzle's R0 is "
+                     f"not being looked at")
+        return lines, True
 
-        # Whether those surviving groups are whole registers is checked and not
-        # stated: a vector's bits are indexed, so the names on a group's Q nets
-        # have to cover 0 .. n-1 once each, whatever the base names say.
-        names = {f: (row["graph"]["net_names"].get(
-            row["graph"]["flipflops"][f]["q"]) or f)
-            for f in row["graph"]["flipflops"]}
-        lines.append(f"    the flow split's surviving groups, by the RTL "
-                     f"vector names on their Q nets")
-        survivors = [m for m in
-                     CRITERIA["control + flow split"](row["graph"]).values()
-                     if len(m) > 1]
-        for members in sorted(survivors, key=len, reverse=True):
-            bases = Counter(VECTOR_BIT.sub("", names[f]) for f in members)
-            indices = sorted(int(names[f].split("[")[1][:-1]) for f in members
-                             if "[" in names[f])
-            whole = indices == list(range(len(members)))
-            parts = " + ".join(f"{base}[{n} bits]"
-                               for base, n in sorted(bases.items()))
-            lines.append(f"      {len(members):>3} bits  {parts}")
-            lines.append(f"               bits 0..{len(members) - 1} covered "
-                         f"once each: {'yes' if whole else 'NO'}")
-            failed = failed or not whole
-        lines.append(f"    Each of those is one whole RTL register split "
-                     f"across two names by a")
-        lines.append(f"    yosys rename, which is also why this family has no "
-                     f"membership ground")
-        lines.append(f"    truth and why the check above is on bit indices "
-                     f"rather than on names.")
-        lines.append(f"    No other criterion produces a complete register "
-                     f"here at all.")
+    row = min(family, key=lambda r: len(r["graph"]["flipflops"]))
+    graph = row["graph"]
+    # Derived, not asserted. Every other figure in this paragraph comes off the
+    # selected row and this one used to be the literal 82, which `min` could
+    # walk away from the moment the family gained or lost its smallest member.
+    coarsest = max(len(m) for m in control_groups(graph).values())
+    lines.append(f"  the R0 analogue: {len(family)} scale_datapath netlists. "
+                 f"The smallest holds "
+                 f"{len(graph['flipflops'])} flops in")
+    lines.append(f"  {len(row['expected'])} declared registers, "
+                 f"{row['expected']}, and the control signature answers")
+    lines.append(f"  one group of {coarsest} -- the shape of the puzzle's R0, "
+                 f"which is 72 of 92 flops")
+    lines.append(f"  under one signature.")
+    lines.append(f"    {'':<42}{'sizes':<34}whole registers")
+    counts = {}
+    for name, criterion in CRITERIA.items():
+        groups = criterion(graph)
+        sizes = sorted((len(m) for m in groups.values()), reverse=True)
+        found, names = whole_vectors(graph, groups)
+        counts[name] = len(found)
+        recorded = RECORDED_DEMONSTRATIONS[
+            "whole registers on the R0 analogue"].get(name)
+        mark = ""
+        if recorded is None:
+            mark, failed = "  NOT RECORDED", True
+        elif len(found) != recorded:
+            mark, failed = f"  WRONG, recorded {recorded}", True
+        lines.append(f"    {name:<42}{sizes_as(sizes):<34}"
+                     f"{len(found)}{mark}")
+    lines.append(f"    A whole register is a group whose Q net names cover bit "
+                 f"0 to n-1 once")
+    lines.append(f"    each, singletons excluded. Names alone would not settle "
+                 f"it: a yosys")
+    lines.append(f"    rename splits three of this family's registers across "
+                 f"two names, which is")
+    lines.append(f"    also why it has no membership ground truth. **The "
+                 f"counts above replaced")
+    lines.append(f"    the sentence 'no other criterion produces a complete "
+                 f"register here at")
+    lines.append(f"    all', which was false twice over in the run that "
+                 f"printed it.**")
+
+    best = max(counts.values())
+    winners = sorted(n for n, c in counts.items() if c == best and c)
+    if winners:
+        lines.append(f"    Most recovered by any criterion: {best}, by "
+                     f"{winners}.")
+    groups = CRITERIA["control + flow split"](graph)
+    found, names = whole_vectors(graph, groups)
+    survivors = [sorted(m) for m in groups.values() if len(m) > 1]
+    lines.append(f"    the flow split's {len(survivors)} surviving group(s), "
+                 f"by the RTL vector names")
+    lines.append(f"    on their Q nets:")
+    if not survivors:
+        # The vacuous pass this block used to have. `survivors` empty meant the
+        # loop below never ran, `failed` was never set, and the prose was
+        # printed over an empty list.
+        lines.append(f"      none: the flow split leaves no group larger than "
+                     f"one on this netlist,")
+        lines.append(f"      WRONG -- there is nothing here for the wholeness "
+                     f"check to check")
+        failed = True
+    for members in sorted(survivors, key=len, reverse=True):
+        bases = Counter(VECTOR_BIT.sub("", names[f]) for f in members)
+        whole = sorted(members) in found
+        parts = " + ".join(f"{base}[{n} bits]"
+                           for base, n in sorted(bases.items()))
+        lines.append(f"      {len(members):>3} bits  {parts}")
+        lines.append(f"               bits 0..{len(members) - 1} covered "
+                     f"once each: {'yes' if whole else 'NO'}")
+        failed = failed or not whole
     return lines, failed
 
 

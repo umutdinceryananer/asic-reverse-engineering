@@ -71,6 +71,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 45 | One design, two mappings, three different register partitions | detectors | **open** |
 | 46 | The block gate compared sizes, and would have passed the wrong eight bits | verification | understood |
 | 47 | The cone's weight solve printed one answer out of twenty four | verification | understood |
+| 48 | Three demonstrations that could not fail, two of them false as printed | verification | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1275,9 +1276,73 @@ twice.
 
 ---
 
+### 48. Three demonstrations that could not fail, two of them false as printed
+
+**Symptom.** None. `stage4_registers.py --compare` printed a block headed *what
+the scores cannot show* and exited 0, which is what it had always done.
+
+**Cause.** Four separate faults in one block, found by an adversarial review of
+the Package 4 diff — five of its six lenses died on a session limit and the one
+that survived found all four.
+
+1. **A wholeness check that could not fail.** The scale_datapath claim iterated
+   `survivors`, the flow split's groups of more than one bit, and set `failed`
+   inside that loop. If the flow split shattered the netlist — *precisely the
+   failure the demonstration exists to detect*, and the behaviour the file's own
+   comment records on all ten multi-class netlists — `survivors` was empty, the
+   loop never ran, and the prose asserting the claim was printed over an empty
+   list.
+2. **A second vacuity one level up.** `if family:` with no `else`. A corpus
+   rename or a dropped family removed the entire R0-analogue demonstration in
+   silence, unlike the first demonstration, which prints `MISSING` and fails.
+3. **"No other criterion produces a complete register here at all", printed
+   unconditionally and false in the run that printed it — twice over.**
+   `+ components + flow split` returns the identical partition, so it recovers
+   the same two whole registers; and `+ connected components` recovers one.
+   The tool's own table, three lines above the sentence, contradicted it.
+4. **"one group of 82" as a bare literal**, in a paragraph where every other
+   figure is derived from the row `min` selects. Drop the corpus's two 90-flop
+   netlists and the paragraph correctly says *the smallest holds 178 flops*,
+   still says *82*, and prints `[162, 16]` on the next line.
+
+A fifth, milder, from the same review: the demonstration's `control + flow
+split -> [8]` row does not discriminate. The control signature answers `[8]` on
+a plain register, and so does the null model that returns one group and stops,
+so that row separated `split_by_flow` from nothing at all. The discriminating
+comparison was the `+ connected components` row beside it.
+
+**Fix.** The prose became numbers, and the numbers became recorded:
+
+- every criterion's count of **whole RTL vectors** — groups whose Q net names
+  cover bits `0 … n-1` once each, singletons excluded — is a derived column
+  checked against `RECORDED_DEMONSTRATIONS`. It reads 0, 1, 0, 2, 2.
+- an empty `survivors` is now `WRONG — there is nothing here for the wholeness
+  check to check`, and an absent family is `MISSING`. Both fail.
+- the coarsest control-signature group is computed, not typed.
+- two corpus-wide claims give the non-discriminating row something to stand on:
+  the pass **only ever refines its seed** (0 groups span two seed groups, over
+  all 133 netlists) and it **does refine it** (properly, on 42 of 133). Without
+  the second, "it does not split a plain register" is a property of doing
+  nothing.
+
+Demonstrated on five known-bad inputs, with the subject checked to agree first:
+a flow split that shatters the analogue, the family renamed away, the pass
+replaced by its own seed, a whole-register count contradicting its recording,
+and the 90-flop rows dropped so the derived number has to move — it prints 162.
+
+**Verdict: understood.** The block was written *in the commit that added the
+metrics*, whose entire argument was that a score a null model also achieves is
+not evidence. It then shipped three claims a null implementation also satisfies,
+in the same file, about the same criterion. **The rule is not hard to state and
+it is hard to apply to your own output**; what caught it was an outside reader
+told to attack, which is the same lesson as problem 44 — the only corpus entry
+this author did not write found the gap 96 written ones could not.
+
+---
+
 ## The shapes these fall into
 
-Forty seven problems, six recurring shapes.
+Forty eight problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

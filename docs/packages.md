@@ -101,8 +101,9 @@ Four things for the decision, none of them a recommendation:
 2. **DANA's split pass is not the fix its own paper's sentence predicts.** Run
    to a fixpoint it is the all-singletons degenerate on every shift register.
    It has two properties nothing else here has: it does not split a plain
-   register, and on the R0 analogue it is the only criterion that recovers a
-   whole register — two of the seven.
+   register, and on the R0 analogue it recovers **two** of the seven declared
+   registers whole, the most of any criterion — against one for connected
+   components and none for the control signature or refinement.
 3. **Placement locality gets the warm up right, membership included, without
    reading a wire.** The corpus cannot score it: nothing in `out/synth/` was
    ever placed, so **n = 1**, and its second data point is the puzzle read by
