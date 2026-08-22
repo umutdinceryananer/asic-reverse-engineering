@@ -980,11 +980,20 @@ def placements(target):
     """Where stage 1 found each flop, as {instance: (x, y)}, or None.
 
     Stage 1 records `lower_left` and `orient` for every placement and
-    `verify_blocks.py` already keys on both, 230 of 230. This reads the corner
-    rather than a centre because that is what is recorded and what the DEF
-    states; a cell's width would have to come from the LEF and would add a
-    second file to a criterion whose whole claim is that it needs no
-    connectivity at all.
+    `verify_blocks.py` already keys on both, 230 of 230 -- which is also the
+    proof that this corner is the cell's *placement* corner and not its raw GDS
+    origin, since the DEF states the former and flipped cells match too
+    (`docs/problems.md` 12).
+
+    **It is a corner and not a centre, and the warm up cannot show what that
+    costs.** All 16 of its flops are `dfrtp_2`, so every corner sits the same
+    distance from its own centre and the two choices give an identical
+    clustering here, provably. They do not on the puzzle, whose 92 flops are
+    `dfrtp` (9.66 um wide), `dfstp` (9.66) and `dfxtp` (7.36): corner to corner
+    understates or overstates a centre-to-centre distance by up to 1.15 um,
+    which is 14% of the 8.16 um threshold. Reading a corner is what keeps this
+    criterion free of the LEF, and the size of what that buys is written down
+    here rather than discovered later.
     """
     path = os.path.join("out", target, "instances.json")
     if not os.path.exists(path):

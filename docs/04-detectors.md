@@ -265,6 +265,16 @@ which this design's two registers connect — **one parameter fitted to one data
 point**, which is said here rather than hidden. The profile is printed so the
 author can pick differently on a design whose answer is not known.
 
+**Two caveats the warm up cannot raise, both for the author's puzzle run.**
+The clustering measures **corner to corner**, because `lower_left` is what
+stage 1 records and what the DEF states. All 16 of the warm up's flops are
+`dfrtp_2`, so corners and centres give an identical answer here — provably, not
+incidentally. The puzzle's 92 are `dfrtp` and `dfstp` (9.66 µm wide) and
+`dfxtp` (7.36 µm), so corner-to-corner differs from centre-to-centre by up to
+1.15 µm, **14% of the 8.16 µm threshold**. And the plateau above was measured on
+a design with two registers; a design with more of them, or with a denser
+placement, may have no plateau at all, which the profile will show.
+
 **The synthetic corpus cannot score this.** Every circuit under `out/synth/` is
 synthesised and never placed, so there is no `instances.json` for any of them
 and no figure in `--score` or `--compare` covers this criterion. Its only ground

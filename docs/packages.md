@@ -125,6 +125,22 @@ two independent derivations of the bit order disagreed.
 Tool pinning; an `open_pdks` test; the writeup skeleton; and the decision on
 whether `docs/references.md` is committed.
 
+Added by Package 4, both out of its scope:
+
+- **`docs/problems.md` 49.** The review packet reports a stopped container
+  runtime as eleven failing gates, and `out/review.md` is what a reviewer
+  reads. It needs a preflight and a verdict distinct from **FAIL** for a row
+  that could not run. Package 4 admitted `review_packet.py` for rows only.
+- **Two audits that are not yet programs the repository runs.** Package 4's
+  adversarial review lost five of its six lenses to a session limit; two of
+  them were reconstructed by hand — an independent second implementation of NMI
+  and purity, via `H(C) + H(T) - H(C,T)`, agreeing with `stage4_registers` on
+  the hand table, on 4000 random partitions and on four invariants; and a
+  mechanical check of all 35 documented Package 4 figures against the runs that
+  produce them. Both passed. **Both currently live in a scratch directory**,
+  which is precisely *a measurement that is not a program is a measurement that
+  happened once*. They belong in `tools/`.
+
 ## Out of scope for workers, always
 Anything touching `puzzle/puzzle.gds`, `puzzle/example_inputs.vcd`,
 `out/puzzle/`; running any tool with target `puzzle`; interpreting what the
