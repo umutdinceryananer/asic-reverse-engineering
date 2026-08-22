@@ -257,6 +257,7 @@ def bit_order(graph, members):
     if len(set(depth.values())) == len(members):
         return {"method": "carry chain, by ripple depth",
                 "chains": [sorted(members, key=lambda f: depth[f])],
+                "ordered": len(members),
                 "why": f"{len(members)} distinct ripple depths, least "
                        f"dependent first"}
     return {"method": None, "chains": [],
