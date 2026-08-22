@@ -182,6 +182,25 @@ The *level* of the control is deliberately not consulted. This is the state
 after a reset has been asserted and released, not a claim about which polarity
 asserts it: a `dfrtp` leaves 0 whether its clear is active high or active low.
 
+**A flop carrying both an asynchronous set and an asynchronous clear is now
+refused**, alongside the two shapes stage 6 already refused. `--post-reset` has
+to pin a value for exactly such a flop, and the model answers "both asserted"
+two different ways: at cycle 0 the two are independent implications — `clear ⇒
+q is false`, `preset ⇒ q is true` — so both at once is **unsatisfiable** and the
+solver would report *no trace*; from cycle 1 on, `preset` is applied after
+`clear` in the nested `ite`, so **set dominates** and both at once is fine.
+Neither is wrong alone and the two disagree, so the design is refused rather
+than solved.
+
+Nothing here has one. The warm up has none, no corpus netlist has one, and the
+puzzle's flops are `dfrtp` (clear), `dfstp` (preset) and `dfxtp` (neither),
+each carrying a single control — which matters, because `rst_n` in the puzzle
+is *both* the reset root and the set root, clearing 84 flops and presetting 4.
+That is one net driving two different pins, not one flop with two, and the
+guard is what makes the difference a checked fact rather than a reading of the
+cell names. Demonstrated by handing the tool a `graph.json` with one flop's
+`set` copied from its `reset`: it exits 2 and names the flop.
+
 | | default | `--post-reset` |
 |---|---|---|
 | warm up | 2^16 start states | **2^0** — all 16 flops carry `rst_n`, 16 cleared |

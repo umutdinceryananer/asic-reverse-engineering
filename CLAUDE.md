@@ -330,14 +330,20 @@ the library, so `verify_functions.py`'s 850 comparisons are evidence about
 identifiers, negation and grouping and none at all about precedence. Eight hand
 written truth tables are what cover it.
 
-**Stage 6's cycle model, and the two things it refuses.** A cycle is a clock
+**Stage 6's cycle model, and the three things it refuses.** A cycle is a clock
 edge, so the clock is not a signal: clock tree cells are dropped and the clock
 port is implicit. `S(t+1) = resetval if r(t) or r(t+1) else D(t)` is what makes
 an asynchronous reset asynchronous -- a level held across the edge clears the
 flop from either side of it. That is only a definition while a flop's reset net
-does not depend on a flop, so `stage6_invert.py` refuses a design where it does,
-and refuses one where a clock net is read by anything but a flop's clock pin.
-Neither happens in the warm up or the puzzle.
+does not depend on a flop, so `stage6_invert.py` refuses a design where it does;
+refuses one where a clock net is read by anything but a flop's clock pin; and
+refuses one where a flop carries **both** an asynchronous set and an
+asynchronous clear, because the model orders those two one way at cycle 0
+(independent implications, so both asserted is unsatisfiable) and the other from
+cycle 1 on (set dominates). None of the three happens in the warm up or the
+puzzle -- and the third is worth the guard rather than the assumption, because
+the puzzle's `rst_n` is both the reset root *and* the set root, which is one net
+on two different pins and not one flop with two. Problem 50.
 
 **`graph.json`'s `clock_nets` is the nets *at the flop pins*, not the tree.**
 The warm up's tree is `clk -> n8 -> {n18, n41}` and the field lists n18 and n41

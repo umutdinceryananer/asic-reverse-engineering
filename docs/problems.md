@@ -73,6 +73,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 47 | The cone's weight solve printed one answer out of twenty four | verification | understood |
 | 48 | Three demonstrations that could not fail, two of them false as printed | verification | understood |
 | 49 | The review packet reported a stopped Docker as eleven failing gates | tooling | **open** |
+| 50 | Stage 6 modelled a set-and-clear flop two different ways | inversion | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1409,9 +1410,46 @@ measurement rather than a guess.
 
 ---
 
+### 50. Stage 6 modelled a set-and-clear flop two different ways
+
+**Symptom.** None, and there could not have been one: no design in this
+repository contains the shape. Found by asking, of `--post-reset`, the question
+its own docstring answered — *"set dominates clear, matching how liberty orders
+the two on the cells that carry both"* — and checking it against the transition
+relation rather than against liberty.
+
+**Cause.** The two halves of `encode` order an asynchronous set and an
+asynchronous clear differently.
+
+| | constraint | both asserted |
+|---|---|---|
+| cycle 0 | two independent implications, `clear ⇒ q false` and `preset ⇒ q true` | **unsatisfiable** — the solver reports *no trace* |
+| cycle ≥ 1 | `preset` applied after `clear` in the nested `ite` | **set dominates** |
+
+Neither is wrong on its own. The cycle-0 form is the natural way to say "a
+control asserted at power-up still holds", and the cycle-1 form is what liberty
+and `common/celllib.py` say. They are not the same statement, and
+`post_reset_state` had to pick one to pin — it picked the cycle-1 answer, which
+would have contradicted cycle 0 for any design that had such a flop.
+
+**Fix.** `Design` refuses it, alongside the two shapes stage 6 already refused —
+a reset computed from a flop, and a clock net read by anything but a clock pin.
+The file's stated discipline is to refuse rather than quietly solve a
+mis-modelled design, and this is the third application of it.
+
+**Verdict: understood.** Worth recording for *why it was unreachable* rather
+than for its consequences. The puzzle's `rst_n` is both the reset root and the
+set root — clearing 84 flops and presetting 4 — which reads, at a glance, like
+exactly this shape. It is not: that is one net driving two different pins, and
+the puzzle's cells are `dfrtp`, `dfstp` and `dfxtp`, each carrying one. The
+guard turns "each cell carries one control" from a reading of the cell names
+into a checked fact, in the mode about to be run on that design.
+
+---
+
 ## The shapes these fall into
 
-Forty nine problems, six recurring shapes.
+Fifty problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

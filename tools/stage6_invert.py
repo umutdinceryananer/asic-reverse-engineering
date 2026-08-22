@@ -28,7 +28,10 @@ what already has gates under it.
 level held across the edge clears the flop whichever side of the edge it
 arrives. That is only well defined when a flop's reset net does not itself
 depend on a flop, and this tool checks that and refuses rather than quietly
-solving a design it has mis-modelled. The clock is not a signal here at all --
+solving a design it has mis-modelled. It refuses a second shape for the same
+reason: a flop carrying **both** an asynchronous set and an asynchronous clear
+is one this model describes two different ways -- unsatisfiable at cycle 0,
+set-dominates from cycle 1 -- and no design here has one. The clock is not a signal here at all --
 clock tree cells are dropped and the clock port is implicit in the cycle.
 
 **The initial state is free, and that matters more than it looks.** `rst_n` is
@@ -191,12 +194,34 @@ class Design:
         # flop, and a synchronous reset folded into D would break it.
         self.state_controlled = sorted(self.controls_touching_state())
 
+        # A flop carrying an asynchronous set AND an asynchronous clear is one
+        # this model describes two different ways, so it is refused rather than
+        # solved. At cycle 0 the two are independent implications -- `clear =>
+        # q is false` and `preset => q is true` -- so both asserted at once is
+        # UNSATISFIABLE, and the solver would report "no trace" for a design
+        # that has one. From cycle 1 on, `preset` is applied after `clear` in
+        # the nested `ite`, so set dominates and both asserted is perfectly
+        # satisfiable. Two answers to one question.
+        #
+        # Nothing here has such a flop -- the warm up has none, no corpus
+        # netlist has one, and the puzzle's cells are `dfrtp` (clear), `dfstp`
+        # (preset) and `dfxtp` (neither), each carrying one. That is why the
+        # disagreement was reachable only in principle. It is checked rather
+        # than assumed because `--post-reset` pins a value for exactly these
+        # flops and `post_reset_state` resolves the tie the *cycle 1* way,
+        # which would contradict cycle 0 for a design that had one.
+        self.both_controls = sorted(
+            instance for instance, record in self.flops.items()
+            if record.get("reset") and record.get("set"))
+
     def post_reset_state(self):
         """Every flop an asynchronous control pins, and to what.
 
         A partial assignment: flops with neither a reset nor a set are absent
-        and stay free. Set dominates clear, matching how liberty orders the two
-        on the cells that carry both and matching `common/celllib.py`.
+        and stay free. A flop carrying *both* would need the two ordered, and
+        this model orders them one way at cycle 0 and the other from cycle 1
+        on, so `Design` refuses such a design outright and the ordering below
+        never decides anything. See `both_controls`.
 
         The *level* of the control is not consulted and must not be. This is
         the state after the reset has been asserted and released, not a
@@ -566,6 +591,21 @@ def run(target, graph_path, depth, property_port, start, post_reset=False):
               "the inputs alone.")
         print("RESULT: fail, refusing to solve a design this cycle model does "
               "not describe")
+        return 2
+    if design.both_controls:
+        print(f"\n  {len(design.both_controls)} flop(s) carry both an "
+              f"asynchronous set and an asynchronous")
+        print(f"  clear: {design.both_controls[:8]}")
+        print("  This model answers 'both asserted' two different ways. At "
+              "cycle 0 the two")
+        print("  are independent implications, so both at once is "
+              "unsatisfiable and the")
+        print("  solver would report no trace. From cycle 1 on, set is applied "
+              "after clear")
+        print("  and dominates. Neither answer is wrong on its own and the "
+              "two disagree.")
+        print("RESULT: fail, refusing to solve a design this cycle model "
+              "describes twice")
         return 2
 
     if property_port is None:
