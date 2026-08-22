@@ -478,10 +478,20 @@ a stronger question than comparing it to one arbitrary member: 24 chances in
 Demonstrated failing, on two scrambles of `registers.json` passed with
 `--registers`:
 
-| Scramble | Caught by |
+| Known-bad input | Caught by |
 |---|---|
 | swap two bits in one chain | part 1: two pairs land at positions 2 and 5 |
 | swap the same two positions in **both** chains | part 2: the pairs still align, and neither `2^position` nor `2^(7-position)` is among the 24 |
+| a `registers.json` carrying **no bit order at all** | the "not applicable" verdict, which is now a failure and not a skip |
+
+That third row was missing, and its absence was a defect rather than an
+omission. `cross_check` returns `"not applicable"` when stage 4 derived no
+order, and `run()` printed that verdict inside `RESULT: pass` and exited 0 — so
+a regression in `bit_order` would have switched the cross-check off in silence.
+It is only reached for a target with a published specification, and that
+specification says the operands are *shifted in serially*; a design that shifts
+has an order, so "stage 4 derived none" is a regression in stage 4, not a
+reason to skip. `docs/problems.md` 48.
 
 ### What guarantees the listing
 

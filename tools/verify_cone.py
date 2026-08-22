@@ -308,7 +308,13 @@ def cross_check(pairs, solutions, positions, methods):
     design.
 
     `verdict` is "pass", "fail", or "not applicable" when stage 4 derived no
-    order to check.
+    order to check. **The caller treats "not applicable" as a failure**, and
+    that is the point: this function is only reached for a target with a
+    published specification, and the specification says the operands are
+    shifted in serially. A design that shifts has an order. "Stage 4 derived
+    none" is therefore a regression in stage 4, and a verdict that let the run
+    pass would be a check that stops checking in silence -- the defect this
+    repository has now recorded four times (`docs/problems.md` 48).
     """
     lines = []
     missing = sorted({bit for pair in pairs for bit in pair}
@@ -318,12 +324,17 @@ def cross_check(pairs, solutions, positions, methods):
         for register in registers:
             lines.append(f"    {register}: stage 4 derived no bit order "
                          f"({methods.get(register)!r})")
-        lines.append(f"    {len(missing)} of the cone's bits have no position, "
-                     f"so there is nothing to")
+        lines.append(f"    {len(missing)} of the cone's bits have no "
+                     f"position, so there is nothing to")
         lines.append(f"    cross check. A register whose bits do not depend on "
                      f"one another has no")
         lines.append(f"    structural order, and stage 4 says so rather than "
-                     f"guessing one.")
+                     f"guessing one -- but")
+        lines.append(f"    this cone belongs to a design whose specification "
+                     f"says its operands are")
+        lines.append(f"    shifted in serially, so an order exists and its "
+                     f"absence is a regression")
+        lines.append(f"    in stage 4 rather than a reason to skip the check.")
         return lines, "not applicable"
 
     problems, place = [], {}
@@ -480,6 +491,16 @@ def run(target, path=None, registers_path=None):
         if verdict == "fail":
             problems.append("stage 4's bit order and the arithmetic weights "
                             "disagree")
+        elif verdict != "pass":
+            # Not a skip. `spec` says this design shifts `operands` operands of
+            # `width` bits in serially, so an order exists; stage 4 not having
+            # one is a regression, and passing the run on the strength of
+            # "there was nothing to check" is how a check stops checking.
+            problems.append(f"the bit order cross check did not run "
+                            f"({verdict}), and this target has a published "
+                            f"specification that says its {spec['operands']} "
+                            f"operands are shifted in serially, so an order "
+                            f"exists to check")
 
     if problems:
         for problem in problems:
@@ -487,9 +508,11 @@ def run(target, path=None, registers_path=None):
         print("\nRESULT: fail, the listing does not compute the design's "
               "published function")
         return 1
+    assert verdict == "pass", verdict      # nothing else reaches here
     print(f"\nRESULT: pass, the listing computes a + b == {spec['constant']} "
           f"and nothing else,")
-    print(f"  and stage 4's bit order agrees with the weights: {verdict}")
+    print(f"  and stage 4's bit order agrees with the weights it was solved "
+          f"for independently")
     return 0
 
 

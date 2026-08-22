@@ -1330,6 +1330,15 @@ a flow split that shatters the analogue, the family renamed away, the pass
 replaced by its own seed, a whole-register count contradicting its recording,
 and the 90-flop rows dropped so the derived number has to move — it prints 162.
 
+**And a sixth, in a different file, found by turning the same lens on it.**
+`verify_cone.cross_check` returns `"not applicable"` when stage 4 derived no bit
+order, and `run()` printed that verdict inside `RESULT: pass` and exited 0. A
+regression in `bit_order` would have switched the cross-check off without a
+word. It is only reached for a target with a published specification, and that
+specification says the operands are shifted in serially — a design that shifts
+has an order — so the verdict now fails, and a `registers.json` with
+`"method": null` throughout is its known-bad input.
+
 **Verdict: understood.** The block was written *in the commit that added the
 metrics*, whose entire argument was that a score a null model also achieves is
 not evidence. It then shipped three claims a null implementation also satisfies,
@@ -1337,6 +1346,11 @@ in the same file, about the same criterion. **The rule is not hard to state and
 it is hard to apply to your own output**; what caught it was an outside reader
 told to attack, which is the same lesson as problem 44 — the only corpus entry
 this author did not write found the gap 96 written ones could not.
+
+Five of that review's six lenses died on a session limit before running. One
+lens found four faults and pointed at a fifth. **What the other five would have
+found is unknown**, and the sixth above — the same class, one file over, found
+by hand afterwards — is the argument for assuming it is not zero.
 
 ---
 
