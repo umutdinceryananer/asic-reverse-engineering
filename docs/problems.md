@@ -74,6 +74,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 48 | Three demonstrations that could not fail, two of them false as printed | verification | understood |
 | 49 | The review packet reported a stopped Docker as eleven failing gates | tooling | understood |
 | 50 | Stage 6 modelled a set-and-clear flop two different ways | inversion | understood |
+| 51 | Three known-bad inputs that could not be bad, on the warm up | verification | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1491,9 +1492,53 @@ into a checked fact, in the mode about to be run on that design.
 
 ---
 
+### 51. Three known-bad inputs that could not be bad, on the warm up
+
+**Symptom.** A `--selftest` reporting that it caught a corruption it had not
+caught, or reporting a corruption as missed when the corruption was the thing at
+fault.
+
+**Three instances, all the same shape.**
+
+1. `verify_cone.py`'s bit-order cross check was first tested with a **diamond**
+   — `0 → 1 → 3`, `0 → 2 → 3`, plus `0 → 3`. It was meant to distinguish ripple
+   depth taken as the longest path from ripple depth taken as the shortest. It
+   distinguishes nothing: a diamond has two bits at equal depth under *either*
+   rule, so refusing is the correct answer either way. A chain with a **skip
+   edge** does distinguish them — longest gives four distinct depths and an
+   order, shortest gives a repeat and a refusal.
+2. `stage3_crosscheck.py`'s `a_hold_invented` corruption, recorded under
+   problem 42's neighbourhood: all sixteen of the warm up's flops already hold,
+   so the loop that was meant to invent one was a no-op.
+3. `verify_determinism.py --selftest` planted a set-ordered `group_names` inside
+   `analyse()` **on the warm up**, whose sixteen flops sit under one control
+   signature. `group_names` was handed a single group; a set of one tuple has no
+   order to shuffle; the plant produced identical bytes under both seeds. It runs
+   on `scale_datapath` instead, where the refinement gives 65 groups.
+
+**Cause.** The warm up is small, uniform and well-behaved — 16 flops, one
+control signature, one cell type, two clean shift chains — which is what makes
+it a good target and a **bad source of known-bad inputs**. A corruption is only
+a corruption if the subject has the structure the corruption disturbs.
+
+**Fix.** No single change. What is written down instead, beside each plant, is
+the reason it needs the input it has. And the discipline that catches it is
+already the repository's: **check that the subject agrees before it is broken,
+and check that the broken version disagrees.** Instance 3 was caught by exactly
+that — the selftest reported `MISSED` and named which plant.
+
+**Verdict: understood.** Worth an entry because it is the counterpart to
+problem 48 rather than a repeat of it. There the claim could not fail; here the
+*corruption* could not fail, which looks identical from the outside — a
+selftest printing a tidy `n/n caught`. The rule "a passing test that was never
+able to fail is not evidence" has a second half nobody states: **a corruption
+that was never able to corrupt is not a demonstration.**
+
+---
+
 ## The shapes these fall into
 
-Fifty problems, six recurring shapes.
+Fifty one problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source
