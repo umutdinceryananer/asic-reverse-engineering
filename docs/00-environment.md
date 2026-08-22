@@ -107,6 +107,51 @@ geometry in these two files are listed.
 | 236/0 | not in the PDK table | present inside standard cells, unmapped |
 | 200/0 | not a PDK layer | custom, used only by the marker row, see below |
 
+## What is pinned, and what is only recorded
+
+The distinction matters more than the pins do. A version somebody wrote in prose
+is not a pin — `docs/references.md` §3 supplies the six-year-old counterexample,
+a project whose SHA-pinned submodules still resolve while its prose-pinned Vivado
+version is unbuildable.
+
+| | How | Where |
+|---|---|---|
+| the cell library | **pinned**, by commit | `tools/fetch_pdk.py` `COMMIT` |
+| the liberty corner | **pinned**, by name | `tools/fetch_pdk.py` `CORNER` |
+| the open_pdks library | **pinned**, by open_pdks commit | `tools/fetch_open_pdks.py` `OPEN_PDKS` |
+| the container base image | **pinned**, by digest | `docker/Dockerfile` |
+| `yosys`, `z3`, `iverilog` | **recorded, floating** | `tools/TOOL_VERSIONS.recorded` |
+
+**The apt packages are deliberately not pinned.** Pinning them by apt version
+breaks the moment Debian moves a point release out of the archive; building them
+from source is hours and a second toolchain to maintain. So each image records
+its own tool versions at build time into `/opt/gds-teardown/TOOL_VERSIONS`, and
+`tools/verify_toolchain.py` compares that manifest against the copy checked in
+here. **The gate catching the drift is the mechanism.** The versions may move;
+they cannot move silently, and a rebuild that changes one fails until somebody
+re-records it with `--record`, which is a decision rather than a side effect.
+
+What is recorded today:
+
+```
+base      debian:bookworm-slim@sha256:abd67ffcfa541b485a3dff59865ab629aa048a6c613e639d36e7456b0b229241
+debian    12.15
+iverilog  Icarus Verilog version 11.0 (stable) ()
+yosys     Yosys 0.23 (git sha1 7ce5011c24b)
+z3        Z3 version 4.8.12 - 64 bit
+```
+
+`verify_toolchain.py <target>` also stamps `out/<target>/TOOL_VERSIONS` beside
+that run's artifacts, so a `graph.json` or a `solution.json` can be traced to the
+toolchain that produced it.
+
+**The gap, stated rather than left to be found.** The container tools do not
+stamp their own artifacts; the stamp happens when `verify_toolchain.py` is run
+with a target, and the review packet runs it. A stage 6 run performed by hand
+leaves a `solution.json` with no manifest beside it. Closing that means editing
+`sim/run.py`, `sim/replay.py`, `verify_equiv.py`, `stage6_invert.py` and
+`verify_functions.py`, which no package has yet admitted.
+
 The stack in order, bottom to top: `diff`/`poly` form devices, `licon1` lifts
 them to `li1`, `mcon` lifts `li1` to `met1`, then `via`, `via2`, `via3`, `via4`
 climb through `met2` to `met5`. Connectivity extraction is a traversal of

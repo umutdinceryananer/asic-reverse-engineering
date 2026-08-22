@@ -101,6 +101,80 @@ An ambiguous fingerprint is never resolved arbitrarily. Keys that would land on
 more than one library cell are dropped from the index, because a fingerprint
 that matches two cells is not an identification.
 
+
+## The 22 fallbacks have a testable cause, and the machinery to test it
+
+`docs/references.md` §3 puts a name to the drift. `tools/fetch_pdk.py` pulls the
+upstream *library* repository, `google/skywater-pdk-libs-sky130_fd_sc_hd`. Every
+manufactured sky130 flow — this puzzle's included, presumably — consumes
+**`sky130A` as built by open_pdks**, which re-renders cell layouts through Magic
+on the way through. That is exactly the class of difference that shows on poly,
+licon1 and npc while leaving metal intact, which is what the table above records.
+
+**Tested library against library, without opening a puzzle file.**
+`tools/fetch_open_pdks.py` fetches the open_pdks build of the same library into
+`pdk/open_pdks_sky130A/`, a separate cache that stage 1's glob cannot see, and
+`tools/compare_libraries.py` compares the two cell by cell on the nanometre grid.
+**9 of 437 shared cells differ:**
+
+```
+  a2111o_1          122/16 pwell pin (2->2)
+  a2111oi_0          66/20 poly (5->5)
+  and2_0             95/20 npc (1->1)
+  and4b_2            66/20 poly (6->6)          <- one of the puzzle's three
+  buf_16             66/20 poly (2->2)
+  clkdlybuf4s15_1    66/20 poly (4->4), 66/44 licon1 (24->24)
+  clkdlybuf4s18_1    66/20 poly (4->4)
+  conb_1             95/20 npc (2->2)           <- one of the puzzle's three
+  o211a_2            66/20 poly (5->6), 66/44 licon1 (27->27)   <- and the third
+```
+
+All three cell types the puzzle falls back on are in that list, **on exactly the
+layers this document already records for them** — `o211a_2` on poly and licon1,
+`conb_1` on npc, `and4b_2` on poly — and `o211a_2` gains the one extra poly
+polygon this document says the puzzle's copy carries. Eight of the nine
+differences are confined to poly, licon1 and npc; the ninth, `a2111o_1`, moves on
+`122/16 pwell pin`, which is outside that signature and is reported as such
+rather than rounded into it.
+
+**The warm up cannot test this and is not expected to.** It places 230 cells,
+none of them among the nine, so stage 1 answers `exact 230, structural 0` under
+*both* libraries and no definition changes tier. That is the check that the
+second library does not break what works — not evidence for the hypothesis.
+
+### What the author runs, and what each outcome means
+
+One command, on the target the assistant does not touch:
+
+```bash
+python tools/fetch_open_pdks.py                                   # once
+python tools/stage1_cells.py puzzle --library pdk/open_pdks_sky130A
+```
+
+It prints the tiers side by side against the standard library and names every
+definition that changed tier. It writes `instances.open_pdks_sky130A.json`, never
+`instances.json`, so the committed pipeline's numbers stay reproducible.
+
+| Outcome | What it means |
+|---|---|
+| structural **22 → 0** | The puzzle was drawn against an open_pdks-built sky130A. The fallback tier stops being a workaround and becomes a measured safety net — it recovered exactly the cells a library mismatch cost, and the mismatch is now identified. |
+| **unchanged, 22 → 22** | The hypothesis is dead. open_pdks is not what moved those cells, and the 9-cell list above is a real but unrelated difference. Look elsewhere: a different open_pdks revision, or a vendor library. |
+| **partial**, 22 → n | The number is the answer. `22 - n` placements are explained by open_pdks and `n` are not, and the per-definition list says which cells are still unaccounted for. |
+
+**What no outcome establishes.** Stage 1's exact digest hashes every layer, so
+`22 → 0` would show that this library is the one that drew the target, not that
+the difference was poly, licon1 and npc specifically. Only
+`compare_libraries.py` speaks to the second, and it is a statement about two
+libraries rather than about the puzzle.
+
+**The pin, and a correction to the guess in `docs/references.md`.** That file
+suggests open_pdks `e6f9c887`, the revision a cited tapeout used. A build at
+that revision is published and its `o211a_2`, `conb_1` and `and4b_2` are
+byte-identical to the upstream library — pinning there would have changed
+nothing. The geometry changes between the published builds `823ec23c`
+(2025-05-24, still identical) and **`8afc8346` (2025-07-14, differs)**, which is
+what `fetch_open_pdks.py` pins: the earliest published build carrying it.
+
 ## Results
 
 | | warm up | puzzle |

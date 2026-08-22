@@ -91,6 +91,12 @@ NATIVE_MODES = {
 # as a passing check. `verify()` re-derives the distinction from each tool's
 # source rather than trusting the word written here.
 GATES = [
+    ("stage 0, the toolchain the images carry against the recorded copy",
+     ["tools/verify_toolchain.py", "warmup"], True, "gate"),
+    ("stage 1, the two cell libraries against each other",
+     ["tools/compare_libraries.py"], False, "gate"),
+    ("stage 1, and would that comparison see a nanometre",
+     ["tools/compare_libraries.py", "--selftest"], False, "gate"),
     ("stage 1 and 2, against the DEF ground truth",
      ["tools/compare_def.py", "warmup"], False, "gate"),
     ("stage 2, an independent second extractor",
@@ -152,6 +158,10 @@ GATES = [
       "out/warmup/solution_post_reset.json"], True, "gate"),
     ("stage 6, and that trace replayed through stage 2's netlist",
      ["tools/sim/replay.py", "warmup"], True, "gate"),
+    ("the same input twice under two hash seeds, byte for byte",
+     ["tools/verify_determinism.py"], False, "gate"),
+    ("and would that notice a set iterated into a list",
+     ["tools/verify_determinism.py", "--selftest"], False, "gate"),
     ("every documented figure, against the run that produces it",
      ["tools/verify_figures.py"], False, "gate"),
     ("and would that notice a document drifting from its tool",

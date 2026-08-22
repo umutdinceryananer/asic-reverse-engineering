@@ -121,9 +121,32 @@ silent. Problem 47: the cone's weight solve stopped at its first hit and printed
 one assignment as a derivation, when 24 of 40320 are equivalent — found because
 two independent derivations of the bit order disagreed.
 
-## Package 5 — IN PROGRESS. Provenance and environment honesty
-Tool pinning; an `open_pdks` test; the writeup skeleton; and the decision on
-whether `docs/references.md` is committed.
+## Package 5 — DONE, except the two items that are the author's
+Tool pinning; an `open_pdks` test; determinism; the packet's environment
+honesty; and the three homed audits. **The writeup and the decision on whether
+`docs/references.md` is committed are the author's and were left alone.**
+
+- **DONE. Tool pinning.** The container base is pinned by digest in
+  `docker/Dockerfile`. The apt packages are **recorded, not pinned** — each
+  image writes its own versions into a baked manifest at build time and
+  `tools/verify_toolchain.py` fails on drift against
+  `tools/TOOL_VERSIONS.recorded`. Demonstrated by editing the recording:
+  `DRIFT line 10 ... exit 1`. `verify_toolchain.py <target>` also stamps
+  `out/<target>/TOOL_VERSIONS`. The gap that remains: the container tools do
+  not stamp their own artifacts, which would mean editing five files no
+  package has admitted.
+- **DONE. The `open_pdks` test.** `tools/fetch_open_pdks.py` streams a
+  prebuilt `sky130A` from the `ciel` releases, pinned to open_pdks
+  `8afc8346`, and keeps 4.19 MB of the 64 MB it reads;
+  `tools/compare_libraries.py` diffs it against the upstream library.
+  **9 of 437 shared cells differ, and all three cell types the puzzle falls
+  back on are among them, on exactly the layers `docs/01` already records.**
+  `stage1_cells.py --library` answers 230/230 under both libraries on the warm
+  up. The author's one-line puzzle command and what each outcome means are in
+  `docs/01-cell-recognition.md`.
+- **DONE. Determinism.** `tools/verify_determinism.py` runs three cases under
+  `PYTHONHASHSEED=1` and `424242` and compares bytes; `--selftest` plants two
+  nondeterminisms and catches both.
 
 Added by Package 4, both out of its scope:
 

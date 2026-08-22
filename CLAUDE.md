@@ -96,6 +96,9 @@ python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
 .venv/bin/python -m pip install -r requirements.txt           # Linux, macOS
 python tools/fetch_pdk.py        # ~10 MB into pdk/, pinned to one commit
+python tools/fetch_open_pdks.py  # the same cells as open_pdks builds them,
+                                 # into pdk/open_pdks_sky130A/. 64 MB read,
+                                 # 4.19 MB kept. Never touches the above.
 git submodule update --init      # upstream puzzle files into puzzle/
 ```
 
@@ -117,7 +120,16 @@ under `docker run`. Not diagnosed, only worked around.
 Every stage takes a target, never a hard coded path.
 
 ```bash
+python tools/verify_toolchain.py warmup   # gate: the images' toolchain against
+                                          # tools/TOOL_VERSIONS.recorded, and
+                                          # stamps out/warmup/TOOL_VERSIONS
+python tools/compare_libraries.py         # gate: the two cell libraries, cell
+python tools/compare_libraries.py --selftest   # by cell, on the nm grid
+python tools/verify_determinism.py        # gate: three cases under two hash
+python tools/verify_determinism.py --selftest  # seeds, byte for byte
+
 python tools/stage1_cells.py warmup       # -> out/warmup/instances.json
+python tools/stage1_cells.py warmup --library pdk/open_pdks_sky130A
 python tools/stage2_nets.py  warmup       # -> out/warmup/netlist.{json,v}
 python tools/compare_def.py  warmup       # gate: 230/230 cells, 84/84 nets
 python tools/stage2_unionfind.py warmup   # gate: second extractor agrees, 86/86
@@ -199,7 +211,11 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 
 | Stage | Gate | Status |
 |---|---|---|
+| 0 | `verify_toolchain.py`: both images' baked manifests against `tools/TOOL_VERSIONS.recorded`; base pinned by digest, apt packages recorded and floating | passing |
 | 1 | `compare_def.py warmup`: 230/230 on cell type, position and orientation | passing |
+| 1 | `compare_libraries.py`: the upstream library against open_pdks `8afc8346`, 9 of 437 shared cells differ, all three of the puzzle's fallback cell types among them on the layers `docs/01` records; `--selftest` catches a 1 nm move and tells the signature from outside it | passing |
+| 1 | `stage1_cells.py warmup --library pdk/open_pdks_sky130A`: 230/230 under the alternate library too, no definition changes tier | passing |
+| — | `verify_determinism.py`: `registers.json`, `--compare` and `analyse()` on `scale_datapath` byte identical under `PYTHONHASHSEED` 1 and 424242; `--selftest` catches 2 of 2 planted | passing |
 | 2 | same tool: 84/84 signal nets matched connection by connection | passing |
 | 2 | `sim/run.py warmup`: all 65536 operand pairs, 15 successes, 0 mismatches | passing |
 | 2 | `sim/run.py puzzle`: 312 cycles of the VCD, 0 mismatches, success never high | passing |
@@ -226,6 +242,16 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 6 | `sim/replay.py warmup`: that trace reproduces against **stage 2's** netlist and the output is high at the predicted cycle | passing |
 
 ## Facts worth not rediscovering
+
+**The 22 fallback placements have a testable cause, and the machinery is
+built.** The upstream library and the same library as **open_pdks** builds it
+differ on 9 of 437 shared cells, and all three cell types the puzzle falls back
+on are among them, on exactly the layers `docs/01-cell-recognition.md` records:
+`o211a_2` poly and licon1, `conb_1` npc, `and4b_2` poly. Eight of the nine
+differences are confined to poly, licon1 and npc; the ninth moves on `122/16`
+pwell pin and is reported as outside that signature. **The warm up cannot test
+it** -- it places none of the nine, and answers 230/230 under both libraries.
+The author's command and what each outcome means are in `docs/01`.
 
 **PDK.** `sky130_fd_sc_hd`. Row height 2.720 um, site width 0.460 um. Layer map
 in `docs/00-environment.md`. Pin labels survive in the layouts on li1 (67/5) and
