@@ -159,6 +159,12 @@ python tools/stage4_registers.py --score  # gate: 117/133 exact, and NMI and
 python tools/stage4_registers.py --compare  # gate: five criteria, same key
 python tools/stage4_registers.py --selftest  # gate: the metrics against seven
                                           # hand computed rows
+python tools/verify_metrics.py            # gate: the same metrics against an
+python tools/verify_metrics.py --selftest # implementation sharing no code
+python tools/verify_grouping.py warmup    # gate: placement clustering and bit
+python tools/verify_grouping.py warmup --selftest   # order, against the netlist
+python tools/verify_figures.py            # gate: every documented figure against
+python tools/verify_figures.py --selftest # the run that produces it
 python tools/verify_blocks.py             # gate: stage 4 against the warm up's
                                           # DEF hierarchy. CURRENTLY FAILING
 python tools/stage4_cone.py puzzle        # the success condition, composed
@@ -209,6 +215,9 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 4 | `stage4_registers.py --score`: 117/133 exact beside a null model that gets 109/133; NMI 0.0014 and purity 0.5062 over the ten netlists whose truth has more than one class, where the same null model scores 0.0 and 0.5; every figure against a recording, and a move in either direction fails | passing, and it says the criterion is the null model |
 | 4 | `stage4_registers.py --compare`: five criteria against their recordings, and two checked demonstrations the scores cannot show | passing |
 | 4 | `stage4_registers.py --selftest`: seven hand computed NMI and purity rows reproduced, including both branches of the 0/0 convention | passing |
+| 4 | `verify_metrics.py`: NMI and purity recomputed from the joint entropy, agreeing on the hand table, on 4000 random partitions and on four invariants; `--selftest` catches 3 of 3 wrong implementations | passing |
+| 4 | `verify_grouping.py warmup`: single linkage against a brute force transitive closure at all 12 thresholds, determinism under 100 shuffles, every chain link checked against the graph; `--selftest` catches 4 of 4 | passing |
+| — | `verify_figures.py`: 14 document table rows matched by value against the runs, plus 25 registry figures; `--selftest` catches 4 of 4 | passing |
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |

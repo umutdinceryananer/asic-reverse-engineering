@@ -72,7 +72,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 46 | The block gate compared sizes, and would have passed the wrong eight bits | verification | understood |
 | 47 | The cone's weight solve printed one answer out of twenty four | verification | understood |
 | 48 | Three demonstrations that could not fail, two of them false as printed | verification | understood |
-| 49 | The review packet reported a stopped Docker as eleven failing gates | tooling | **open** |
+| 49 | The review packet reported a stopped Docker as eleven failing gates | tooling | understood |
 | 50 | Stage 6 modelled a set-and-clear flop two different ways | inversion | understood |
 
 Two remain unresolved: **1** and **4**.
@@ -1332,6 +1332,19 @@ a flow split that shatters the analogue, the family renamed away, the pass
 replaced by its own seed, a whole-register count contradicting its recording,
 and the 90-flop rows dropped so the derived number has to move — it prints 162.
 
+**The three audits are now tools.** They lived in a scratch directory, which
+made each of them a measurement that happened once — the very failure this
+register names elsewhere. `tools/verify_metrics.py` recomputes NMI from the joint
+entropy and purity from a different data structure, and puts both to 4000 random
+partitions and four invariants; `tools/verify_grouping.py` recomputes single
+linkage by brute force transitive closure at all twelve thresholds and checks
+every chain link against the graph; `tools/verify_figures.py` runs the
+container-free tools and checks every documented figure against the run that
+produces it, matching table rows **by value rather than by name** so a document
+may write `0.80` where a tool prints `0.8`. Each carries a `--selftest` that
+plants wrong implementations and confirms the audit notices: 3, 4 and 4
+corruptions caught respectively, with the subject checked to agree first.
+
 **And a sixth, in a different file, found by turning the same lens on it.**
 `verify_cone.cross_check` returns `"not applicable"` when stage 4 derived no bit
 order, and `run()` printed that verdict inside `RESULT: pass` and exited 0. A
@@ -1387,11 +1400,42 @@ write an index of zero circuits over a good one and `verify_corpus.py` then
 called 0/0 a pass. The fix there was to refuse to rewrite the index if any
 circuit failed. The packet has no equivalent.
 
-**Not fixed.** The repair belongs in `tools/review_packet.py` — a preflight that
-records whether the container runtime answered, and a distinct verdict for the
-rows that could not run — and Package 4's scope admitted that file for **rows
-only**. Queued for Package 5, where the provenance work already sits. Recorded
-here rather than fixed so it is not rediscovered.
+**Fixed, in Package 5.** `container_runtime()` establishes three things before
+any container row runs — that a `docker` executable exists, that the daemon
+answers, and that both images are built — and a row that needs one when there is
+none is **blocked**: a third state, neither pass nor FAIL, counted separately and
+stated at the top of the packet with the sentence *nothing about the pipeline can
+be concluded from their absence*.
+
+Which rows are container rows is re-derived from each tool's own source, the way
+`kind` already was, because that flag now decides whether a row is blocked or
+run. Asserted in one direction only: marking a row as needing a container when
+its tool never mentions docker is a definite error, while the converse is not
+decidable from source — **a tool is not a row**, and a container tool can have a
+mode that never reaches the container. That case is declared in `NATIVE_MODES`
+with the measurement behind it rather than inferred.
+
+The check earned its keep on its first run by finding exactly that ambiguity:
+`verify_functions.py` appears in two rows, the full run needing Icarus and
+`--selftest` not, and nothing in the source could tell them apart. Measured with
+the docker directory removed from PATH, `--selftest` exits 0, so the row is
+declared native and runs.
+
+Demonstrated both directions. Healthy: `--preflight` reports the server version
+and both images, 10 rows would be run, exit 0. With the docker directory removed
+from PATH:
+
+```
+  environment: no `docker` executable on PATH
+  15 gates and 1 report run, 1 failing, 10 blocked, 0 skipped
+    FAIL    stage 4, against the warm up's own hierarchy from the DEF
+    blocked stage 2, simulation against the reference, warm up
+    ... 9 more
+```
+
+**One FAIL, and it is the genuine one.** A blocked row never prints as FAIL and
+the real gate failure never prints as blocked, which are the two directions that
+had to hold.
 
 **Confirmed environmental, by measurement and not by inference.** Docker
 Desktop was restarted and the identical command re-run at the same commit:

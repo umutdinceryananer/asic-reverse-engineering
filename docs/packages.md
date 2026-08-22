@@ -121,16 +121,19 @@ silent. Problem 47: the cone's weight solve stopped at its first hit and printed
 one assignment as a derivation, when 24 of 40320 are equivalent — found because
 two independent derivations of the bit order disagreed.
 
-## Package 5 — QUEUED. Provenance
+## Package 5 — IN PROGRESS. Provenance and environment honesty
 Tool pinning; an `open_pdks` test; the writeup skeleton; and the decision on
 whether `docs/references.md` is committed.
 
 Added by Package 4, both out of its scope:
 
-- **`docs/problems.md` 49.** The review packet reports a stopped container
-  runtime as eleven failing gates, and `out/review.md` is what a reviewer
-  reads. It needs a preflight and a verdict distinct from **FAIL** for a row
-  that could not run. Package 4 admitted `review_packet.py` for rows only.
+- **DONE. `docs/problems.md` 49.** `review_packet.py` establishes the runtime
+  and both images before any container row runs, and a row that cannot run is
+  **blocked** — neither pass nor FAIL, counted separately, stated at the top.
+  The container flag is re-derived from each tool's source, in one direction,
+  with `NATIVE_MODES` declaring the container-free modes of container tools.
+  Demonstrated healthy (10 rows would run) and with docker off PATH (10
+  blocked, 1 FAIL, and the FAIL is the genuine one).
 - **Three audits that are not yet programs the repository runs.** Package 4's
   adversarial review lost five of its six lenses to a session limit; all five
   were then reconstructed by hand, and three of them as scripts. **Those
@@ -145,8 +148,15 @@ Added by Package 4, both out of its scope:
   | the documented figures | all **35** numeric claims in Package 4's diff, each against the run that is supposed to produce it, plus the reverse direction — a figure quoted in a doc that appears in no run |
   | spatial and bit order | single linkage recomputed by brute-force transitive closure at all 12 thresholds; the clustering identical under 100 shuffles of the flop and placement dicts; every consecutive pair of every chain verified against the netlist as a real `D <- Q` link and the only one; the unplaced branch exercised by removing a placement; and ripple depth shown to take the **longest** path by a chain-with-skip-edge, which discriminates it from shortest — a diamond does not |
 
-  All three passed. The middle one is close to what `review_packet.py` already
-  claims to do, and may belong there rather than beside it.
+  **DONE.** They are `tools/verify_metrics.py`, `tools/verify_grouping.py`
+  (which takes a target) and `tools/verify_figures.py`. Each is a gate with a
+  `--selftest` that plants wrong implementations and confirms the audit
+  notices — 3, 4 and 4 corruptions caught, subject checked to agree first — and
+  all six rows are in the packet. `verify_figures.py` matches document table
+  rows **by value, not by name**, so the two documents may name a criterion
+  three different ways and write `0.80` where the tool prints `0.8`; it states
+  its own limit, which is that the registry half does not follow a document
+  that gains a figure.
 
 ## Out of scope for workers, always
 Anything touching `puzzle/puzzle.gds`, `puzzle/example_inputs.vcd`,

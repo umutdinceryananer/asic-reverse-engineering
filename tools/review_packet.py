@@ -30,15 +30,24 @@ was rendered in the same **pass** cell as a real gate. `verify()` below
 re-derives what this file claims and refuses to write the packet if a claim
 does not hold.
 
+**A dead environment is not a failing gate.** Stopping Docker Desktop used to
+turn eleven of these rows red, ten of them for want of a runtime rather than for
+anything they had asserted, in the one artifact a reviewer reads. The rows that
+need a container are marked, the runtime and both images are established before
+any of them runs, and a row that could not run is **blocked** -- a third state
+that is neither pass nor FAIL and is counted separately. `docs/problems.md` 49.
+
 Usage:
     python tools/review_packet.py                 # -> out/review.md
     python tools/review_packet.py --quick         # skip the container gates
+    python tools/review_packet.py --preflight     # just the environment probe
 """
 
 import ast
 import io
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -46,6 +55,31 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 OUT = "out/review.md"
+
+# The images the container rows run in. Named here so the preflight can
+# establish they exist, rather than each row discovering their absence
+# separately and reporting it as its own failure.
+IMAGES = ("gds-teardown-sim:latest", "gds-teardown-eda:latest")
+
+# Rows that run a container tool in a mode which needs no container.
+#
+# The `container` flag decides whether a row is blocked or run, and it is
+# re-derived from the tool's source below -- but a tool is not a row. A tool
+# whose source mentions docker may still have a mode that never reaches it, and
+# no reading of the source can settle which. `verify_functions.py` is exactly
+# that: the full run compiles the PDK's behavioural models with Icarus, and
+# `--selftest` compares parsers in process.
+#
+# So the ambiguity is declared rather than inferred, and the declaration carries
+# the measurement that justifies it. **Measured**: with the `docker` directory
+# removed from PATH, `verify_functions.py --selftest` runs to completion and
+# exits 0. If that ever stops being true the row goes red when the daemon is
+# down, which is visible and correct -- it is the silent case this file exists
+# to remove.
+NATIVE_MODES = {
+    ("tools/verify_functions.py", "--selftest"):
+        "compares parsers in process; measured to exit 0 with docker off PATH",
+}
 
 # Every gate, in the order the pipeline runs. `container` marks the ones that
 # need Docker, so a reviewer without it still gets the rest.
@@ -89,6 +123,14 @@ GATES = [
      ["tools/verify_functions.py", "--selftest"], False, "gate"),
     ("stage 4, the grouping metrics against a hand computed table",
      ["tools/stage4_registers.py", "--selftest"], False, "gate"),
+    ("stage 4, the same metrics against an implementation sharing no code",
+     ["tools/verify_metrics.py"], False, "gate"),
+    ("stage 4, and would that audit notice a wrong metric",
+     ["tools/verify_metrics.py", "--selftest"], False, "gate"),
+    ("stage 4, placement clustering and bit order against the netlist",
+     ["tools/verify_grouping.py", "warmup"], False, "gate"),
+    ("stage 4, and would that audit notice a wrong derivation",
+     ["tools/verify_grouping.py", "warmup", "--selftest"], False, "gate"),
     ("stage 4, register grouping against the corpus",
      ["tools/stage4_registers.py", "--score"], False, "gate"),
     ("stage 4, the same criteria compared head to head",
@@ -110,6 +152,10 @@ GATES = [
       "out/warmup/solution_post_reset.json"], True, "gate"),
     ("stage 6, and that trace replayed through stage 2's netlist",
      ["tools/sim/replay.py", "warmup"], True, "gate"),
+    ("every documented figure, against the run that produces it",
+     ["tools/verify_figures.py"], False, "gate"),
+    ("and would that notice a document drifting from its tool",
+     ["tools/verify_figures.py", "--selftest"], False, "gate"),
     ("the size bound on what the corpus could ever name",
      ["tools/corpus_reach.py", "puzzle"], False, "report"),
 ]
@@ -332,6 +378,63 @@ def can_exit_non_zero(path):
     return False
 
 
+
+
+def container_runtime(timeout=60):
+    """Is there a container runtime, and are both images built?
+
+    Returns `(ok, why)`. `why` is printed whichever way it goes, because "the
+    environment was fine" is worth as much to a reviewer as the reason it was
+    not -- a packet with no container rows and no explanation looks the same as
+    a packet whose author skipped them.
+
+    Three separate questions, because they fail differently and a reviewer
+    needs to know which: is there a `docker` executable at all, does the daemon
+    answer, and are the two images built. The middle one is what actually
+    happened -- Docker Desktop stopped while the binary stayed on PATH.
+    """
+    if shutil.which("docker") is None:
+        return False, "no `docker` executable on PATH"
+    try:
+        probe = subprocess.run(
+            ["docker", "version", "--format", "{{.Server.Version}}"],
+            capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError) as error:
+        return False, f"`docker version` could not be run: {error}"
+    if probe.returncode != 0:
+        said = (probe.stderr or probe.stdout or "").strip().splitlines()
+        return False, ("the daemon did not answer: " +
+                       (said[0] if said else "no output"))
+    server = probe.stdout.strip() or "an unnamed version"
+    missing = []
+    for image in IMAGES:
+        try:
+            got = subprocess.run(
+                ["docker", "image", "inspect", image, "--format", "{{.Id}}"],
+                capture_output=True, text=True, timeout=timeout)
+        except (OSError, subprocess.SubprocessError) as error:
+            return False, f"`docker image inspect {image}` failed: {error}"
+        if got.returncode != 0:
+            missing.append(image)
+    if missing:
+        return False, (f"the daemon answers, but {count(len(missing), 'image')} "
+                       f"not built: {', '.join(missing)}. See the Environment "
+                       f"section of CLAUDE.md")
+    return True, f"docker server {server}, both images present"
+
+
+def uses_container(path):
+    """Does this tool's own source name a container runtime?
+
+    The same discipline as `can_exit_non_zero`: the `container` column is
+    re-derived from the tool rather than trusted, because it now decides
+    whether a row is **blocked** or run. A row wrongly marked would be blocked
+    when it should have run; a row wrongly unmarked would go red when the
+    daemon stopped, which is the defect this preflight exists to remove.
+    """
+    return any("docker" in text for text in code_strings(path))
+
+
 def count(number, noun):
     """`1 report`, `17 gates`. The summary line read "1 reports run"."""
     return f"{number} {noun}" + ("" if number == 1 else "s")
@@ -409,7 +512,7 @@ def verify():
                             f"not in READERS")
 
     # Is each row's declared kind what its own source says it is?
-    for _, command, _, kind in GATES:
+    for _, command, container, kind in GATES:
         tool = command[0]
         if kind not in ("gate", "report"):
             problems.append(f"{tool}: unknown kind {kind!r}")
@@ -418,6 +521,31 @@ def verify():
                 f"{tool} is declared a {kind} and its source disagrees: a "
                 f"literal non-zero exit is "
                 f"{'present' if kind == 'report' else 'absent'}")
+        # And is the container flag what its own source says? This one decides
+        # whether a row is blocked or run, so trusting the word written in the
+        # table would put the preflight's honesty on the author's memory.
+        #
+        # Asserted in one direction only, because a tool is not a row. Marking
+        # a row as needing a container when the tool never mentions one is a
+        # definite error: the row would be blocked for no reason. The converse
+        # is not decidable from source -- a container tool can have a mode that
+        # never reaches the container -- so it must be declared in
+        # NATIVE_MODES, which turns an accident into a decision.
+        mode = tuple(command)
+        if container and not uses_container(tool):
+            problems.append(
+                f"{tool} is declared a container row and its source never "
+                f"mentions docker, so the row would be blocked for no reason")
+        elif not container and uses_container(tool):
+            key = (tool, command[1] if len(command) > 1 else "")
+            if key not in NATIVE_MODES:
+                problems.append(
+                    f"{' '.join(command)} is declared a native row and "
+                    f"{tool} does reference docker. If that mode really needs "
+                    f"no container, declare it in NATIVE_MODES with the "
+                    f"evidence; otherwise mark the row as a container row, or "
+                    f"it will go red rather than blocked when the daemon is "
+                    f"down")
     return problems
 
 
@@ -526,27 +654,65 @@ def main(quick=False):
       "of its modes reads as a\ngate in every row that runs it, including a "
       "mode that cannot fail. Read the column\nas an upper bound on what the "
       "row asserts.\n\n")
+    if NATIVE_MODES:
+        w("The same is true of the container column, in the other direction, "
+          "and there it\nhad to be declared rather than derived. These rows "
+          "run a tool that does use a\ncontainer, in a mode that does not, so "
+          "they are run rather than blocked:\n\n")
+        for (tool, mode), why in sorted(NATIVE_MODES.items()):
+            w(f"* `{tool} {mode}` -- {why}\n")
+        w("\n")
+    # The preflight, before anything is called a failure for the want of a
+    # runtime. `docs/problems.md` 49.
+    if quick:
+        container_ok, container_why = False, "not probed: --quick skips them"
+    else:
+        container_ok, container_why = container_runtime()
+    w("**The environment, established before any row ran.** A row marked as "
+      "needing a\ncontainer is **blocked** rather than run when there is no "
+      "runtime to run it in --\na third state, neither pass nor FAIL, counted "
+      "separately in the summary. Which\nrows are container rows is re-derived "
+      "from each tool's own source, not taken from\nthe table, so a blocked "
+      "row cannot be a native gate hiding and a red row cannot be\na container "
+      "gate that never started.\n\n")
+    w(f"    container runtime: {'available' if container_ok else 'UNAVAILABLE'}"
+      f" -- {container_why}\n\n")
+    if not container_ok and not quick:
+        w("**Every container row below is blocked, and none of them asserted "
+          "anything.**\nNothing about the pipeline can be concluded from their "
+          "absence. Bring the\nruntime up and rerun before reading this packet "
+          "as a verdict.\n\n")
+
     results = []
     for title, command, needs_container, kind in GATES:
         if quick and needs_container:
-            results.append((title, command, kind, None, "", "", 0.0))
+            results.append((title, command, kind, None, "skipped", "", "", 0.0))
+            continue
+        if needs_container and not container_ok:
+            results.append((title, command, kind, None, "**blocked**", "", "",
+                            0.0))
             continue
         code, output, errors, seconds = shell(command)
-        results.append((title, command, kind, code, output, errors, seconds))
-
-    w("| Row | Kind | Exit | Seconds |\n|---|---|---|---|\n")
-    for title, command, kind, code, output, errors, seconds in results:
-        if code is None:
-            state = "skipped"
-        elif kind == "report":
+        if kind == "report":
             state = "report" if code == 0 else f"**REPORT DIED ({code})**"
         else:
             state = "**pass**" if code == 0 else f"**FAIL ({code})**"
+        results.append((title, command, kind, code, state, output, errors,
+                        seconds))
+
+    w("| Row | Kind | Exit | Seconds |\n|---|---|---|---|\n")
+    for title, command, kind, code, state, output, errors, seconds in results:
         w(f"| {title} | {kind} | {state} | {seconds:.1f} |\n")
     w("\n")
 
-    for title, command, kind, code, output, errors, seconds in results:
+    for title, command, kind, code, state, output, errors, seconds in results:
         w(f"### {title}\n\n")
+        if code is None:
+            w(f"```\n$ python {' '.join(command)}\n")
+            w(f"NOT RUN -- {state.strip('*')}: {container_why}\n")
+            w("This row asserted nothing. It is not a pass and it is not a "
+              "failure.\n```\n\n")
+            continue
         w(f"```\n$ python {' '.join(command)}\n")
         text = output.strip()
         if len(text) > 6000:
@@ -647,19 +813,44 @@ def main(quick=False):
     os.makedirs("out", exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as handle:
         handle.write(out.getvalue())
-    gates = [r for r in results if r[2] == "gate"]
-    reports = [r for r in results if r[2] == "report"]
-    failed = [r[0] for r in results if r[3] not in (0, None)]
+    ran = [r for r in results if r[3] is not None]
+    gates = [r for r in ran if r[2] == "gate"]
+    reports = [r for r in ran if r[2] == "report"]
+    failed = [r[0] for r in ran if r[3] != 0]
+    blocked = [r[0] for r in results if r[4] == "**blocked**"]
+    skipped = [r[0] for r in results if r[4] == "skipped"]
     print(f"wrote {OUT}, {len(out.getvalue())} bytes")
+    print(f"  environment: {container_why}")
     print(f"  {count(len(gates), 'gate')} and {count(len(reports), 'report')} "
-          f"run, {len(failed)} failing")
+          f"run, {len(failed)} failing, {len(blocked)} blocked, "
+          f"{len(skipped)} skipped")
     for title in failed:
-        print(f"    FAIL {title}")
+        print(f"    FAIL    {title}")
+    for title in blocked:
+        print(f"    blocked {title}")
+    if blocked:
+        print(f"  A blocked row asserted nothing. It is not a failure, and "
+              f"nothing about the")
+        print(f"  pipeline follows from its absence.")
     return 0
+
+
+def preflight_only():
+    ok, why = container_runtime()
+    print(f"container runtime: {'available' if ok else 'UNAVAILABLE'}")
+    print(f"  {why}")
+    print(f"  images: {', '.join(IMAGES)}")
+    rows = [t for t, _c, container, _k in GATES if container]
+    print(f"  {count(len(rows), 'row')} would be "
+          f"{'run' if ok else 'blocked'}")
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args == ["--preflight"]:
+        sys.exit(preflight_only())
     if args not in ([], ["--quick"]):
-        sys.exit("usage: python tools/review_packet.py [--quick]")
+        sys.exit("usage: python tools/review_packet.py "
+                 "[--quick | --preflight]")
     sys.exit(main(quick=bool(args)))
