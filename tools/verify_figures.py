@@ -62,23 +62,23 @@ TABLE_DOCS = ("docs/04-detectors.md", "docs/packages.md")
 # Figures that are not in a table. A pattern is a regex over that run's output.
 FIGURES = [
     ("the null model that returns one group", "score",
-     r"one group, and do nothing\s+109/133"),
+     r"one group, and do nothing\s+109/137"),
     ("the null model that splits every flop", "score",
-     r"every flop its own register\s+7/133"),
+     r"every flop its own register\s+7/137"),
     ("netlists with a flop level membership", "score",
-     r"membership ground truth on 119/133"),
+     r"membership ground truth on 123/137"),
     ("netlists on the 0/0 convention branch", "score",
      r"109\s+one class, answer agrees"),
     ("netlists with no membership at all", "score", r"14\s+no membership"),
     ("netlists whose truth has more than one class", "compare",
-     r"over the 10 netlists"),
+     r"over the 14 netlists"),
     ("hand computed metric rows", "selftest", r"7/7 rows reproduced"),
     ("the NMI normalisation, named in the output", "selftest",
      r"arithmetic mean, 2 I\(C;T\) / \(H\(C\) \+ H\(T\)\)"),
     ("groups spanning two seed groups", "compare",
      r"groups spanning two seed groups\s+0"),
     ("netlists the flow split properly refines", "compare",
-     r"netlists it refines properly\s+42"),
+     r"netlists it refines properly\s+46"),
     ("the coarsest control signature group on the R0 analogue", "compare",
      r"one group of 82"),
     ("whole registers recovered, per criterion", "compare",
@@ -110,7 +110,7 @@ FIGURES = [
     ("holds declared against holds found", "corpus",
      r"holds declared 46: found structurally 12"),
     ("the corpus size and rule count", "corpus",
-     r"97 circuits as 193 netlists.*12 rules, 738 uses"),
+     r"99 circuits as 197 netlists.*12 rules, 762 uses"),
 ]
 
 NUMBER = re.compile(r"^-?\d+(?:\.\d+)?$")

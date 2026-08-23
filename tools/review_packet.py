@@ -158,6 +158,12 @@ GATES = [
       "out/warmup/solution_post_reset.json"], True, "gate"),
     ("stage 6, and that trace replayed through stage 2's netlist",
      ["tools/sim/replay.py", "warmup"], True, "gate"),
+    ("stage 7, the warm up's trace replayed and every output read back",
+     ["tools/stage7_output.py", "warmup", "--extend", "6"], True, "gate"),
+    ("stage 7, the corpus streamers decoded against the strings they declare",
+     ["tools/verify_output.py"], True, "gate"),
+    ("stage 7, and would that notice a byte wrong on either side",
+     ["tools/verify_output.py", "--selftest"], True, "gate"),
     ("the same input twice under two hash seeds, byte for byte",
      ["tools/verify_determinism.py"], False, "gate"),
     ("and would that notice a set iterated into a list",
@@ -433,8 +439,44 @@ def container_runtime(timeout=60):
     return True, f"docker server {server}, both images present"
 
 
+def calls_the_harness(path):
+    """Does this tool reach a container through `tools/sim/harness.py`?
+
+    Package 6 moved the Icarus invocation out of `sim/replay.py` and into a
+    shared driver, so that stage 7 could ask a different question of the same
+    simulation. The word `docker` left `replay.py` with it, and the check below
+    -- which had been reading the tool's own strings since Package 5 -- began
+    reporting a container row that mentions no container. The row was right and
+    the derivation had gone stale, which is exactly the direction this file
+    exists to catch, so it now follows the one import that carries a container
+    behind it.
+
+    Deliberately **not** a transitive walk over every local import. Measured:
+    that marks `stage3_crosscheck.py` as needing Docker, because it imports
+    `stage3_graph` for a parser while never running Yosys, and three healthy
+    rows would start being blocked. What is decidable is narrower and is what is
+    asked here: the tool imports the harness, and it names the harness's runner.
+    """
+    try:
+        tree = ast.parse(open(path, encoding="utf-8").read())
+    except SyntaxError:
+        return False
+    imported = False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported |= any(alias.name.split(".")[-1] == "harness"
+                            for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported |= node.module.split(".")[-1] == "harness"
+    if not imported:
+        return False
+    return any((isinstance(node, ast.Name) and node.id == "icarus")
+               or (isinstance(node, ast.Attribute) and node.attr == "icarus")
+               for node in ast.walk(tree))
+
+
 def uses_container(path):
-    """Does this tool's own source name a container runtime?
+    """Does this tool reach a container runtime, directly or through the harness?
 
     The same discipline as `can_exit_non_zero`: the `container` column is
     re-derived from the tool rather than trusted, because it now decides
@@ -442,7 +484,8 @@ def uses_container(path):
     when it should have run; a row wrongly unmarked would go red when the
     daemon stopped, which is the defect this preflight exists to remove.
     """
-    return any("docker" in text for text in code_strings(path))
+    return (any("docker" in text for text in code_strings(path))
+            or calls_the_harness(path))
 
 
 def count(number, noun):

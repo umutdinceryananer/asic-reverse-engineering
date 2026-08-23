@@ -75,6 +75,8 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 49 | The review packet reported a stopped Docker as eleven failing gates | tooling | understood |
 | 50 | Stage 6 modelled a set-and-clear flop two different ways | inversion | understood |
 | 51 | Three known-bad inputs that could not be bad, on the warm up | verification | understood |
+| 52 | The replay bench declared every output a scalar, and the puzzle has a bus | inversion | understood |
+| 53 | Moving the Icarus driver made the packet's container column go stale | tooling | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1536,9 +1538,74 @@ that was never able to corrupt is not a demonstration.**
 
 ---
 
+### 52. The replay bench declared every output a scalar, and the puzzle has a bus
+
+**Symptom.** None, on either target that had been run. `tools/sim/replay.py`
+wrote `wire S;` for the warm up's output and the gate passed 65536 times.
+
+**What was wrong.** The testbench declared one wire per output port and took
+every port to be one bit wide. The warm up's only output *is* one bit, so the
+assumption and the truth agreed and nothing could tell them apart. The puzzle's
+`O[7:0]` is eight, and `wire O;` connected to `.O(O)` would have driven bit 0
+and left the other seven floating -- a replay of the author's own puzzle trace
+reading `x` on seven eighths of the output bus, at the last step of the
+pipeline, with no gate anywhere able to notice because no gate runs on the
+puzzle.
+
+**How it surfaced.** Not by review and not by a check. Stage 7 needed the same
+simulation to answer a different question, so the Icarus invocation moved into
+`tools/sim/harness.py` and a second tool was written against it -- and that tool
+had to read a bus, so it needed the widths, so it read them from the netlist.
+Writing the second consumer is what made the first one's assumption visible.
+
+**Fix.** `harness.port_widths` reads every port's direction and width out of the
+netlist's own declarations, and both testbench writers take their wire widths
+from it. Understood: stage 2's writer emits `output [7:0] O;` for a bus and a
+bare `output S;` for a scalar, so the range is the fact and it was simply not
+being read.
+
+**Verdict: understood.** Worth an entry for what it says about the warm up. Its
+value as a target is that the answer is known; its cost is that it is *small and
+uniform*, and every place the puzzle is wider than it is a place where an
+assumption can hold on the warm up for the whole life of the project. Problem 51
+is the same sentence about corruptions. This is it about the design under test.
+
+---
+
+### 53. Moving the Icarus driver made the packet's container column go stale
+
+**Symptom.** `tools/review_packet.py`'s `verify()` refused to write the packet:
+*`tools/sim/replay.py` is declared a container row and its source never mentions
+docker, so the row would be blocked for no reason.*
+
+**Cause.** The claim was right and the derivation had gone stale within one
+commit. Package 5 made the container column *derived* rather than trusted --
+`uses_container` asks whether the word `docker` appears in the tool's own string
+literals -- because that column decides whether a row is **blocked** or **run**.
+Package 6 then moved the `docker run` out of `replay.py` into a shared harness so
+stage 7 could ask a different question of the same simulation. The tool still
+needs a container; the word that proved it left the file.
+
+**The fix that was measured and rejected.** Following every local import
+transitively is the obvious generalisation and is wrong: it marks
+`stage3_crosscheck.py` as needing Docker, because it imports `stage3_graph` for
+a parser and never runs Yosys, and three healthy rows would start being blocked
+for no reason -- the same defect in the other direction. What is decidable
+without over-reaching is narrower: does the tool import the harness, and does it
+name the harness's runner. Three rows flip, and they are the three that
+simulate.
+
+**Verdict: understood**, and the system worked. The stale derivation did not
+produce a wrong packet -- it produced a refusal to write one, which is what
+`verify()` is for. Worth recording because of *when* it fired: a derived claim
+is at its most fragile in the commit that moves the code it derives from, and
+that is exactly the commit where nobody is looking at it.
+
+---
+
 ## The shapes these fall into
 
-Fifty one problems, six recurring shapes.
+Fifty three problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

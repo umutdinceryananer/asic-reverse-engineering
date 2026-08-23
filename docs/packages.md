@@ -33,8 +33,9 @@ visibly right. `verify_annotations.py` holds the warm up's annotations to
 netlists: the two undeclared enables, `warmup_twin`, and the warm up's own RTL.
 Commits e9560c0, 56ea75f, 897903b, b7e983c, 4602a40, fe96f15, 53deadb.
 
-Final numbers: corpus 97 circuits / 193 netlists, `verify_corpus` 12 rules and
-738 uses; `--score` 117/133 beside a null model of 109/133, and 8 of the 24
+Final numbers **as Package 3 left them**; Package 6 added the `streamer`
+family and every one of them moved, which is recorded there. Corpus 97 circuits
+/ 193 netlists, `verify_corpus` 12 rules and 738 uses; `--score` 117/133 beside a null model of 109/133, and 8 of the 24
 netlists that declare more than one register; `--compare` 117 / 97 / 80. Holds
 **declared 46, found structurally 12** -- the other 34 are accounted for by name
 in `ENABLE_HIDDEN_BY`, five mechanisms, which is the corpus admitting how many
@@ -77,27 +78,35 @@ is made from.
 - **F.** The authority recorded: the AI rule's three sentences and the two
   hints, each with its source.
 
-**The matrix.** Exact match is over all 133 netlists; NMI and purity over the
-ten whose ground truth has more than one class. The warm up columns are
+**The matrix.** Exact match is over all 137 netlists; NMI and purity over the
+fourteen whose ground truth has more than one class. The warm up columns are
 membership, not sizes.
 
 | Criterion | exact | NMI | purity | warm up | warm up NMI |
 |---|---|---|---|---|---|
-| control signature *(committed)* | **117** | 0.0014 | 0.5062 | `[16]` wrong | 0.000 |
-| colour refinement | 97 | 0.1867 | 0.75 | `[16]` wrong | 0.000 |
-| + flow split (DANA) | 91 | 0.3733 | 1.0 | 16 singletons | 0.400 |
-| + connected components | 80 | **0.5476** | 0.80 | **`[8, 8]` correct** | **1.000** |
-| + components + flow split | 49 | 0.3733 | 1.0 | 16 singletons | 0.400 |
+| control signature *(committed)* | **117** | 0.001 | 0.5525 | `[16]` wrong | 0.000 |
+| colour refinement | 101 | 0.419 | 0.8214 | `[16]` wrong | 0.000 |
+| + flow split (DANA) | 91 | **0.5019** | 1.0 | 16 singletons | 0.400 |
+| + connected components | 80 | 0.3911 | 0.7623 | **`[8, 8]` correct** | **1.000** |
+| + components + flow split | 49 | 0.5019 | 1.0 | 16 singletons | 0.400 |
 | placement locality | *n/a* | *n/a* | *n/a* | **`[8, 8]` correct** | **1.000** |
-| *null: one group* | *109* | *0.0* | *0.5* | `[16]` | 0.000 |
-| *null: every flop its own* | *7* | *0.3733* | *1.0* | 16 singletons | 0.400 |
+| *null: one group* | *109* | *0.0* | *0.5481* | `[16]` | 0.000 |
+| *null: every flop its own* | *7* | *0.3879* | *1.0* | 16 singletons | 0.400 |
 | *null: interleaved, right sizes* | — | — | — | `[8, 8]` **wrong members** | 0.000 |
+
+**Updated by Package 6**, which added two circuits for stage 7 to be gated
+against and moved every figure in this table. What did *not* move: the shape of
+the disagreement, and which criterion is committed. What did: the NMI column's
+ordering. See Package 6 below and `docs/04-detectors.md`.
 
 Four things for the decision, none of them a recommendation:
 
-1. **Exact match and NMI rank the criteria in opposite orders**, and on the ten
-   netlists that ask the question the committed criterion scores the one-group
-   null model's numbers to three decimal places.
+1. **Exact match and NMI rank the criteria in opposite orders**, and on the
+   fourteen netlists that ask the question the committed criterion scores the
+   one-group null model's NMI to three decimal places. **Which criterion tops
+   the NMI column is not stable**: four netlists added in Package 6 moved it
+   from connected components to the flow split, which is the strongest argument
+   in this table for reporting a residue rather than committing a criterion.
 2. **DANA's split pass is not the fix its own paper's sentence predicts.** Run
    to a fixpoint it is the all-singletons degenerate on every shift register.
    It has two properties nothing else here has: it does not split a plain
@@ -180,6 +189,81 @@ Added by Package 4, both out of its scope:
   three different ways and write `0.80` where the tool prints `0.8`; it states
   its own limit, which is that the registry half does not follow a document
   that gains a figure.
+
+## Package 6 — DONE. Stage 7, output extraction
+The last unbuilt stage of `docs/solver-pipeline.md`: turning a winning input
+sequence into the string the chip emits. The submission's answer field asks for
+*"the string value you recovered from the chip"*, and the announcement says the
+output generator is *"safe to ignore during your initial reverse-engineering
+steps, but you'll need to simulate it to get your final answer."* So stage 7 is
+not another solver. It is the simulation stage 6's replay already runs, asked a
+different question.
+
+- **DONE. One driver, not two.** `tools/sim/harness.py` holds the cycle model
+  and the Icarus invocation; `sim/replay.py` and `stage7_output.py` both call
+  it, and `replay.py` keeps its own testbench because asserting a property is a
+  different job from sampling a bus. Stage 2's `run.py` is left alone — its
+  testbenches are hand written per target — and contributes `model_files`.
+- **DONE. `tools/stage7_output.py`.** Replays a solution through **stage 2's**
+  netlist, keeps clocking for `--extend N` cycles, and reports what every output
+  carried per cycle: the table, the raw bytes, and the printable-ASCII rendering
+  with everything else escaped. Writes `out/<target>/output.json`. **Both knobs
+  are printed with every result, defaults included**, because neither can be
+  derived from anything this repository has read. Measured on the warm up, the
+  same trace extended four cycles three ways gives three different answers:
+  `hold-last` leaves `S` at `1 1 1 1`, `zeros` drops `rst_n` and clears it to
+  `0 0 0 0`, and `en=1,A=1` gives `1 0 0 0`.
+- **DONE. The ground truth.** The corpus gained a `streamer` family: two
+  circuits that emit a declared ASCII string one byte per cycle after a one
+  cycle trigger, then idle. `HELLO WORLD` at 11 bytes and `OK\a 42\n` at 7,
+  the second carrying `0x07` and `0x0a` so the escape path is exercised. Their
+  flop counts are **derived from the string before synthesis** — every ASCII
+  byte has bit 7 clear, so `opt` removes that flop and `O[7]` arrives from a
+  `conb_1` — and stage 3 finds exactly what was declared, `[7, 4]` and `[7, 3]`.
+  Corpus: **99 circuits / 197 netlists**, `verify_corpus` 12 rules and 762 uses.
+- **DONE. The gate.** `tools/verify_output.py` drives the declared stimulus,
+  decodes, and compares **bytes** against the answer key for every mapping of
+  every streamer — not text against text, which would compare the decoder with
+  itself. The rendering is checked by **round trip** through `unescape`, a
+  second implementation sharing no code with `stage7_output.escape`. Three
+  corruptions in `--selftest`: a byte wrong in the stream, a byte wrong in the
+  answer key, and a raw control byte left unescaped. 3 of 3 caught.
+- **DONE. `docs/07-output.md`.** The author's one-liner, what to look at first
+  and in what order, and what stage 7 does not do — it never interprets the
+  string.
+
+**What the corpus change moved, and the finding in it.** The two streamers
+declare two registers each, so four of the fourteen netlists whose ground truth
+has more than one class are now theirs. Every figure in Package 4's matrix is
+re-recorded here, and one of them is a result rather than a bookkeeping entry:
+
+> On a streamer, **colour refinement is exactly right and connected components
+> answers one group.** The index register feeds the ROM that feeds the output
+> register, so the two are genuinely connected. That is the mirror of the warm
+> up, where components is right and refinement is wrong.
+
+Connected components went from 0.5476 NMI over ten netlists to 0.3911 over
+fourteen, the flow split took the top of the column at 0.5019, and refinement
+moved from third to second on exact match. Nothing was tuned; the ordering moved
+by more than its own precision when four netlists arrived. **The ranking the
+author was going to decide from is less stable than one reading of it suggested,
+and that is worth more than the ranking was.**
+
+Two smaller findings came out of it rather than in. **Problem 52**: `replay.py`
+declared every output port as a scalar wire, invisible on a warm up whose only
+output is one bit, and it would have left seven eighths of the puzzle's `O[7:0]`
+floating at the last step of the pipeline. It surfaced because writing a second
+consumer of the same simulation forced the widths to be read from the netlist.
+**Problem 53**: moving the `docker run` into the harness made
+`review_packet.uses_container` — which decides whether a row is blocked or run —
+go stale inside one commit, and `verify()` refused to write the packet, which is
+what it is for.
+
+Edited outside the package's stated file list, and named here rather than
+quietly: `docs/04-detectors.md` and `tools/verify_figures.py`. Both carry
+recorded corpus figures — `verify_figures` matches `docs/04`'s criteria table
+against the runs **by value** — so a corpus change that left them alone would
+have failed the gate rather than passed it.
 
 ## Out of scope for workers, always
 Anything touching `puzzle/puzzle.gds`, `puzzle/example_inputs.vcd`,

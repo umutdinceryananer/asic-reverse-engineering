@@ -21,13 +21,14 @@ case.
 | 2, connectivity | **done** to spec, all five gates pass |
 | 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | steps 1 and 2 built, **register grouping fails the warm up's own hierarchy**. Naming not started |
-| 5, synthetic corpus | **done**, 97 circuits / 193 netlists, gated by `verify_corpus.py` |
+| 5, synthetic corpus | **done**, 99 circuits / 197 netlists, gated by `verify_corpus.py` |
 | 6, inversion | **machinery built and gated on `warmup`**: BMC out of `graph.json`, trace replayed in simulation. The puzzle run is the author's |
-| 7, output extraction | not started |
+| 7, output extraction | **machinery built and gated on `synth`**: the trace replayed, the output bus read, the bytes decoded. Gated against two corpus circuits whose string is declared before the run. The puzzle run is the author's |
 
 Lessons written: `docs/lectures/00`, `01`, `02`, `03`. The next is owed once
 stage 5's corpus exists and stage 4's detectors pass against it, and one is
-owed for stage 6 as well. Lessons are written after the gates, never before.
+owed for stage 6 and one for stage 7 as well. Lessons are written after the
+gates, never before.
 
 ## Rules that bind this repository
 
@@ -155,9 +156,9 @@ python tools/verify_annotations.py warmup # gate: stage 3's annotations against
 python tools/verify_equiv.py warmup       # gate: the recovered netlist proven
                                           # equal to 01_netlist.v, 153 points
 
-python tools/stage5_corpus.py             # 97 circuits, 193 netlists -> synth/
+python tools/stage5_corpus.py             # 99 circuits, 197 netlists -> synth/
 python tools/stage5_corpus.py --list      # the catalogue, without synthesising
-python tools/verify_corpus.py             # gate: 12 rules, 738 uses vs stage 3,
+python tools/verify_corpus.py             # gate: 12 rules, 762 uses vs stage 3,
                                           # and fails if any graph is missing
 python tools/verify_corpus.py --selftest  # gate: 15 corruptions, and every one
                                           # of the 12 rules tripped by one
@@ -166,7 +167,7 @@ python tools/corpus_reach.py puzzle       # not a gate: the size bound on what
 
 python tools/stage4_registers.py warmup   # -> out/warmup/registers.json
 python tools/stage4_registers.py puzzle
-python tools/stage4_registers.py --score  # gate: 117/133 exact, and NMI and
+python tools/stage4_registers.py --score  # gate: 117/137 exact, and NMI and
                                           # purity, against a recording
 python tools/stage4_registers.py --compare  # gate: five criteria, same key
 python tools/stage4_registers.py --selftest  # gate: the metrics against seven
@@ -201,6 +202,19 @@ python tools/stage6_invert.py warmup --depth 6   # a bound below the answer:
                                           # exits 1 and says how deep it looked
 python tools/sim/replay.py warmup         # gate: that trace back through stage
                                           # 2's netlist in Icarus
+
+python tools/stage7_output.py warmup      # the trace replayed and every output
+                                          # read back, -> out/warmup/output.json
+python tools/stage7_output.py warmup --extend 6
+python tools/stage7_output.py warmup --extend 6 --after zeros
+                                          # --after is hold-last | zeros |
+                                          # port=value,... and is PRINTED, never
+                                          # assumed: the three give three
+                                          # different answers past cycle 8
+python tools/verify_output.py             # gate: the corpus streamers decoded
+                                          # against the strings they declare
+python tools/verify_output.py --selftest  # gate: a byte wrong on either side,
+                                          # and a control byte left unescaped
 ```
 
 Targets: `warmup` (full source and DEF as ground truth), `synth` (generated
@@ -225,10 +239,10 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `stage3_crosscheck.py --selftest`: all 17 corruptions caught, one per field group; four fields the warm up can only be made to disagree about are named | passing |
 | 3 | `verify_annotations.py warmup`: 16 flops, all holding on `en` low, async `rst_n` low, one clock root, no sets, against `00_source.v` | passing |
 | 4 | `verify_cone.py warmup`: the composed listing proven equal to `a + b == 496` over all 65536 assignments, by an evaluator sharing no code; and stage 4's structural bit order among the 24 weight assignments that make it so | passing |
-| 5 | `verify_corpus.py`: 12 rules, 738 uses against what stage 3 found, over both mappings of all 96 synthesised circuits and the one pre-mapped witness; a missing or stale `graph.json` fails rather than warning | passing |
+| 5 | `verify_corpus.py`: 12 rules, 762 uses against what stage 3 found, over both mappings of all 98 synthesised circuits and the one pre-mapped witness; a missing or stale `graph.json` fails rather than warning | passing |
 | 5 | `verify_corpus.py --selftest`: all 15 corruptions caught, **and all 12 rules tripped by at least one of them** | passing |
 | 4 | `verify_blocks.py`: the warm up's registers against the hierarchy its own DEF states, `[8, 8]`, by **membership** and not only by size | **failing**: the committed criterion answers `[16]` |
-| 4 | `stage4_registers.py --score`: 117/133 exact beside a null model that gets 109/133; NMI 0.0014 and purity 0.5062 over the ten netlists whose truth has more than one class, where the same null model scores 0.0 and 0.5; every figure against a recording, and a move in either direction fails | passing, and it says the criterion is the null model |
+| 4 | `stage4_registers.py --score`: 117/137 exact beside a null model that gets 109/137; NMI 0.001 and purity 0.5525 over the fourteen netlists whose truth has more than one class, where the same null model scores 0.0 and 0.5481; every figure against a recording, and a move in either direction fails | passing, and it says the criterion is the null model on NMI |
 | 4 | `stage4_registers.py --compare`: five criteria against their recordings, and two checked demonstrations the scores cannot show | passing |
 | 4 | `stage4_registers.py --selftest`: seven hand computed NMI and purity rows reproduced, including both branches of the 0/0 convention | passing |
 | 4 | `verify_metrics.py`: NMI and purity recomputed from the joint entropy, agreeing on the hand table, on 4000 random partitions and on four invariants; `--selftest` catches 3 of 3 wrong implementations | passing |
@@ -240,6 +254,9 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 3 | `verify_equiv.py warmup`: the recovered netlist proven sequentially equivalent to `01_netlist.v`, 153 correspondence points, all proven | passing |
 | 6 | `stage6_invert.py warmup`: a trace found at depth 8, proven to hold from every start state; `--post-reset` finds the same depth over the one state a toggled `rst_n` leaves, in 10 solver calls against 28 | passing |
 | 6 | `sim/replay.py warmup`: that trace reproduces against **stage 2's** netlist and the output is high at the predicted cycle | passing |
+| 7 | `stage7_output.py warmup --extend 6`: the trace replayed through the shared harness, one sample per cycle, every output read back. The warm up has no multi-bit output, and `stream NONE` is the right answer rather than a failure | passing |
+| 7 | `verify_output.py`: both streamer circuits, both mappings, every byte exact against a string declared before the run, at the declared cycles, with the rendering read back by a second implementation | passing |
+| 7 | `verify_output.py --selftest`: a byte changed in the stream, a byte changed in the answer key, and a raw control byte left in the rendering; 3 of 3 caught | passing |
 
 ## Facts worth not rediscovering
 
@@ -365,6 +382,25 @@ the library, so `verify_functions.py`'s 850 comparisons are evidence about
 identifiers, negation and grouping and none at all about precedence. Eight hand
 written truth tables are what cover it.
 
+**Stage 7 reads the bus; it does not read the string.** `stage7_output.py`
+replays a stage 6 solution through **stage 2's** netlist and reports what every
+output carried, cycle by cycle, with non-printables escaped and nothing dropped.
+Two knobs decide the answer and neither can be derived from anything here, so
+both are printed with every result: `--extend N` keeps clocking past the trace,
+because the string's length is unknown, and `--after` says what drives the
+inputs once the trace runs out. Measured on the warm up: `hold-last`, `zeros`
+and `en=1,A=1` give `S` as `1 1 1 1`, `0 0 0 0` and `1 0 0 0` over the same four
+extension cycles. The default is `hold-last` and it says so in its own output.
+
+**A stream's start, length and end are not observable from outside the circuit,
+so the gate had to be a circuit whose string was written first.** The corpus's
+`streamer` family emits a declared ASCII string one byte per cycle after a one
+cycle trigger and then idles. Two of them, different lengths, one carrying
+`0x07` and `0x0a` so the escape path is exercised. The flop counts are derived
+from the *string* before synthesis: every ASCII byte has bit 7 clear, so the
+output register is seven flops and `O[7]` comes from a `conb_1`. Stage 3 finds
+seven.
+
 **Stage 6's cycle model, and the three things it refuses.** A cycle is a clock
 edge, so the clock is not a signal: clock tree cells are dropped and the clock
 port is implicit. `S(t+1) = resetval if r(t) or r(t+1) else D(t)` is what makes
@@ -407,24 +443,33 @@ the recovered instances by position, orientation and cell, 230 of 230.
 **Registers, derived by stage 4. No criterion is committed, because measurement
 refuted the first choice and then refuted the ranking.**
 
-| Criterion | exact /133 | NMI | purity |
+| Criterion | exact /137 | NMI | purity |
 |---|---|---|---|
-| control signature | 117 | 0.0014 | 0.5062 |
-| colour refinement | 97 | 0.1867 | 0.75 |
-| + flow split (DANA) | 91 | 0.3733 | 1.0 |
-| + connected components | 80 | **0.5476** | **0.80** |
-| + components + flow split | 49 | 0.3733 | 1.0 |
-| *null: one group, do nothing* | *109* | *0.0* | *0.5* |
-| *null: every flop its own* | *7* | *0.3733* | *1.0* |
+| control signature | 117 | 0.001 | 0.5525 |
+| colour refinement | 101 | 0.419 | 0.8214 |
+| + flow split (DANA) | 91 | **0.5019** | **1.0** |
+| + connected components | 80 | 0.3911 | 0.7623 |
+| + components + flow split | 49 | 0.5019 | 1.0 |
+| *null: one group, do nothing* | *109* | *0.0* | *0.5481* |
+| *null: every flop its own* | *7* | *0.3879* | *1.0* |
 
 **Exact match and NMI rank these in opposite orders**, and that is the most
 useful thing stage 4 measures. Exact match compares size multisets, 109 of the
-133 netlists declare one register, and the ranking is that majority talking. NMI
-and purity above are over the ten netlists whose ground truth has more than one
-class, and there the control signature scores the one-group null model's numbers
+137 netlists declare one register, and the ranking is that majority talking. NMI
+and purity above are over the fourteen netlists whose ground truth has more than
+one class, and there the control signature scores the one-group null model's NMI
 to three decimal places. On the warm up it is wrong, and connected components
 and placement locality — the two the corpus ranks worst and cannot score at all
 — are right. Where they disagree, that disagreement is the residue.
+
+**And the NMI ordering is not stable.** Stage 7's two `streamer` circuits joined
+the corpus as four netlists, four of the fourteen that ask the question. On them
+**colour refinement is exactly right and connected components answers one
+group** — the index register feeds the ROM that feeds the output register, so
+the two are connected — which is the mirror of the warm up. That moved
+connected components from 0.5476 over ten to 0.3911 over fourteen and put the
+flow split on top. Nothing was tuned. Read the column as an ordering over
+fourteen netlists, not as a settled ranking.
 
 **A sixth criterion the corpus cannot score.** `spatial_groups` is single
 linkage on stage 1's placements at a recorded 3 row heights. On the warm up it

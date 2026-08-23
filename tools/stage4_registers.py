@@ -8,20 +8,31 @@ shared name, on sixteen different clock nets.
 Criteria are computed and **none is committed**, because measurement refuted
 the first attempt at choosing between them, and then refuted the ranking.
 
-                                    exact/133      NMI   purity
-    control signature                     117   0.0014   0.5062
-    colour refinement                      97   0.1867     0.75
-    + connected components                 80   0.5476     0.80
-    null: one group, do nothing           109      0.0      0.5
-    null: every flop its own                7   0.3733      1.0
+                                    exact/137      NMI   purity
+    control signature                     117    0.001   0.5525
+    colour refinement                     101    0.419   0.8214
+    control + flow split                   91   0.5019      1.0
+    + connected components                 80   0.3911   0.7623
+    null: one group, do nothing           109      0.0   0.5481
+    null: every flop its own                7   0.3879      1.0
 
 **Exact match and NMI rank these in opposite orders.** Exact match compares
-size multisets and is all or nothing; 109 of the corpus's 133 netlists hold
+size multisets and is all or nothing; 109 of the corpus's 137 netlists hold
 exactly one register, so a criterion that returns one group and does nothing
-else scores 109/133 and the whole ranking is that majority talking. NMI and
-purity above are over the ten netlists whose ground truth has more than one
-class -- the ones that ask the question -- and there the control signature
-scores the one-group null model's numbers to three decimal places.
+else scores 109/137 and the whole ranking is that majority talking. NMI and
+purity above are over the fourteen netlists whose ground truth has more than
+one class -- the ones that ask the question -- and there the control signature
+scores the one-group null model's NMI to three decimal places.
+
+**The NMI ranking is not stable, and Package 6 is what showed that.** Stage 7's
+two `streamer` circuits joined the corpus as four netlists, and four of the
+fourteen that ask the question are now theirs. On them colour refinement is
+**exactly right** and connected components answers one group, because the index
+register feeds the ROM that feeds the output register and the two are genuinely
+connected. That flipped the top of the NMI column from connected components
+(0.5476 over ten) to the flow split, and moved refinement from third to second
+on exact match. Read the column as an ordering over a set of fourteen, four of
+which arrived together from one new family, and not as a settled ranking.
 
 The metrics, the membership ground truth they need, and the convention for the
 0/0 case are below and in `docs/04-detectors.md`.
@@ -85,26 +96,37 @@ LINK_ROWS = 3
 # something, and re-recording it has to be a decision rather than a side effect.
 #
 # Exact match is a size multiset comparison and needs no membership, so it is
-# recorded over all 133. NMI and purity need one, so they are recorded over the
+# recorded over all 137. NMI and purity need one, so they are recorded over the
 # subset that has one and the subset is recorded too.
+#
+# Package 6 moved every figure below by adding the `streamer` family, which
+# stage 7 needed as ground truth. Four netlists, and four of the fourteen that
+# ask the question, so the change is large for its size -- which is itself the
+# most useful thing about it, and is recorded in the docstring above.
 RECORDED = {
     "exact": 117,           # netlists the control signature partitions exactly
-    "netlists": 133,        # netlists with flops and a declared partition
+    "netlists": 137,        # netlists with flops and a declared partition
     "null model": 109,      # what "one group, and do nothing" scores
-    "multi": 24,            # netlists declaring more than one register
+    "multi": 28,            # netlists declaring more than one register
     "multi hits": 8,        # of those, what the control signature gets
-    "membership": 119,      # netlists with a flop level ground truth at all
-    "nmi": 0.9161,          # mean NMI over all of those
-    "nmi over": 119,        # how many rows that was
-    "purity": 0.9585,       # mean purity over all of those
+    "membership": 123,      # netlists with a flop level ground truth at all
+    "nmi": 0.8863,          # mean NMI over all of those
+    "nmi over": 123,        # how many rows that was
+    "purity": 0.9491,       # mean purity over all of those
     # The pair that means something, and the pair that indicts the committed
-    # criterion. Over the ten netlists whose ground truth has more than one
-    # class the control signature scores 0.0014 NMI against the one-group null
-    # model's 0.0, and 0.5062 purity against its 0.5. On the question stage 4
-    # exists to answer it is the null model to three decimal places.
-    "nmi real": 0.0014,     # mean NMI where the truth has >1 class
-    "purity real": 0.5062,  # mean purity there
-    "real over": 10,        # and how many netlists that is
+    # criterion. Over the fourteen netlists whose ground truth has more than one
+    # class the control signature scores 0.001 NMI against the one-group null
+    # model's 0.0. On the question stage 4 exists to answer it is the null model
+    # to three decimal places.
+    #
+    # Purity no longer reads as neatly and that is a gain, not a loss. It used
+    # to be 0.5062 against the null's 0.5, and the null's exact 0.5 was an
+    # accident of ten netlists whose declared registers were all equal halves.
+    # The streamers declare [7, 4] and [7, 3], so the null now scores 0.5481 and
+    # the coincidence is gone.
+    "nmi real": 0.001,      # mean NMI where the truth has >1 class
+    "purity real": 0.5525,  # mean purity there
+    "real over": 14,        # and how many netlists that is
 }
 
 # Per criterion, for --compare. Same rule.
@@ -122,35 +144,50 @@ RECORDED = {
 # answers [8, 8]. On the fast mapping only 11 do, and all three criteria come
 # apart: [11, 5], then [3,2,2,2,2,1,1,1,1,1], then sixteen singletons. See
 # `docs/problems.md` 45.
-# **Exact match and NMI rank these three in opposite orders, and that is the
-# most useful thing this file now measures.** Exact match puts the control
-# signature first at 117 and connected components last at 80; over the ten
-# netlists that actually ask the question, NMI puts connected components at
-# 0.5476 and the control signature at 0.0014, which is the one-group null
-# model's 0.0 to three places. The exact-match ranking was an artefact of the
-# 109 netlists that declare one register, and `docs/references.md` section 3
-# said so from the literature before anything here measured it.
+# **Exact match and NMI rank these in opposite orders, and that is the most
+# useful thing this file measures.** Exact match puts the control signature
+# first at 117 and connected components fourth at 80; over the fourteen
+# netlists that actually ask the question, NMI puts the control signature at
+# 0.001, which is the one-group null model's 0.0 to three places. The
+# exact-match ranking is an artefact of the 109 netlists that declare one
+# register, and `docs/references.md` section 3 said so from the literature
+# before anything here measured it.
+#
+# **Which criterion tops the NMI column is not stable.** It was connected
+# components at 0.5476 over ten netlists; Package 6's four streamer netlists
+# took it to 0.3911 and put the flow split first at 0.5019. The streamers are
+# the corpus's first circuits where refinement is exactly right and components
+# is exactly wrong -- the index register feeds the ROM that feeds the output
+# register, so components merges the two -- which is the mirror of the warm up,
+# where components is right and refinement is wrong. Two shapes, opposite
+# answers, and no criterion here handles both.
 RECORDED_CRITERIA = {
-    "control signature": {"exact": 117, "nmi real": 0.0014,
-                          "purity real": 0.5062},
-    "colour refinement, fixed point": {"exact": 97, "nmi real": 0.1867,
-                                       "purity real": 0.75},
-    "+ connected components": {"exact": 80, "nmi real": 0.5476,
-                               "purity real": 0.8},
+    "control signature": {"exact": 117, "nmi real": 0.001,
+                          "purity real": 0.5525},
+    "colour refinement, fixed point": {"exact": 101, "nmi real": 0.419,
+                                       "purity real": 0.8214},
+    "+ connected components": {"exact": 80, "nmi real": 0.3911,
+                               "purity real": 0.7623},
     # DANA's split by successor/predecessor groupings, run standalone to a
-    # fixpoint over two seeds. **It scores the all-singletons null model's
-    # numbers, 0.3733 and 1.0, on exactly the ten netlists that ask the
-    # question** -- because on those ten it *is* all singletons. Every one of
-    # them is a shift register or a pair of them, and a chain hands each bit a
-    # different predecessor group as soon as its predecessor has one.
+    # fixpoint over two seeds. **It used to score the all-singletons null
+    # model's numbers exactly, 0.3733 and 1.0, on the ten netlists that asked
+    # the question** -- because on those ten it *was* all singletons. Every one
+    # of them was a shift register or a pair of them, and a chain hands each bit
+    # a different predecessor group as soon as its predecessor has one.
+    #
+    # It no longer is: on a streamer it answers [7, 3, 1] against a declared
+    # [7, 4], keeping the seven bit output register whole and shaving one bit
+    # off the index. That is the first netlist here where the pass does
+    # something other than shatter, and it is why 0.5019 is now above the
+    # singleton null's 0.3879 instead of equal to it.
     #
     # That is not DANA being wrong. DANA applies nine passes in ordered pairs
     # with a majority vote and never runs one to a fixpoint alone, which is
     # what this measures. The pass has a real advantage the numbers here do not
     # show, and `demonstrations()` below shows it instead.
-    "control + flow split": {"exact": 91, "nmi real": 0.3733,
+    "control + flow split": {"exact": 91, "nmi real": 0.5019,
                              "purity real": 1.0},
-    "+ components + flow split": {"exact": 49, "nmi real": 0.3733,
+    "+ components + flow split": {"exact": 49, "nmi real": 0.5019,
                                   "purity real": 1.0},
 }
 
@@ -567,7 +604,7 @@ def expected_registers(truth, graph):
 # Neither metric replaces exact match, and the three are printed together
 # because each one is blind to something the others see:
 #
-#   exact match   one group scores 109/133 here. All singletons scores 0.
+#   exact match   one group scores 109/137 here. All singletons scores 0.
 #   NMI           one group scores 0, because a single cluster has no entropy
 #                 and therefore no mutual information with anything.
 #   purity        all singletons scores 1.0, exactly. Purity does not penalise
@@ -630,7 +667,7 @@ def nmi(answer, truth):
     """Normalised mutual information. Returns (value or None, branch).
 
     **The 0/0 case is load-bearing here and is not an edge case.** 109 of the
-    corpus's 133 netlists declare exactly one register, so their ground truth
+    corpus's 137 netlists declare exactly one register, so their ground truth
     has one class, zero entropy, and zero mutual information with any answer:
     the ratio is 0/0 and there is no value to report. Averaging those in as 0
     would say every criterion fails on 82% of the corpus; averaging them in as
@@ -760,13 +797,13 @@ def truth_membership(graph, expected):
     and purity need memberships. Two sources, in order:
 
     1. A declaration of one register covering every flop is a membership
-       already, and 109 of the 133 netlists are that.
+       already, and 109 of the 137 netlists are that.
     2. Otherwise the RTL vector name yosys leaves on each flop's Q net:
        `a_reg[4]` and `a_reg[5]` are bits of one register. This is **checked
        against the declaration** rather than trusted -- if the names partition
        the flops differently from the sizes the generator declared, the
        netlist is refused rather than scored against a membership invented
-       here. 10 of the 24 multi-register netlists survive that check.
+       here. 14 of the 28 multi-register netlists survive that check.
 
     The 14 that do not are refused for two measured reasons, both real:
     `two_clocks` and `inverted_clock` declare `[4, 4]` for what the RTL writes
@@ -812,10 +849,11 @@ def aggregate(rows):
 
     **Two means, not one, and the second is the one to read.** The convention
     hands 1.0 to every netlist whose truth is a single class and whose answer
-    is too, and 109 of 133 netlists are that, so a mean over everything is
-    109 parts agreement and 10 parts measurement. Measured: the null model that
-    returns one group scores the same 0.9161 as the committed criterion under
-    that mean, which is the aggregate saying nothing in four decimal places.
+    is too, and 109 of 137 netlists are that, so a mean over everything is
+    109 parts agreement and 14 parts measurement. Measured: the null model that
+    returns one group scores 0.8862 against the committed criterion's 0.8863
+    under that mean, which is the aggregate saying nothing in three decimal
+    places.
 
     So `nmi` and `purity` are the means over every netlist with a membership,
     and `nmi real` and `purity real` are the means over the netlists whose
@@ -1090,7 +1128,7 @@ def spatial_profile(graph, positions, thresholds=range(1, 13)):
 # separates `split_by_flow` from nothing at all. What it is really asserting is
 # the *contrast* with connected components on the same netlist, which does
 # shatter it. The two corpus-wide claims below are what establish that the pass
-# is doing work: it only ever refines its seed, and on 42 of the 133 netlists it
+# is doing work: it only ever refines its seed, and on 46 of the 137 netlists it
 # refines it properly.
 DEMONSTRATIONS = {
     # A plain register: eight flops, no dependence between them, all reading
@@ -1122,7 +1160,7 @@ RECORDED_DEMONSTRATIONS = {
     "seed violations": 0,
     # And it has to actually split something, or "it does not split a plain
     # register" would be a property of doing nothing.
-    "proper refinements": 42,
+    "proper refinements": 46,
     # Groups that are a whole RTL vector, on the smallest scale_datapath
     # netlist: bit indices covering 0 .. n-1 once each, whatever the base names
     # say. Derived per criterion, because the claim this replaced -- "no other
@@ -1555,7 +1593,7 @@ def score():
           f"there, to")
     print(f"  four decimal places, which is what an aggregate looks like when "
           f"109 of its")
-    print(f"  119 rows were never able to disagree.")
+    print(f"  123 rows were never able to disagree.")
     print(f"\n  Each degenerate is bad on at least one axis, and no single "
           f"axis catches")
     print(f"  both. One group scores zero NMI, because a single cluster has no "

@@ -281,6 +281,85 @@ def fsm(states, encoding):
                                      "encoding": encoding}
 
 
+def streamer(label, text):
+    """A block that emits a declared string one byte per cycle, then idles.
+
+    Stage 7 turns a winning input sequence into the string the chip prints, and
+    the announcement says the output generator has to be *simulated* to get the
+    final answer. Every other circuit here exists so a stage 4 detector can be
+    scored; this one exists so stage 7 can be, and it is the only family whose
+    answer key is a string rather than a shape.
+
+    The machine is an index and a ROM, which is the smallest thing that has the
+    property stage 7 needs: the byte stream starts at a cycle nothing outside
+    the circuit announces, runs for a length nothing outside the circuit
+    announces, and goes quiet afterwards. `idx` doubles as the state -- 0 is
+    idle, k emits byte k-1 -- so there is no separate run bit to be re-encoded
+    by the `fsm` pass.
+
+    **Two declared numbers here are derived from the string rather than from the
+    netlist**, which is what keeps this an answer key:
+
+      live bits   a bit position that is 0 in every byte *and* 0 at idle is a
+                  flop whose D is constant, and `opt` removes it. Every byte of
+                  an ASCII string has bit 7 clear, so the output register is
+                  seven flops and O[7] arrives from a `conb_1`. Computed from
+                  the bytes, before synthesis, not read back out of the result.
+      index bits  the index counts 0 .. len, so `len.bit_length()`.
+
+    The cycle the first byte appears on is `first_byte_cycle` below and is fixed
+    by the machine, not by the string: `go` is taken while idx is 0, one edge
+    moves idx to 1, the next edge loads the ROM, and `tools/sim/harness.py`
+    samples a cycle before its own edge. Three.
+    """
+    data = list(text.encode("ascii"))
+    last = len(data)
+    bits = max(1, last.bit_length())
+    live = sum(1 for bit in range(8) if any(b >> bit & 1 for b in data))
+    name = f"streamer_{label}"
+
+    lines = [f"module {name} (input clk, input rst_n, input go,",
+             "  output [7:0] O, output busy);",
+             f"  reg [{bits-1}:0] idx;",
+             "  reg [7:0] outr;",
+             "  reg [7:0] rom;",
+             "",
+             "  always @* case (idx)"]
+    for offset, byte in enumerate(data):
+        lines.append(f"      {bits}'d{offset + 1}: rom = 8'd{byte};")
+    lines += ["      default: rom = 8'd0;",
+              "    endcase",
+              "",
+              "  always @(posedge clk or negedge rst_n)",
+              f"    if (!rst_n) begin idx <= {bits}'d0; outr <= 8'd0; end",
+              "    else begin",
+              "      outr <= rom;",
+              f"      if (idx == {bits}'d{last}) idx <= {bits}'d0;",
+              f"      else if (idx != {bits}'d0 || go) idx <= idx + 1'b1;",
+              "    end",
+              "",
+              "  assign O = outr;",
+              f"  assign busy = (idx != {bits}'d0);",
+              "endmodule"]
+    return "\n".join(lines) + "\n", {
+        "family": "streamer", "label": label,
+        # The answer key. `bytes` is authoritative and `string` is the same
+        # thing rendered, because a string is the field a person reads and a
+        # byte list is the field a comparison can be exact about.
+        "string": text, "bytes": data, "length": len(data),
+        "trigger": "go", "output": "O", "busy": "busy",
+        "idle_byte": 0, "first_byte_cycle": 3,
+        # The busy flag leads the data by a cycle, because it reads the index
+        # while the byte is still one edge away from the output register. Said
+        # here rather than smoothed over: a flag that happened to align with the
+        # stream would let a check pass that had the offset wrong.
+        "busy_first_cycle": 2, "busy_last_cycle": 1 + len(data),
+        "registers": [live, bits], "flops": live + bits,
+        "reset": "async_reset", "clock_roots": 1,
+        "note": "stage 7's ground truth: a string that is known before the "
+                "simulation runs"}
+
+
 # --- negative controls ------------------------------------------------------
 #
 # These exist to be *not* detected. Without them a detector that fires on
@@ -791,6 +870,13 @@ def catalogue():
 
     for bits in (2, 3, 4):
         add(decoder(bits), "positive")
+    # Stage 7's ground truth. Two strings rather than one, because a decoder
+    # that hard-wired a length would pass on a single instance; different
+    # lengths so the index register is a different width; and one carrying two
+    # non-printable bytes, because the escape path in the decoding is the part
+    # a printable-only string would leave untested.
+    add(streamer("hello", "HELLO WORLD"), "positive")
+    add(streamer("escape", "OK\x07 42\n"), "positive")
     for states in (4, 8):
         for encoding in ("binary", "one-hot"):
             add(fsm(states, encoding), "positive")

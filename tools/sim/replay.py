@@ -38,23 +38,31 @@ Usage:
 
 import json
 import os
-import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from run import IMAGE, PDK, model_files                        # noqa: E402
+from run import PDK                                            # noqa: E402
+# The cycle model and the Icarus invocation live in one place, because stage 7
+# extracts its byte stream from the same simulation and a second driver would be
+# a second set of conventions to keep in step. `replay.py` still writes its own
+# testbench: it asserts a property and prints the solver's prediction beside
+# every cycle, which is a different job from sampling a bus.
+from harness import (SETTLE, EDGE, icarus, module_of,          # noqa: E402
+                     port_widths)
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from stage1_cells import TARGETS                               # noqa: E402
 
-# One rising edge per cycle. The inputs move while the clock is low, settle,
-# and are sampled before the edge; the numbers are only a shape and nothing
-# here is timing sensitive, because the cell models run at unit delay.
-SETTLE, EDGE = 4, 1
 
+def testbench(solution, top, module_ports, out_widths):
+    """A testbench for exactly this trace, generated from the solution.
 
-def testbench(solution, top, module_ports):
-    """A testbench for exactly this trace, generated from the solution."""
+    `out_widths` comes from the netlist rather than from the solution, because
+    the solution packs a bus into one integer and says nothing about how wide it
+    was. Declared as a scalar, an eight bit output connects only its bit 0 and
+    the other seven float: the warm up has one 1-bit output and never showed it,
+    and the puzzle's `O[7:0]` would have.
+    """
     inputs = sorted(solution["widths"])
     widths = solution["widths"]
     clocks = solution["clock_ports"]
@@ -77,7 +85,9 @@ def testbench(solution, top, module_ports):
     for name in inputs:
         lines.append(f"  reg [{widths[name] - 1}:0] {name};")
     for name in outputs:
-        lines.append(f"  wire {name};")
+        width = out_widths.get(name, 1)
+        lines.append(f"  wire {name};" if width == 1
+                     else f"  wire [{width - 1}:0] {name};")
     lines.append("  integer mismatches = 0;")
     lines.append("  integer unknown = 0;")
     lines.append("")
@@ -136,17 +146,6 @@ def testbench(solution, top, module_ports):
     return "\n".join(lines) + "\n"
 
 
-def module_of(netlist):
-    """The netlist's module name and port list, read from the netlist itself."""
-    import re
-    text = open(netlist, encoding="utf-8").read()
-    head = re.search(r"^\s*module\s+(\w+)\s*\((.*?)\)\s*;", text, re.M | re.S)
-    if not head:
-        sys.exit(f"{netlist}: cannot find a module declaration")
-    ports = [p.strip().strip("\\").strip() for p in head.group(2).split(",")]
-    return head.group(1), [p for p in ports if p]
-
-
 def run(target, solution_path=None):
     solution_path = solution_path or os.path.join("out", target, "solution.json")
     if not os.path.exists(solution_path):
@@ -163,6 +162,7 @@ def run(target, solution_path=None):
         sys.exit(f"{PDK} missing, run tools/fetch_pdk.py first")
 
     top, ports = module_of(netlist)
+    declared_widths = port_widths(netlist)
     port = solution["property"]["port"]
     at = solution["property"]["cycle"]
     print(f"target {target}")
@@ -188,26 +188,19 @@ def run(target, solution_path=None):
     out_dir = os.path.join("out", target)
     bench = os.path.join(out_dir, "tb_solution.v").replace("\\", "/")
     with open(bench, "w", encoding="utf-8") as handle:
-        handle.write(testbench(solution, top, ports))
+        handle.write(testbench(
+            solution, top, ports,
+            {n: w["width"] for n, w in declared_widths.items()}))
     print(f"  testbench  {bench}, generated for this trace")
 
-    cells, files, includes, missing = model_files(netlist)
-    if missing:
-        print(f"no model in the PDK cache for: {missing}")
+    code, output, cells, files = icarus(netlist, bench)
+    if code == 2 and not files:
+        print(output)
         return 2
     print(f"  {len(cells)} cell types, {len(files)} models\n")
-
-    build = ("iverilog -g2012 -DFUNCTIONAL -DUNIT_DELAY=#1 -o /tmp/sim.vvp "
-             + " ".join(f"-I {d}" for d in includes) + " "
-             + f"{bench} {netlist.replace(chr(92), '/')} " + " ".join(files))
-    result = subprocess.run(
-        ["docker", "run", "--rm", "-v", f"{os.path.abspath('.')}:/work",
-         "-w", "/work", IMAGE, "bash", "-c", f"set -e; {build}; vvp /tmp/sim.vvp"],
-        capture_output=True, text=True)
-    output = result.stdout + result.stderr
     print(output.strip())
 
-    if result.returncode != 0:
+    if code != 0:
         print("\nRESULT: simulation did not run")
         return 2
     if "RESULT: pass" in output:

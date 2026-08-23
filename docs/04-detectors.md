@@ -17,45 +17,63 @@ name, on sixteen different clock nets.
 
 ### Six criteria, and no committed answer
 
-| Criterion | exact, /133 | NMI | purity |
+| Criterion | exact, /137 | NMI | purity |
 |---|---|---|---|
-| control signature | 117 | 0.0014 | 0.5062 |
-| colour refinement, to a fixed point | 97 | 0.1867 | 0.75 |
-| control signature + flow split | 91 | 0.3733 | 1.0 |
-| control signature + connected components | 80 | **0.5476** | **0.80** |
-| + connected components + flow split | 49 | 0.3733 | 1.0 |
-| *null model: one group, and do nothing* | *109* | *0.0* | *0.5* |
-| *null model: every flop its own register* | *7* | *0.3733* | *1.0* |
+| control signature | 117 | 0.001 | 0.5525 |
+| colour refinement, to a fixed point | 101 | 0.419 | 0.8214 |
+| control signature + flow split | 91 | **0.5019** | **1.0** |
+| control signature + connected components | 80 | 0.3911 | 0.7623 |
+| + connected components + flow split | 49 | 0.5019 | 1.0 |
+| *null model: one group, and do nothing* | *109* | *0.0* | *0.5481* |
+| *null model: every flop its own register* | *7* | *0.3879* | *1.0* |
 
 A sixth, **placement locality**, is not in that table because the corpus cannot
 score it at all — see below.
 
 **Exact match and NMI rank these in opposite orders, and that is the most
 useful thing stage 4 measures.** Exact match puts the control signature first
-and connected components last. NMI, over the ten netlists whose ground truth
-actually has more than one class, puts connected components at 0.5476 and the
-control signature at 0.0014 — which is the one-group null model's 0.0 to three
-decimal places. On the question stage 4 exists to answer, the committed
-criterion *is* the null model.
+and connected components fourth. NMI, over the fourteen netlists whose ground
+truth actually has more than one class, puts the control signature at 0.001 —
+which is the one-group null model's 0.0 to three decimal places. On the question
+stage 4 exists to answer, the committed criterion *is* the null model.
 
 The exact-match ranking was an artefact of the 109 netlists that declare one
 register. `docs/references.md` §3 said so from the published literature (DANA,
 TCHES 2020) before anything here measured it; this is the measurement.
+
+**Which criterion tops the NMI column is not stable, and stage 7 is what showed
+that.** Package 6 needed a circuit whose emitted string was known in advance, so
+the corpus gained two `streamer` circuits — an index register driving a ROM
+driving an output register. Four netlists, and four of the fourteen that ask the
+question are now theirs. On them **colour refinement is exactly right and
+connected components answers one group**, because the index feeds the ROM that
+feeds the output and the two registers are genuinely connected. That took
+connected components from 0.5476 over ten netlists to 0.3911 over fourteen, put
+the flow split on top at 0.5019, and moved refinement from third to second on
+exact match.
+
+Nothing was tuned and nothing was refuted: the ordering simply moved by more
+than its own precision when the set it is averaged over grew by four. **Read the
+NMI column as an ordering over fourteen netlists, four of which arrived together
+from one new family, and not as a settled ranking.** That is a stronger argument
+for the residue report than any single ordering would have been.
 
 The control signature is the clock root, the reset root and its level, the set
 root and its level, and the hold net — what a register is written and cleared
 by, which its bits share by definition.
 
 **Exact match alone is nearly meaningless here and was reported as a result
-anyway.** 109 of the corpus's 133 netlists hold exactly one register, so a
-criterion that returns one group and does nothing else scores 109/133. The
-control signature's real margin is eight netlists, and on the 24 where the
-question is not trivial it gets **8 of 24**. `--score` prints both null models
+anyway.** 109 of the corpus's 137 netlists hold exactly one register, so a
+criterion that returns one group and does nothing else scores 109/137. The
+control signature's real margin is eight netlists, and on the 28 where the
+question is not trivial it gets **8 of 28**. `--score` prints both null models
 beside the score, under all three metrics, so this cannot be read the old way
 again.
 
 They **fail in mirror image**, which is the useful part. Connected components
-shatters a *plain* register, whose bits do not depend on one another at all.
+shatters a *plain* register, whose bits do not depend on one another at all, and
+merges a *chained* pair, where one register's output computes the other's input
+— the streamers are that shape, and it answers one group on all four of them.
 Colour refinement and the flow split shatter a *shift* register, whose chain
 hands every bit a distinct colour once its predecessor has one. Neither is a
 tuning problem: one criterion needs the bits to interact and the others need
@@ -81,11 +99,11 @@ which flop belongs to which declared register. The corpus declares sizes, not
 memberships, so one is recovered, in two ways and never invented:
 
 1. A declaration of one register covering every flop *is* a membership. 109 of
-   the 133 netlists are that.
+   the 137 netlists are that.
 2. Otherwise the RTL vector name yosys leaves on each flop's Q net — `a_reg[4]`
    and `a_reg[5]` are bits of one register. **Checked against the declaration
    rather than trusted:** if the names partition the flops differently from the
-   sizes the generator declared, the netlist is refused. 10 of the 24
+   sizes the generator declared, the netlist is refused. 14 of the 28
    multi-register netlists survive.
 
 The 14 refused are refused for two measured reasons. `two_clocks` and
@@ -104,7 +122,7 @@ arithmetic scores 0.4.
 
 **The 0/0 case is load-bearing and is not an edge case.** A ground truth with
 one class has zero entropy and therefore zero mutual information with any
-answer: the ratio is 0/0 and there is no value to report. 109 of 133 netlists
+answer: the ratio is 0/0 and there is no value to report. 109 of 137 netlists
 are in that state. The convention, stated once and counted in every aggregate:
 
 | Ground truth | Answer | NMI |
@@ -117,20 +135,25 @@ Averaging those 109 in as 0 would say every criterion fails on 82% of the
 corpus; averaging them in as 1 would say every criterion is nearly perfect.
 Both are wrong for the same reason: the netlist does not ask the question.
 
-So **two means are reported, and the second is the one to read**: over all 119
-netlists with a membership, and over the 10 whose truth has more than one class.
-Measured, the first is useless — the one-group null model and the committed
-criterion both score 0.9161, to four decimal places, because 109 of the 119 rows
-were never able to disagree. That is what the warning above looks like when it
+So **two means are reported, and the second is the one to read**: over all 123
+netlists with a membership, and over the 14 whose truth has more than one class.
+Measured, the first is useless — the one-group null model scores 0.8862 and the
+committed criterion 0.8863, agreeing to three decimal places, because 109 of the
+123 rows were never able to disagree. That is what the warning above looks like when it
 is ignored.
 
 **Neither metric replaces exact match, and none of the three is sufficient.**
 
 | | one group | every flop its own |
 |---|---|---|
-| exact match | 109/133 | 7/133 |
-| NMI | 0.0 | 0.3733 |
-| purity | 0.5 | **1.0** |
+| exact match | 109/137 | 7/137 |
+| NMI | 0.0 | 0.3879 |
+| purity | 0.5481 | **1.0** |
+
+The one-group model's purity used to read 0.5 exactly, and that was an accident
+of ten netlists whose declared registers were all equal halves. The streamers
+declare `[7, 4]` and `[7, 3]`, so it is 0.5481 now. A degenerate scoring a round
+number is worth suspecting.
 
 Purity does not penalise over-splitting at all — every cluster of one is pure —
 so the common claim that the NMI/purity *pair* kills both degenerates is false
@@ -153,7 +176,7 @@ catch:
 |---|---|
 | max-normalisation instead of arithmetic mean | 2 of 7 rows disagree; `--selftest` exits 1 |
 | the 0/0 convention averaged in as 0.0 rather than excluded | the "one true class, answer splits" row; exits 1 |
-| a membership fitted to the declaration instead of refused | `--score`: membership 133 where 119 is recorded, and NMI falls to 0.8801 |
+| a membership fitted to the declaration instead of refused | `--score`: membership above what is recorded, and the NMI mean falls |
 
 ### DANA's successor/predecessor split, measured rather than assumed
 
@@ -172,11 +195,17 @@ splits; groups only ever split, so the loop ends when a round adds nothing. Run
 over two seeds, the control signature and control + connected components.
 
 **It is not what the quotation predicts, and the measurement is the deliverable
-here.** On the ten netlists whose ground truth has more than one class it scores
-NMI 0.3733 and purity 1.0 — *identical to the all-singletons null model*,
-because on those ten it is all singletons. Every one of them is a shift register
-or a pair of them, and a chain hands each bit a different predecessor group as
-soon as its predecessor has one. On the warm up it answers sixteen singletons,
+here.** It used to score NMI 0.3733 and purity 1.0 on the ten netlists that
+asked the question — *identical to the all-singletons null model*, because on
+those ten it was all singletons. Every one of them was a shift register or a
+pair of them, and a chain hands each bit a different predecessor group as soon
+as its predecessor has one.
+
+Stage 7's streamers are the first netlists here it does not shatter: it answers
+`[7, 3, 1]` against a declared `[7, 4]`, keeping the output register whole and
+shaving one bit off the index. Over the fourteen it now scores 0.5019 against
+the singleton null's 0.3879, which is a real margin and a narrow one, held up by
+four netlists of one family. On the warm up it answers sixteen singletons,
 at every round count from one to the fixpoint:
 
 | rounds | warm up | `warmup_twin_w8` |
@@ -363,9 +392,9 @@ hidden in it.
 
 Two scores, and they disagree, which is the finding.
 
-`--score` runs the corpus: 117 of 133 exact, 34 of them held out — beside a null
-model that gets 109, and beside NMI and purity on the ten netlists where the
-question is real, where it scores the null model's numbers.
+`--score` runs the corpus: 117 of 137 exact, 34 of them held out — beside a null
+model that gets 109, and beside NMI and purity on the fourteen netlists where the
+question is real, where it scores the null model's NMI.
 `verify_blocks.py` runs the warm up against its own DEF hierarchy: **fail**.
 
 `verify_blocks.py` scores **membership** beside sizes. It did not, and would
