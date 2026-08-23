@@ -5,7 +5,7 @@
 > o sırayla yazıldı.
 
 Ders 3'ün sonunda elimizde etiketli bir graf vardı: saatler, resetler, koniler,
-sabitler. Ders 5'te cevabı bilinen 97 devrelik bir test seti kurduk. Şimdi asıl
+sabitler. Ders 5'te cevabı bilinen 99 devrelik bir test seti kurduk. Şimdi asıl
 soruya dönüyoruz:
 
 **Puzzle'ın 92 flip-flop'u hangi yazmaçlara ayrılıyor?**
@@ -130,7 +130,9 @@ warm-up — ve sonra, bir insanın okuyacağı puzzle.
 Tabloya topluca bak:
 
 - kontrol imzası: hiçbir kontrol sinyalinin işaretlemediği sınırı **göremez**
-- bağlı bileşenler: bitleri etkileşmeyen düz yazmacı **parçalar**
+- bağlı bileşenler: bitleri etkileşmeyen düz yazmacı **parçalar**,
+  zincirlenmiş bir çifti (biri öbürünün girdisini hesaplıyorsa)
+  **birleştirir** — `streamer` devrelerinde ölçüldü
 - renk arıtma ve akış bölmesi: zinciri **parçalar**
 - yerleşim: tel bilmez, ama n = 1
 
@@ -152,12 +154,12 @@ Boyut kümeleri eşit mi? `[8, 8] == [8, 8]` → doğru, başka her şey → yan
 
 Basit, ve iki ayrı biçimde kör. Birincisi: 72 bitlik bir yazmacın 71'ini doğru
 bilen cevapla hiçbirini bilmeyen cevap **aynı puanı** alır — kısmi başarı
-"yanlış"a yuvarlanır. İkincisi daha sinsi: korpusun 133 netlist'inin 109'u
+"yanlış"a yuvarlanır. İkincisi daha sinsi: korpusun 137 netlist'inin 109'u
 **tek yazmaç** beyan ediyor. "Her şey tek gruptur" diyen ve başka hiçbir şey
-yapmayan bir kriter 109/133 alır.
+yapmayan bir kriter 109/137 alır.
 
 Ders 5'in null model kuralı burada hayat kurtarıyor: skoru, hiçbir şey yapmayan
-modelin skoru olmadan okumak yasak. Kontrol imzası 117/133. Null model 109/133.
+modelin skoru olmadan okumak yasak. Kontrol imzası 117/137. Null model 109/137.
 Gerçek fark sekiz netlist.
 
 ### Yol 2: NMI ve saflık
@@ -172,50 +174,65 @@ sıfırdır; hiçbir şeyle bilgi paylaşamaz.
 Ve şimdi bu projenin küçük ama örnek bir düzeltmesi. Plana şu cümle yazılmıştı:
 "saflık da öbür dejenere cevabı — her flop kendi başına — öldürür." Kulağa
 doğru geliyor. **Ölçüm: yanlış.** Tek kişilik her küme saftır; teklere ayırma
-saflıktan tam 1.0 alır. Onu öldüren birebir eşleşmedir (7/133). Üç kolonun üçü
+saflıktan tam 1.0 alır. Onu öldüren birebir eşleşmedir (7/137). Üç kolonun üçü
 de basılıyor, çünkü üçü üç ayrı dejenereyi görüyor:
 
 | | tek grup | her flop tek |
 |---|---|---|
-| birebir | 109/133 | 7/133 |
-| NMI | 0.0 | 0.3733 |
-| saflık | 0.5 | **1.0** |
+| birebir | 109/137 | 7/137 |
+| NMI | 0.0 | 0.3879 |
+| saflık | 0.5481 | **1.0** |
 
-### 0/0 meselesi: kenar durumu değil, korpusun %82'si
+Tek-grup modelinin saflığı bir zamanlar tam **0.5** okunuyordu. O yuvarlaklık
+bir tesadüftü: soruyu soran on netlist'in hepsi eşit yarımlar beyan ediyordu.
+Ders 7'nin `streamer` devreleri `[7, 4]` ve `[7, 3]` beyan edince tesadüf
+bozuldu. Dejenere bir modelin yuvarlak sayı alması, güvenmek için değil
+şüphelenmek için bir sebeptir.
+
+### 0/0 meselesi: kenar durumu değil, korpusun %80'i
 
 NMI'nin bir tanımsızlığı var: gerçek cevap **tek sınıfsa** entropisi sıfır,
-ve oran 0/0. Bu bir dipnot olurdu — 133 netlist'in 109'u tam o durumda
+ve oran 0/0. Bu bir dipnot olurdu — 137 netlist'in 109'u tam o durumda
 olmasaydı.
 
-O 109'u ortalamaya 0 diye katarsan her kriter "korpusun %82'sinde başarısız"
+O 109'u ortalamaya 0 diye katarsan her kriter "korpusun %80'inde başarısız"
 görünür; 1 diye katarsan her kriter "neredeyse kusursuz" görünür. İkisi de aynı
 sebepten yanlış: **o netlist'ler soruyu sormuyor.** Karar: tek sınıf–tek grup
 1.0 (bölümlemeler eşit, NMI'nin ölçtüğü tek şey bu); tek sınıf–bölünmüş cevap
 tanımsız, ortalamadan çıkarılır ve kendi kolonunda sayılır.
 
-Bunu görmezden gelirsen ne olur, ölçüldü: 119 satırlık "büyük ortalama"da
-tek-grup null modeli ile kontrol imzası **dört ondalıkta aynı sayıyı** alıyor
-— 0.9161 — çünkü 109 satır hiçbir zaman ayrışamazdı. İki ortalama basılıyor ve
-okunması gereken ikincisi: gerçek cevabı birden çok sınıf taşıyan **10**
+Bunu görmezden gelirsen ne olur, ölçüldü: 123 satırlık "büyük ortalama"da
+tek-grup null modeli 0.8862, kontrol imzası 0.8863 alıyor — **üç ondalıkta
+aynı sayı** — çünkü 109 satır hiçbir zaman ayrışamazdı. İki ortalama basılıyor
+ve okunması gereken ikincisi: gerçek cevabı birden çok sınıf taşıyan **14**
 netlist üzerinden.
 
 ### Ve tersine dönen sıralama
 
 Şimdi bu dersin ana tablosu. Aynı beş kriter, üç metrik:
 
-| Kriter | birebir /133 | NMI | saflık |
+| Kriter | birebir /137 | NMI | saflık |
 |---|---|---|---|
-| kontrol imzası | **117** | 0.0014 | 0.5062 |
-| renk arıtma | 97 | 0.1867 | 0.75 |
-| kontrol + akış bölmesi | 91 | 0.3733 | 1.0 |
-| kontrol + bağlı bileşenler | 80 | **0.5476** | 0.80 |
-| *null: tek grup* | *109* | *0.0* | *0.5* |
-| *null: her flop tek* | *7* | *0.3733* | *1.0* |
+| kontrol imzası | **117** | 0.001 | 0.5525 |
+| renk arıtma | 101 | 0.419 | 0.8214 |
+| kontrol + akış bölmesi | 91 | **0.5019** | 1.0 |
+| kontrol + bağlı bileşenler | 80 | 0.3911 | 0.7623 |
+| *null: tek grup* | *109* | *0.0* | *0.5481* |
+| *null: her flop tek* | *7* | *0.3879* | *1.0* |
 
 **Birebir eşleşme ile NMI, kriterleri ters sırada diziyor.** Birebir, kontrol
-imzasını birinci, bağlı bileşenleri sonuncu yapıyor. NMI — yani sorunun gerçek
-olduğu on netlist — bağlı bileşenleri 0.5476'ya koyuyor ve kontrol imzasına
-0.0014 veriyor. Null modelin 0.0'ı, üç ondalıkla.
+imzasını birinci yapıyor; NMI — yani sorunun gerçek olduğu 14 netlist —
+kontrol imzasına 0.001 veriyor. Null modelin 0.0'ı, üç ondalıkla.
+
+Ve bir uyarı daha, tabloyu okumadan önce: **NMI kolonunun sıralaması sağlam
+değil.** Bu tablo bir zamanlar bağlı bileşenleri 0.5476 ile tepede
+gösteriyordu. Ders 7 için korpusa iki `streamer` devresi eklendi — soruyu
+soran 14 netlist'in dördü artık onlar — ve o devrelerde renk arıtma **tam
+doğru** cevabı verirken bağlı bileşenler tek grup diyor: indeks yazmacı ROM'u,
+ROM da çıkış yazmacını besliyor, yani ikisi gerçekten bağlı. Warm-up'ın tam
+aynadaki hali. Dört netlist sıralamayı çevirdi; hiçbir şey ayarlanmadı.
+Kolonu **14 netlist üzerinde bir sıralama** olarak oku, kesinleşmiş bir
+hüküm olarak değil.
 
 Cümleyi tam ağırlığıyla kur: **Stage 4'ün var olma sebebi olan soruda, ilk
 seçilen kriter null modelin kendisidir.** Birebir sıralama, soruyu sormayan

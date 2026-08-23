@@ -177,7 +177,8 @@ python tools/verify_metrics.py --selftest # implementation sharing no code
 python tools/verify_grouping.py warmup    # gate: placement clustering and bit
 python tools/verify_grouping.py warmup --selftest   # order, against the netlist
 python tools/verify_figures.py            # gate: every documented figure against
-python tools/verify_figures.py --selftest # the run that produces it
+python tools/verify_figures.py --selftest # the run that produces it, docs/05
+                                          # included, document side and all
 python tools/verify_blocks.py             # gate: stage 4 against the warm up's
                                           # DEF hierarchy. CURRENTLY FAILING
 python tools/stage4_cone.py puzzle        # the success condition, composed
@@ -247,7 +248,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 4 | `stage4_registers.py --selftest`: seven hand computed NMI and purity rows reproduced, including both branches of the 0/0 convention | passing |
 | 4 | `verify_metrics.py`: NMI and purity recomputed from the joint entropy, agreeing on the hand table, on 4000 random partitions and on four invariants; `--selftest` catches 3 of 3 wrong implementations | passing |
 | 4 | `verify_grouping.py warmup`: single linkage against a brute force transitive closure at all 12 thresholds, determinism under 100 shuffles, every chain link checked against the graph; `--selftest` catches 4 of 4 | passing |
-| — | `verify_figures.py`: 14 document table rows matched by value against the runs, plus 25 registry figures; `--selftest` catches 4 of 4 | passing |
+| — | `verify_figures.py`: 14 document table rows matched by value against the runs, 27 registry figures, and `docs/05`'s quoted fence and 10 of its numbers checked against the run that prints them; `--selftest` catches 6 of 6 | passing |
 | 4 | `verify_functions.py`: every combinational cell's liberty function against the PDK's behavioural model, 850 patterns, 0 disagreements | passing |
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
@@ -304,7 +305,7 @@ knowing what a cell computes; an SMT2 or CNF export cannot be written. The
 
 **Detectors must normalise the drive strength suffix, and reason about
 functions rather than cell types.** `a21oi_1` and `a21oi_2` compute the same
-function. Corpus and puzzle overlap 3% on full cell names and 90% on functions;
+function. Corpus and puzzle overlap 4% on full cell names and 91% on functions;
 matching on the full name would fail on the target. Beyond the suffix, 12 puzzle
 cell *functions* never appear in the corpus at all, leaving about 9% of puzzle
 cells that structural matching cannot name. `graph.json` carries every cell's

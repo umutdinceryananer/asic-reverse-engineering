@@ -97,10 +97,11 @@ kitabı devreleri operandlarını paralel alır; hedefimiz seri alıyor. FSM hem
 binary hem one-hot kodlamayla var — aynı makine iki ayrı yerleşimle — çünkü
 sadece birini tanıyan bir dedektör makineyi değil **kodlamayı** öğrenmiştir.
 
-Sonradan dört giriş daha eklendi (hikâyeleri bölüm 6 ve 7'de): `warmup_twin`
-(iki özdeş yazmaç), `adder_demo` (warm-up'ın kendi RTL'i), ve `mux2i_witness`
-(elle yazılmış, sentezlenmemiş tek netlist). Bugünkü toplam: **97 devre, 193
-netlist.**
+Sonradan dört aile daha eklendi (hikâyeleri bölüm 6 ve 7'de): `warmup_twin`
+(iki özdeş yazmaç), `adder_demo` (warm-up'ın kendi RTL'i), `mux2i_witness`
+(elle yazılmış, sentezlenmemiş tek netlist), ve `streamer` — Ders 7'nin cevap
+anahtarı, beyan edilmiş bir metni bayt bayt yayan iki devre. Bugünkü toplam:
+**99 devre, 197 netlist.**
 
 ### Held out: her üçüncü varyant
 
@@ -130,8 +131,8 @@ sayı öğretici biçimde yanlıştı:
 
 | Karşılaştırma | Örtüşme |
 |---|---|
-| Tam hücre adı (`a21oi_2`) | %3 |
-| Mantık işlevi (`a21oi`) | **%90** |
+| Tam hücre adı (`a21oi_2`) | %4 |
+| Mantık işlevi (`a21oi`) | **%91** |
 
 Aradaki fark **sürüş gücü** (drive strength). Puzzle çoğunlukla `_2`
 kullanıyor; korpus çoğunlukla `_1`, çünkü `abc` zamanlama kısıtı yoksa işi
@@ -170,7 +171,7 @@ görünen şey:
 
 | | flop | hücre |
 |---|---|---|
-| korpustaki en büyük devre | 32 | 125 |
+| `scale_datapath` öncesi en büyük devre | 32 | 96 |
 | **korpustaki medyan devre** | **4** | |
 | puzzle | 92 | 738 |
 
@@ -216,7 +217,7 @@ sentez sonucundan bağımsızca okuduğu değerle karşılaştırıyor — biri 
 bilinemez. Bugünkü durumu:
 
 ```
-97 devre, 193 netlist, 12 kural, 738 kullanım
+99 devre, 197 netlist, 12 kural, 762 kullanım
 RESULT: pass
 ```
 
@@ -401,7 +402,7 @@ ve artık limitleri her seferinde yanında basılıyor.
 
 ```bash
 python tools/stage5_corpus.py --list      # katalog, sentezlemeden
-python tools/stage5_corpus.py             # 97 devre, 193 netlist -> synth/
+python tools/stage5_corpus.py             # 99 devre, 197 netlist -> synth/
 python tools/verify_corpus.py             # cevap anahtari, Stage 3'e karsi
 python tools/verify_corpus.py --selftest  # 15 bozulma, 12/12 kural
 ```
@@ -418,7 +419,7 @@ python tools/verify_corpus.py --selftest  # 15 bozulma, 12/12 kural
 
 **1.** Tek eşlemeli bir korpusta "dedektör işlevi tanıyor" ile "dedektör bu
 eşlemenin hücre desenini ezberledi" ayırt edilemez. İki eşleme, aynı işlevin
-iki farklı yapısal kılığı demek; 51/93 devre gerçekten farklı karışıma düşüyor.
+iki farklı yapısal kılığı demek; 54/99 devre gerçekten farklı karışıma düşüyor.
 Bir de bedava bir kontrol veriyor: beyan edilen her olgu her iki eşlemede
 doğrulanıyor — sadece bir eşlemede doğru kalan olgu, devrenin değil eşlemenin
 özelliği.
@@ -441,7 +442,7 @@ yüzden dürüst tek kapsama ölçüsü odur.
 
 ## Sonraki ders
 
-Artık cevabı bilinen 97 devremiz var, cevap anahtarları denetimden geçmiş,
+Artık cevabı bilinen 99 devremiz var, cevap anahtarları denetimden geçmiş,
 bozulmalara karşı sınanmış.
 
 Sıradaki soru Ders 3'ün sonundaki soru: **92 flop hangi yazmaçlara ayrılıyor,
@@ -450,5 +451,5 @@ ve bir gruplama önerisinin iyi olduğunu hangi sayıyla söyleriz?**
 Ders 4'te göreceğiz ki bu sorunun tek bir cevabı yok — altı ayrı kriter var,
 aynada birbirinin tersi biçimde yanılıyorlar, ve "en iyi skor alan" ile "gerçek
 tasarımda doğru olan" aynı kriter değil. Skorlamanın kendisinin nasıl
-yanıltabildiğini de orada göreceğiz: null modelin 109/133 aldığı bir metrikle,
+yanıltabildiğini de orada göreceğiz: null modelin 109/137 aldığı bir metrikle,
 0 aldığı bir metrik aynı tabloda yan yana duracak.

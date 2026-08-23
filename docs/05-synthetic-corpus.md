@@ -48,10 +48,10 @@ their stories are told, and bring the total to 99 circuits as 197 netlists.
 
 | Group | Count | Purpose |
 |---|---|---|
-| positive | 71 | can the detector find it |
+| positive | 73 | can the detector find it |
 | negative | 6 | does it fire where it should not |
 | composed | 4 | does it survive blocks being merged |
-| structure | 9 | shapes the target has, and shapes a rule needs in order to fail |
+| structure | 13 | shapes the target has, and shapes a rule needs in order to fail |
 | scale | 3 | is it still true at the size of the target |
 
 Families: register, shift register, counter, accumulator, adder, subtractor,
@@ -97,8 +97,8 @@ the first number it produced was wrong in an instructive way.
 
 | Compared on | Overlap |
 |---|---|
-| Full cell name, `a21oi_2` | 3% |
-| Logic function, `a21oi` | **90%** |
+| Full cell name, `a21oi_2` | 4% |
+| Logic function, `a21oi` | **91%** |
 
 The difference is drive strength: the puzzle is mostly `_2` with `_4`, `_8` and
 `_16` for its clock tree, and the corpus is mostly `_1` because `abc` picks the
@@ -158,7 +158,7 @@ different question to see it:
 
 | | flops | cells |
 |---|---|---|
-| largest circuit in the corpus | 32 | 125 |
+| largest before `scale_datapath`, `composed_shift_accumulate_w16` | 32 | 96 |
 | **median circuit in the corpus** | **4** | |
 | the puzzle | 92 | 738 |
 
@@ -225,15 +225,17 @@ makes the case that detectors must normalise the suffix.
 ```
 99 circuits as 197 netlists (base 99, fast 98; the witness is pre-mapped)
 9228 cells, 2585 state elements, 0 synthesis failures
-54/99 circuits map to a different cell mix under the second flow
+54 of the 98 mapped pairs land on a different cell mix, 1049 instances changed
 held out for scoring 26 circuits, available for development 73
 vocabulary by function: 91% of corpus instances are of a kind the puzzle uses
 ```
 
 How far apart the two mappings really are is worth stating separately, because
-"differs at all" is a weak claim. Among the circuits that differ, the median has
-**78% of its cell slots changed**; corpus wide the figure is 63%. Two of the
-comparators are more than completely rewritten.
+"differs at all" is a weak claim. `stage5_corpus.py` prints the distance it
+bought: across the 54 pairs that differ, **1049 of the corpus's 4323 base cell
+instances are replaced**. The three four-input multiplexers are rewritten
+outright -- not one cell of the base mapping survives -- and the worst
+comparator, `comparator_eq_w16`, loses 18 of its 22.
 
 ## The answer key, checked
 
@@ -248,17 +250,28 @@ way of staying true. **A measurement that is not a program is a measurement that
 happened once.**
 
 ```
-99 circuits as 197 netlists, 12 rules, 762 uses
-   12  a reset port, with the reset in the logic   always True
-  137  clock roots                                   4  constant nets
-   25  declared flip flop count                     12  distinct clock nets
-  137  flops accounted for by the clock roots      137  flops on an inverting clock path
-   46  flops whose data cone the enable reaches     89  flops whose reset is a pin
-   56  stateless   always 0                         78  width in flip flops
-   29  flops accounted for by the declared registers
+99 circuits as 197 netlists {'base': 99, 'fast': 98}, 12 rules, 762 uses, checked against what stage 3 independently found
+    12  a reset port, with the reset in the logic   always True
+   137  clock roots
+     4  constant nets
+    25  declared flip flop count
+    12  distinct clock nets
+   137  flops accounted for by the clock roots
+    29  flops accounted for by the declared registers
+   137  flops on an inverting clock path
+    46  flops whose data cone the enable reaches
+    89  flops whose reset is a pin
+    56  stateless   always 0
+    78  width in flip flops
   10/12 rules were asked for more than one answer; 68/762 uses assert a constant
 RESULT: pass
 ```
+
+Quoted verbatim, and not as a courtesy: every line of that block is checked
+against a live `verify_corpus.py` run by `tools/verify_figures.py`. This
+document's tables went stale twice because no gate watched them -- the second
+time with the prose above a table refreshed and the table under it left alone --
+which is the same defect the block itself is about.
 
 **The count of facts is the wrong headline, and it was the headline for a
 while.** 762 is twelve rules times the corpus size, so the tool now reports
@@ -344,6 +357,7 @@ wrote:
 | `accumulator` | gated into the addend: `D = q + (en ? d : 0)`, measured as `D[0] = xnor2(q[0], nand2(en, d[0]))` |
 | `composed_counter_compare` | the counter's shape again, `D[0] = xor2(q[0], en)` |
 | `register` + sync reset | mux survives as `mux2i`, but the reset's `nor2b` sits between it and `D` |
+| `scale_datapath` | factored away entirely: `D = en ? (acc ^ lfsr) : outr` maps to one `a21oi`, with `Q` arriving two cells back. The general case — the others are special because their data leg is a port |
 
 One entry is not synthetic at all. `adder_demo` is `puzzle/warmup/00_source.v`
 unmodified -- the only circuit here whose Verilog this pipeline's author did not

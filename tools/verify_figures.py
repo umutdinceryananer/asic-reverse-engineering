@@ -9,6 +9,8 @@ figures.
 
 So this runs the tools and checks the documents against them, two ways.
 
+**Three mechanisms, because documents quote three kinds of figure.**
+
 **The tables, automatically and by value.** `docs/04-detectors.md` and
 `docs/packages.md` both carry a criteria table whose rows are
 `(exact, NMI, purity)`. Every such row must appear as one line of
@@ -23,6 +25,21 @@ between the warm up's two register clusters, 24 of 40320 weight assignments, 46
 declared holds against 12 found -- are listed in `FIGURES` below with the run
 that must contain each. Same discipline as `RECORDED` in `stage4_registers`: a
 figure that moves fails until somebody re-records it deliberately.
+
+**And `docs/05-synthetic-corpus.md`, which needed a third.** Its figures are
+corpus sizes, rule counts and group counts, so neither of the two above fits --
+and it is the document that most needed one. Its tables went stale twice, both
+times because no gate watched them, and the second time the prose above a table
+was refreshed while the table under it was not. Two shapes now cover it:
+
+    FENCES        a fenced block presented as tool output must BE tool output.
+                  Every non-blank line of it has to appear in the named run,
+                  which puts twelve rule counts under one registry entry.
+    DOC_NUMBERS   a number quoted in the document must equal the number the run
+                  prints. Both sides capture the same groups, in the same order.
+
+Unlike `FIGURES`, both of these read the **document** as well as the run, so a
+digit changed in `docs/05` fails this gate rather than passing it quietly.
 
 **What this does not do**, said plainly because the gap is the interesting part:
 it checks the figures it was told about, not every number in every document. The
@@ -53,6 +70,12 @@ RUNS = {
     "blocks": ["tools/verify_blocks.py"],
     "cone": ["tools/verify_cone.py", "warmup"],
     "corpus": ["tools/verify_corpus.py"],
+    # `--list` prints the catalogue and returns before it touches Yosys, so it
+    # is container-free like the rest -- measured, not assumed: it exits 0 with
+    # docker off PATH. It is the only run that reports the group and family
+    # counts docs/05 tabulates.
+    "catalogue": ["tools/stage5_corpus.py", "--list"],
+    "corpus-selftest": ["tools/verify_corpus.py", "--selftest"],
 }
 
 # Documents whose criteria tables are checked row by row against the runs.
@@ -111,7 +134,75 @@ FIGURES = [
      r"holds declared 46: found structurally 12"),
     ("the corpus size and rule count", "corpus",
      r"99 circuits as 197 netlists.*12 rules, 762 uses"),
+    # docs/05 claims fifteen corruptions and full rule coverage. Both halves,
+    # because "every corruption caught" and "every rule covered" are different
+    # sentences and the document says both.
+    ("the corpus selftest's corruptions", "corpus-selftest",
+     r"all 15 corruptions were caught and every rule was tripped"),
+    ("the corpus selftest's rule coverage", "corpus-selftest",
+     r"rule coverage: 12/12 rules"),
 ]
+
+# Fenced blocks a document presents as tool output. (document, run, the line
+# the block starts with). Every non-blank line between there and the closing
+# fence must appear in that run's output -- not contiguously, because the tool
+# prints other sections between them, but line for line.
+FENCES = [
+    ("docs/05-synthetic-corpus.md", "corpus",
+     "99 circuits as 197 netlists {'base'"),
+]
+
+
+def family_count(text):
+    """How many families the catalogue printed, from its own dict."""
+    found = re.search(r"families: \{(.*?)\}", text, re.S)
+    return (str(found.group(1).count("': ")),) if found else None
+
+
+# (label, document, pattern over the document, run, pattern or callable over the
+# run). Both sides must capture the same groups in the same order. Written one
+# figure per entry rather than several, so a failure names the figure rather
+# than a line.
+#
+# **What this does not reach**, said plainly because docs/05 quotes them and
+# they look covered: the cell and state-element totals, the held-out split, and
+# the vocabulary percentages. The first three come from a full
+# `stage5_corpus.py` build, which needs Docker and forty minutes; the last comes
+# from `corpus_reach.py puzzle`, which needs the target. Neither can be one of
+# the container-free runs above.
+DOC_NUMBERS = [
+    ("docs/05: circuits whose two mappings differ",
+     "docs/05-synthetic-corpus.md",
+     r"and (\d+) of (\d+) land on genuinely\s+different cell mixes",
+     "corpus", r"structural invariance: (\d+)/(\d+) circuits"),
+    ("docs/05: holds the structural search finds",
+     "docs/05-synthetic-corpus.md",
+     r"finds (\d+) of \d+ declared enables",
+     "corpus", r"found structurally (\d+)"),
+    ("docs/05: holds the corpus declares",
+     "docs/05-synthetic-corpus.md",
+     r"finds \d+ of (\d+) declared enables",
+     "corpus", r"holds declared (\d+):"),
+    ("docs/05: circuits in the catalogue",
+     "docs/05-synthetic-corpus.md",
+     r"^(\d+) circuits, \d+ families",
+     "catalogue", r"corpus: (\d+) circuits"),
+    ("docs/05: families in the catalogue",
+     "docs/05-synthetic-corpus.md",
+     r"^\d+ circuits, (\d+) families",
+     "catalogue", family_count),
+]
+
+# The group table in docs/05, against the catalogue's own tally. One entry per
+# group, generated rather than typed, because five near-identical entries are
+# five chances to typo one.
+for _group in ("positive", "negative", "composed", "structure", "scale"):
+    DOC_NUMBERS.append((
+        f"docs/05: the {_group} group's size",
+        "docs/05-synthetic-corpus.md",
+        rf"\| {_group} \| (\d+) \|",
+        "catalogue", rf"'{_group}': (\d+)"))
+
 
 NUMBER = re.compile(r"^-?\d+(?:\.\d+)?$")
 ROW = re.compile(r"^\|(.+)\|\s*$")
@@ -175,7 +266,30 @@ def table_rows(path):
     return rows
 
 
-def check(doc_rows, figures, outputs, verbose=True):
+def fenced_block(path, opens_with):
+    """The fenced block beginning with this line, as its list of lines."""
+    lines = open(path, encoding="utf-8").read().splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith(opens_with):
+            block = []
+            for follow in lines[index:]:
+                if follow.strip() == "```":
+                    return block
+                block.append(follow)
+            return block
+    return None
+
+
+def captured(spec, text):
+    """The groups a pattern or a callable pulls out of some text, or None."""
+    if callable(spec):
+        return spec(text)
+    found = re.search(spec, text, re.M | re.S)
+    return found.groups() if found else None
+
+
+def check(doc_rows, figures, outputs, verbose=True, fences=None,
+          doc_numbers=None):
     """Every figure against its run. Returns the list that did not hold."""
     problems = []
 
@@ -205,6 +319,44 @@ def check(doc_rows, figures, outputs, verbose=True):
             continue
         report(re.search(pattern, outputs[where]) is not None,
                f"{label[:44]:<44}", f"[{where}]")
+
+    fences = FENCES if fences is None else fences
+    doc_numbers = DOC_NUMBERS if doc_numbers is None else doc_numbers
+
+    if verbose and (fences or doc_numbers):
+        print("\nand the documents that quote a run directly")
+    for path, where, opens_with in fences:
+        label = f"{os.path.basename(path)} fence, {opens_with[:28]}"
+        block = fenced_block(path, opens_with)
+        if block is None:
+            report(False, f"{label[:44]:<44}", "no such fence in the document")
+            continue
+        if where not in outputs:
+            report(False, f"{label[:44]:<44}", f"no run named {where!r}")
+            continue
+        printed = {line.strip() for line in outputs[where].splitlines()}
+        astray = [line.strip() for line in block
+                  if line.strip() and line.strip() not in printed]
+        report(not astray, f"{label[:44]:<44}",
+               f"{len(block)} lines" if not astray
+               else f"{len(astray)} line(s) the run does not print: "
+                    f"{astray[0][:60]!r}")
+
+    for label, path, doc_pattern, where, run_spec in doc_numbers:
+        if where not in outputs:
+            report(False, f"{label[:44]:<44}", f"no run named {where!r}")
+            continue
+        said = captured(doc_pattern, open(path, encoding="utf-8").read())
+        printed = captured(run_spec, outputs[where])
+        if said is None:
+            report(False, f"{label[:44]:<44}", "the document does not say it")
+        elif printed is None:
+            report(False, f"{label[:44]:<44}", f"the {where} run does not")
+        else:
+            report(said == printed, f"{label[:44]:<44}",
+                   f"{'/'.join(said)}" if said == printed
+                   else f"document says {'/'.join(said)}, the run prints "
+                        f"{'/'.join(printed)}")
     return problems
 
 
@@ -224,8 +376,9 @@ def selftest():
     outputs = run_all()
     doc_rows = collect_doc_rows()
 
-    print(f"the subject first: {len(doc_rows)} table rows and "
-          f"{len(FIGURES)} registry figures")
+    print(f"the subject first: {len(doc_rows)} table rows, "
+          f"{len(FIGURES)} registry figures, {len(FENCES)} quoted fence(s) "
+          f"and {len(DOC_NUMBERS)} document numbers")
     problems = check(doc_rows, FIGURES, outputs, verbose=False)
     if problems:
         print(f"  the real documents do not pass, so nothing below would "
@@ -258,7 +411,33 @@ def selftest():
             print(f"          {found[0].strip()}")
         else:
             missed.append(label)
-    print(f"\n  {len(corruptions) - len(missed)}/{len(corruptions)} caught")
+    # The two mechanisms docs/05 needed, each fed a corruption of its own.
+    # These are the ones that read the *document*, so they are the only ones
+    # that would notice a digit changed there.
+    document = [
+        ("a docs/05 number that no longer matches the run",
+         # The document's own real sentence, held against the wrong figure in
+         # the run: 54 circuits differ, 46 enables are declared. A digit
+         # changed on either side is indistinguishable from this.
+         dict(doc_numbers=[
+             ("the differing-mappings count against the wrong run figure",
+              DOC_NUMBERS[0][1], r"and (\d+) of \d+ land on genuinely",
+              DOC_NUMBERS[0][3], r"holds declared (\d+):")],
+              fences=[])),
+        ("a docs/05 fence line the run does not print",
+         dict(fences=[(FENCES[0][0], FENCES[0][1], "no such line anywhere")],
+              doc_numbers=[])),
+    ]
+    for label, kwargs in document:
+        found = check([], [], outputs, verbose=False, **kwargs)
+        print(f"  {'caught' if found else 'MISSED'}  {label}")
+        if found:
+            print(f"          {found[0].strip()}")
+        else:
+            missed.append(label)
+
+    total = len(corruptions) + len(document)
+    print(f"\n  {total - len(missed)}/{total} caught")
     if missed:
         print("\nRESULT: fail, this audit does not notice: " + ", ".join(missed))
         return 1
@@ -273,15 +452,16 @@ def run():
     doc_rows = collect_doc_rows()
     problems = check(doc_rows, FIGURES, outputs)
     print(f"\n{len(doc_rows)} table rows over {len(TABLE_DOCS)} documents, "
-          f"{len(FIGURES)} registry figures, {len(RUNS)} runs")
+          f"{len(FIGURES)} registry figures, {len(FENCES)} quoted fence(s), "
+          f"{len(DOC_NUMBERS)} document numbers, {len(RUNS)} runs")
     if problems:
         print(f"\nRESULT: fail, {len(problems)} figure(s) are not produced by "
               f"the run that\n  is supposed to produce them")
         return 1
     print("\nRESULT: pass. Note the limit: this checks the figures it was told "
           "about.\n  The table half follows a document that gains a row; the "
-          "registry half does\n  not, and a figure added to a document and not "
-          "to FIGURES is unchecked.")
+          "registry, fence and\n  document-number halves do not, and a figure "
+          "added to a document and not\n  registered here is unchecked.")
     return 0
 
 

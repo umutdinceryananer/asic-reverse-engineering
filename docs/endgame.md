@@ -1,7 +1,7 @@
 # Endgame — 23 August to 4 September 2026
 
-The build is done except stage 7. From here the critical path is the author's
-time, not tooling. This file replaces the stale dates in
+The build is done, stage 7 included. From here the critical path is the
+author's time, not tooling. This file replaces the stale dates in
 `docs/jane-street-asic-roadmap.md`; the phase logic there still stands.
 
 Rule carried over: submit by 2 September, not 4 — the relocation risk sits
@@ -9,10 +9,17 @@ exactly on the deadline.
 
 ## 23–24 Aug — close the build, open the puzzle
 
-- [ ] Hand Package 6 (stage 7, output extraction) to the worker; supervisor
-      validates on return. Last planned package.
-- [ ] Commit the five untracked docs (lectures 04–06, references.md with the
-      open_pdks revision correction, design-competition-toolchain.md).
+- [x] Package 6 (stage 7, output extraction) handed over, returned and
+      validated. Last planned package. Landed as `83bddd3`: the shared Icarus
+      harness, `stage7_output.py`, `verify_output.py`, the `streamer` corpus
+      family, and problems 52 and 53.
+- [x] Commit the untracked docs. Nine files, not five: `docs/05` refreshed,
+      lectures 04–**07**, `references.md` with the open_pdks revision
+      correction, `design-competition-toolchain.md`, this file, and `README.md`
+      — the first eight as `d4527f9`, the README with the handover audit.
+- [x] Handover audit: docs/05 and lectures 04–05 re-checked against live runs
+      after the corpus grew to 99 circuits, and `docs/05` put under
+      `verify_figures.py` so it cannot go stale unwatched again.
 - [ ] Author puzzle runs, in order, each cheap:
       - `stage1_cells.py puzzle --library pdk/open_pdks_sky130A` — does
         structural 22 drop to 0? Either answer goes in the writeup.
@@ -20,7 +27,8 @@ exactly on the deadline.
         "84 cleared and 4 preset; 4 free"; start `--start 121 --depth 160`.
       - `sim/replay.py puzzle --solution out/puzzle/solution_post_reset.json`
         — believe nothing before this passes.
-      - `decode_marker_row.py puzzle` — the Morse egg, for the form.
+      - `decode_marker_row.py puzzle/puzzle.gds` — the Morse egg, for the
+        form. Takes a GDS path, not a target name.
 
 ## 24–28 Aug — analysis week (author only)
 
@@ -58,8 +66,8 @@ look), and — once it exists — the string from stage 7.
 ## 4 Sep — after close
 
 - [ ] Repository public. Writeup link mailed per the announcement's invitation.
-- [ ] Lecture 07 (stage 7) once its gates have passed — the standing rule,
-      lessons after gates.
+- [x] Lecture 07 (stage 7) — written 23 Aug, after its gates passed, which is
+      the standing rule met rather than waived. All eight lectures are in.
 - [ ] docs/design-competition-toolchain.md: revisit when the follow-up
       competition's rules are published.
 
