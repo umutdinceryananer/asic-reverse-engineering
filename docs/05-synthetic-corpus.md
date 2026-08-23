@@ -27,7 +27,7 @@ absent here can be found unexplained; it cannot be identified.
 **More than one structure per function.** The claim above was untestable while
 every circuit was synthesised exactly once: a detector that had memorised one
 particular mapping of an adder would have scored perfectly. Each circuit is now
-mapped twice from one shared pre-mapping netlist, and 51 of 93 land on genuinely
+mapped twice from one shared pre-mapping netlist, and 54 of 99 land on genuinely
 different cell mixes.
 
 **Negative controls.** A corpus of only positive examples measures sensitivity
@@ -41,7 +41,10 @@ holds blocks feeding each other.
 
 ## The catalogue
 
-93 circuits, 21 families, five groups.
+99 circuits, 25 families. The original catalogue was 93 circuits in five
+groups; the four families added since — `warmup_twin`, `warmup` (the RTL
+itself), the pre-mapped `mux2i_witness` and `streamer` — are described where
+their stories are told, and bring the total to 99 circuits as 197 netlists.
 
 | Group | Count | Purpose |
 |---|---|---|
@@ -64,7 +67,7 @@ machine laid out two ways, so a detector that only recognises one has learnt the
 encoding rather than the machine.
 
 **Held out.** Every third variant of each family is withheld from development:
-26 circuits for scoring, 67 to work against. The split is a fixed rule rather
+26 circuits for scoring, 73 to work against. The split is a fixed rule rather
 than a random draw, so "held out" means the same thing on every machine and
 every run, and it is decided once per circuit so that both mappings of a held
 out circuit stay held out together.
@@ -220,10 +223,10 @@ makes the case that detectors must normalise the suffix.
 ## Results
 
 ```
-93 circuits as 186 netlists (base, fast), 0 synthesis failures
-8727 cells, 2414 state elements
-51/93 circuits map to a different cell mix under the second flow
-held out for scoring 26 circuits, available for development 67
+99 circuits as 197 netlists (base 99, fast 98; the witness is pre-mapped)
+9228 cells, 2585 state elements, 0 synthesis failures
+54/99 circuits map to a different cell mix under the second flow
+held out for scoring 26 circuits, available for development 73
 vocabulary by function: 91% of corpus instances are of a kind the puzzle uses
 ```
 
@@ -245,19 +248,20 @@ way of staying true. **A measurement that is not a program is a measurement that
 happened once.**
 
 ```
-93 circuits as 186 netlists, 11 rules, 662 uses
+99 circuits as 197 netlists, 12 rules, 762 uses
    12  a reset port, with the reset in the logic   always True
-  126  clock roots                                   4  constant nets
-   14  declared flip flop count                     12  distinct clock nets
-  126  flops accounted for by the clock roots      126  flops on an inverting clock path
-   30  flops whose data cone the enable reaches     78  flops whose reset is a pin
+  137  clock roots                                   4  constant nets
+   25  declared flip flop count                     12  distinct clock nets
+  137  flops accounted for by the clock roots      137  flops on an inverting clock path
+   46  flops whose data cone the enable reaches     89  flops whose reset is a pin
    56  stateless   always 0                         78  width in flip flops
-  9/11 rules were asked for more than one answer; 68/662 uses assert a constant
+   29  flops accounted for by the declared registers
+  10/12 rules were asked for more than one answer; 68/762 uses assert a constant
 RESULT: pass
 ```
 
 **The count of facts is the wrong headline, and it was the headline for a
-while.** 662 is eleven rules times the corpus size, so the tool now reports
+while.** 762 is twelve rules times the corpus size, so the tool now reports
 rules and marks the ones whose declared value never varies. A rule only ever
 asked to confirm the same number is a rule an implementation returning that
 number unconditionally would pass.
@@ -304,11 +308,16 @@ declared it. That is the structural invariance test, made at the stage 3 level
 and for free: a fact that only survives one particular mapping was a property of
 that mapping and not of the circuit.
 
-**`--selftest` feeds each rule the corruption it exists to catch** — ten of
-them now: the root walk removed, reset pins lost, a synchronous reset made
+**`--selftest` feeds each rule the corruption it exists to catch** — fifteen
+of them now: the root walk removed, reset pins lost, a synchronous reset made
 asynchronous, a clock inverted, an extra flip flop, a flop left out of a root,
 two clock domains merged, inversion parity lost, an enable reaching no cone,
-constants folded away. Each runs on a circuit that rule applies to and that
+constants folded away, a sync reset's port gone, clock branches merged, an
+extra flop with the count declared, a flop dropped from the graph, and a latch
+inferred in a stateless design. Fifteen corruptions, and every one of the
+twelve rules tripped by at least one — the second half of that sentence is
+counted separately, because ten corruptions all being caught once meant seven
+of twelve rules covered and nobody had asked. Each runs on a circuit that rule applies to and that
 passes cleanly beforehand. The first version ran all seven against one circuit
 and one went unnoticed for the uninteresting reason that its rule was never in
 play.
@@ -324,8 +333,9 @@ emits what it declares, and the check distinguishes the two shapes rather than
 asking whether a reset exists somewhere — which is the weaker question that had
 been passing.
 
-**The structural search for a held register finds 6 of 30 declared enables**, in
-four distinct ways, all measured against ground truth we wrote:
+**The structural search for a held register finds 12 of 46 declared enables**,
+the rest hidden in five distinct ways, all measured against ground truth we
+wrote:
 
 | Shape | What synthesis did |
 |---|---|
