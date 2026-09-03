@@ -340,6 +340,24 @@ Merdiven aşağıdan yukarı: transistörden çıkan bağlantı `licon1` ile `li
 tırmanır, `mcon` ile `met1`'e, sonra `via`, `via2`, `via3`, `via4` ile
 `met2`...`met5`'e kadar çıkar.
 
+Via'yı bir **bağlantı rampası** gibi düşün. Metal katmanları sinyalin asıl yol
+katettiği yatay yollar; via ise bir metal katmanından diğerine geçmek için
+kullanılan kısa dikey bağlantıdır. Sinyal uzun mesafeyi via'nın içinde gitmez:
+bir metal üzerinde gelir, via ile başka kata çıkar ve yoluna o metal üzerinde
+devam eder.
+
+```
+met2  =========================
+              │
+             via
+              │
+met1  =========
+```
+
+Şehir benzetmesiyle, metal yolun kendisiyse via **tali yoldan çok otoyola
+bağlanan rampa veya katlar arasındaki asansör** gibidir: görevi yana doğru uzun
+mesafe taşımak değil, bağlantıyı başka bir metal katmanına aktarmaktır.
+
 Alt katmanlar ince ve kısa mesafeler için, üst katmanlar kalın ve uzun
 mesafeler için. Besleme (VPWR/VGND) genelde üst katmanlardan dağıtılır, çünkü
 kalın metal daha az direnç gösterir.

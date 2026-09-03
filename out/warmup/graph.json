@@ -1,0 +1,4377 @@
+{
+ "target": "adder_demo",
+ "top": "adder_demo",
+ "cells": {
+  "i00005": {
+   "type": "sky130_fd_sc_hd__clkbuf_16",
+   "connections": {
+    "A": [
+     "n5"
+    ],
+    "X": [
+     "n8"
+    ]
+   }
+  },
+  "i00006": {
+   "type": "sky130_fd_sc_hd__and4bb_2",
+   "connections": {
+    "A_N": [
+     "n9"
+    ],
+    "B_N": [
+     "n10"
+    ],
+    "C": [
+     "n11"
+    ],
+    "D": [
+     "n12"
+    ],
+    "X": [
+     "n13"
+    ]
+   }
+  },
+  "i00108": {
+   "type": "sky130_fd_sc_hd__and3_2",
+   "connections": {
+    "A": [
+     "n14"
+    ],
+    "B": [
+     "n15"
+    ],
+    "C": [
+     "n16"
+    ],
+    "X": [
+     "n17"
+    ]
+   }
+  },
+  "i00136": {
+   "type": "sky130_fd_sc_hd__clkbuf_16",
+   "connections": {
+    "A": [
+     "n8"
+    ],
+    "X": [
+     "n18"
+    ]
+   }
+  },
+  "i00137": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n19"
+    ],
+    "A1": [
+     "n20"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n21"
+    ]
+   }
+  },
+  "i00138": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n22"
+    ],
+    "A1": [
+     "n19"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n23"
+    ]
+   }
+  },
+  "i00139": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n24"
+    ],
+    "A1": [
+     "n25"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n26"
+    ]
+   }
+  },
+  "i00140": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n27"
+    ],
+    "A1": [
+     "n2"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n28"
+    ]
+   }
+  },
+  "i00141": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n29"
+    ],
+    "Q": [
+     "n25"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00142": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n23"
+    ],
+    "Q": [
+     "n22"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00146": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n21"
+    ],
+    "Q": [
+     "n19"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00180": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n30"
+    ],
+    "Q": [
+     "n20"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00181": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n28"
+    ],
+    "Q": [
+     "n27"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00182": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n26"
+    ],
+    "Q": [
+     "n24"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00210": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n25"
+    ],
+    "A1": [
+     "n22"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n29"
+    ]
+   }
+  },
+  "i00234": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n20"
+    ],
+    "A1": [
+     "n31"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n30"
+    ]
+   }
+  },
+  "i00274": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n32"
+    ],
+    "A1": [
+     "n24"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n33"
+    ]
+   }
+  },
+  "i00339": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n31"
+    ],
+    "A1": [
+     "n27"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n34"
+    ]
+   }
+  },
+  "i00348": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n33"
+    ],
+    "Q": [
+     "n32"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00368": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n18"
+    ],
+    "D": [
+     "n34"
+    ],
+    "Q": [
+     "n31"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00369": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n35"
+    ],
+    "A1": [
+     "n36"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n37"
+    ]
+   }
+  },
+  "i00378": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n36"
+    ],
+    "A1": [
+     "n38"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n39"
+    ]
+   }
+  },
+  "i00379": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n38"
+    ],
+    "A1": [
+     "n3"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n40"
+    ]
+   }
+  },
+  "i00385": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n42"
+    ],
+    "Q": [
+     "n43"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00386": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n44"
+    ],
+    "Q": [
+     "n45"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00387": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n46"
+    ],
+    "Q": [
+     "n47"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00388": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n37"
+    ],
+    "Q": [
+     "n35"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00404": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n47"
+    ],
+    "A1": [
+     "n43"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n46"
+    ]
+   }
+  },
+  "i00418": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n48"
+    ],
+    "A1": [
+     "n45"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n49"
+    ]
+   }
+  },
+  "i00426": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n43"
+    ],
+    "A1": [
+     "n50"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n42"
+    ]
+   }
+  },
+  "i00433": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n39"
+    ],
+    "Q": [
+     "n36"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00443": {
+   "type": "sky130_fd_sc_hd__clkbuf_16",
+   "connections": {
+    "A": [
+     "n8"
+    ],
+    "X": [
+     "n41"
+    ]
+   }
+  },
+  "i00453": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n51"
+    ],
+    "Q": [
+     "n50"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00541": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n40"
+    ],
+    "Q": [
+     "n38"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00554": {
+   "type": "sky130_fd_sc_hd__dfrtp_2",
+   "connections": {
+    "CLK": [
+     "n41"
+    ],
+    "D": [
+     "n49"
+    ],
+    "Q": [
+     "n48"
+    ],
+    "RESET_B": [
+     "n7"
+    ]
+   }
+  },
+  "i00596": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n50"
+    ],
+    "A1": [
+     "n48"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n51"
+    ]
+   }
+  },
+  "i00603": {
+   "type": "sky130_fd_sc_hd__mux2_1",
+   "connections": {
+    "A0": [
+     "n45"
+    ],
+    "A1": [
+     "n35"
+    ],
+    "S": [
+     "n6"
+    ],
+    "X": [
+     "n44"
+    ]
+   }
+  },
+  "i00613": {
+   "type": "sky130_fd_sc_hd__a31o_2",
+   "connections": {
+    "A1": [
+     "n35"
+    ],
+    "A2": [
+     "n20"
+    ],
+    "A3": [
+     "n52"
+    ],
+    "B1": [
+     "n53"
+    ],
+    "X": [
+     "n54"
+    ]
+   }
+  },
+  "i00616": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n47"
+    ],
+    "B": [
+     "n32"
+    ],
+    "Y": [
+     "n55"
+    ]
+   }
+  },
+  "i00617": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n45"
+    ],
+    "B": [
+     "n19"
+    ],
+    "Y": [
+     "n56"
+    ]
+   }
+  },
+  "i00618": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n50"
+    ],
+    "B": [
+     "n25"
+    ],
+    "Y": [
+     "n57"
+    ]
+   }
+  },
+  "i00619": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n58"
+    ],
+    "B": [
+     "n59"
+    ],
+    "Y": [
+     "n60"
+    ]
+   }
+  },
+  "i00622": {
+   "type": "sky130_fd_sc_hd__a21boi_2",
+   "connections": {
+    "A1": [
+     "n61"
+    ],
+    "A2": [
+     "n62"
+    ],
+    "B1_N": [
+     "n63"
+    ],
+    "Y": [
+     "n64"
+    ]
+   }
+  },
+  "i00623": {
+   "type": "sky130_fd_sc_hd__o21bai_2",
+   "connections": {
+    "A1": [
+     "n55"
+    ],
+    "A2": [
+     "n64"
+    ],
+    "B1_N": [
+     "n65"
+    ],
+    "Y": [
+     "n16"
+    ]
+   }
+  },
+  "i00629": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n66"
+    ],
+    "B": [
+     "n67"
+    ],
+    "X": [
+     "n68"
+    ]
+   }
+  },
+  "i00630": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n47"
+    ],
+    "B": [
+     "n32"
+    ],
+    "X": [
+     "n65"
+    ]
+   }
+  },
+  "i00631": {
+   "type": "sky130_fd_sc_hd__xor2_2",
+   "connections": {
+    "A": [
+     "n36"
+    ],
+    "B": [
+     "n31"
+    ],
+    "X": [
+     "n69"
+    ]
+   }
+  },
+  "i00632": {
+   "type": "sky130_fd_sc_hd__xor2_2",
+   "connections": {
+    "A": [
+     "n70"
+    ],
+    "B": [
+     "n71"
+    ],
+    "X": [
+     "n12"
+    ]
+   }
+  },
+  "i00633": {
+   "type": "sky130_fd_sc_hd__xor2_2",
+   "connections": {
+    "A": [
+     "n60"
+    ],
+    "B": [
+     "n72"
+    ],
+    "X": [
+     "n11"
+    ]
+   }
+  },
+  "i00634": {
+   "type": "sky130_fd_sc_hd__xor2_2",
+   "connections": {
+    "A": [
+     "n73"
+    ],
+    "B": [
+     "n74"
+    ],
+    "X": [
+     "n10"
+    ]
+   }
+  },
+  "i00635": {
+   "type": "sky130_fd_sc_hd__a31o_2",
+   "connections": {
+    "A1": [
+     "n60"
+    ],
+    "A2": [
+     "n72"
+    ],
+    "A3": [
+     "n70"
+    ],
+    "B1": [
+     "n75"
+    ],
+    "X": [
+     "n62"
+    ]
+   }
+  },
+  "i00636": {
+   "type": "sky130_fd_sc_hd__or2_2",
+   "connections": {
+    "A": [
+     "n43"
+    ],
+    "B": [
+     "n24"
+    ],
+    "X": [
+     "n61"
+    ]
+   }
+  },
+  "i00639": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n50"
+    ],
+    "B": [
+     "n25"
+    ],
+    "X": [
+     "n76"
+    ]
+   }
+  },
+  "i00659": {
+   "type": "sky130_fd_sc_hd__and4bb_2",
+   "connections": {
+    "A_N": [
+     "n77"
+    ],
+    "B_N": [
+     "n68"
+    ],
+    "C": [
+     "n17"
+    ],
+    "D": [
+     "n13"
+    ],
+    "X": [
+     "n4"
+    ]
+   }
+  },
+  "i00685": {
+   "type": "sky130_fd_sc_hd__or2_2",
+   "connections": {
+    "A": [
+     "n35"
+    ],
+    "B": [
+     "n20"
+    ],
+    "X": [
+     "n78"
+    ]
+   }
+  },
+  "i00707": {
+   "type": "sky130_fd_sc_hd__a21bo_2",
+   "connections": {
+    "A1": [
+     "n73"
+    ],
+    "A2": [
+     "n74"
+    ],
+    "B1_N": [
+     "n79"
+    ],
+    "X": [
+     "n80"
+    ]
+   }
+  },
+  "i00711": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n45"
+    ],
+    "B": [
+     "n19"
+    ],
+    "X": [
+     "n53"
+    ]
+   }
+  },
+  "i00761": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n57"
+    ],
+    "B": [
+     "n76"
+    ],
+    "Y": [
+     "n70"
+    ]
+   }
+  },
+  "i00765": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n56"
+    ],
+    "B": [
+     "n53"
+    ],
+    "Y": [
+     "n81"
+    ]
+   }
+  },
+  "i00781": {
+   "type": "sky130_fd_sc_hd__a21o_2",
+   "connections": {
+    "A1": [
+     "n60"
+    ],
+    "A2": [
+     "n72"
+    ],
+    "B1": [
+     "n58"
+    ],
+    "X": [
+     "n71"
+    ]
+   }
+  },
+  "i00841": {
+   "type": "sky130_fd_sc_hd__or2_2",
+   "connections": {
+    "A": [
+     "n50"
+    ],
+    "B": [
+     "n25"
+    ],
+    "X": [
+     "n82"
+    ]
+   }
+  },
+  "i00844": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n48"
+    ],
+    "B": [
+     "n22"
+    ],
+    "Y": [
+     "n59"
+    ]
+   }
+  },
+  "i00852": {
+   "type": "sky130_fd_sc_hd__nand2_2",
+   "connections": {
+    "A": [
+     "n63"
+    ],
+    "B": [
+     "n61"
+    ],
+    "Y": [
+     "n83"
+    ]
+   }
+  },
+  "i00864": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n36"
+    ],
+    "B": [
+     "n31"
+    ],
+    "X": [
+     "n84"
+    ]
+   }
+  },
+  "i00866": {
+   "type": "sky130_fd_sc_hd__a31o_2",
+   "connections": {
+    "A1": [
+     "n48"
+    ],
+    "A2": [
+     "n22"
+    ],
+    "A3": [
+     "n82"
+    ],
+    "B1": [
+     "n76"
+    ],
+    "X": [
+     "n75"
+    ]
+   }
+  },
+  "i00895": {
+   "type": "sky130_fd_sc_hd__or2_2",
+   "connections": {
+    "A": [
+     "n45"
+    ],
+    "B": [
+     "n19"
+    ],
+    "X": [
+     "n52"
+    ]
+   }
+  },
+  "i00900": {
+   "type": "sky130_fd_sc_hd__xnor2_2",
+   "connections": {
+    "A": [
+     "n83"
+    ],
+    "B": [
+     "n62"
+    ],
+    "Y": [
+     "n14"
+    ]
+   }
+  },
+  "i00917": {
+   "type": "sky130_fd_sc_hd__a31o_2",
+   "connections": {
+    "A1": [
+     "n73"
+    ],
+    "A2": [
+     "n74"
+    ],
+    "A3": [
+     "n81"
+    ],
+    "B1": [
+     "n54"
+    ],
+    "X": [
+     "n72"
+    ]
+   }
+  },
+  "i00972": {
+   "type": "sky130_fd_sc_hd__xor2_2",
+   "connections": {
+    "A": [
+     "n81"
+    ],
+    "B": [
+     "n80"
+    ],
+    "X": [
+     "n9"
+    ]
+   }
+  },
+  "i00975": {
+   "type": "sky130_fd_sc_hd__xnor2_2",
+   "connections": {
+    "A": [
+     "n85"
+    ],
+    "B": [
+     "n64"
+    ],
+    "Y": [
+     "n15"
+    ]
+   }
+  },
+  "i00976": {
+   "type": "sky130_fd_sc_hd__nand2_2",
+   "connections": {
+    "A": [
+     "n43"
+    ],
+    "B": [
+     "n24"
+    ],
+    "Y": [
+     "n63"
+    ]
+   }
+  },
+  "i00978": {
+   "type": "sky130_fd_sc_hd__nand2_2",
+   "connections": {
+    "A": [
+     "n35"
+    ],
+    "B": [
+     "n20"
+    ],
+    "Y": [
+     "n79"
+    ]
+   }
+  },
+  "i00989": {
+   "type": "sky130_fd_sc_hd__nor2_2",
+   "connections": {
+    "A": [
+     "n65"
+    ],
+    "B": [
+     "n55"
+    ],
+    "Y": [
+     "n85"
+    ]
+   }
+  },
+  "i01002": {
+   "type": "sky130_fd_sc_hd__nand2_2",
+   "connections": {
+    "A": [
+     "n38"
+    ],
+    "B": [
+     "n27"
+    ],
+    "Y": [
+     "n66"
+    ]
+   }
+  },
+  "i01011": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n78"
+    ],
+    "B": [
+     "n79"
+    ],
+    "X": [
+     "n74"
+    ]
+   }
+  },
+  "i01048": {
+   "type": "sky130_fd_sc_hd__a31o_2",
+   "connections": {
+    "A1": [
+     "n38"
+    ],
+    "A2": [
+     "n27"
+    ],
+    "A3": [
+     "n69"
+    ],
+    "B1": [
+     "n84"
+    ],
+    "X": [
+     "n73"
+    ]
+   }
+  },
+  "i01052": {
+   "type": "sky130_fd_sc_hd__xnor2_2",
+   "connections": {
+    "A": [
+     "n66"
+    ],
+    "B": [
+     "n69"
+    ],
+    "Y": [
+     "n77"
+    ]
+   }
+  },
+  "i01069": {
+   "type": "sky130_fd_sc_hd__or2_2",
+   "connections": {
+    "A": [
+     "n38"
+    ],
+    "B": [
+     "n27"
+    ],
+    "X": [
+     "n67"
+    ]
+   }
+  },
+  "i01070": {
+   "type": "sky130_fd_sc_hd__and2_2",
+   "connections": {
+    "A": [
+     "n48"
+    ],
+    "B": [
+     "n22"
+    ],
+    "X": [
+     "n58"
+    ]
+   }
+  }
+ },
+ "ports": {
+  "A": {
+   "direction": "input",
+   "bits": [
+    "n2"
+   ]
+  },
+  "B": {
+   "direction": "input",
+   "bits": [
+    "n3"
+   ]
+  },
+  "S": {
+   "direction": "output",
+   "bits": [
+    "n4"
+   ]
+  },
+  "clk": {
+   "direction": "input",
+   "bits": [
+    "n5"
+   ]
+  },
+  "en": {
+   "direction": "input",
+   "bits": [
+    "n6"
+   ]
+  },
+  "rst_n": {
+   "direction": "input",
+   "bits": [
+    "n7"
+   ]
+  }
+ },
+ "net_names": {
+  "n2": "A",
+  "n3": "B",
+  "n4": "S",
+  "n5": "clk",
+  "n6": "en",
+  "n27": "n00002",
+  "n48": "n00003",
+  "n22": "n00004",
+  "n38": "n00006",
+  "n67": "n00007",
+  "n32": "n00008",
+  "n58": "n00009",
+  "n65": "n00011",
+  "n44": "n00012",
+  "n59": "n00013",
+  "n50": "n00014",
+  "n19": "n00015",
+  "n45": "n00016",
+  "n81": "n00017",
+  "n25": "n00018",
+  "n54": "n00019",
+  "n85": "n00020",
+  "n74": "n00021",
+  "n64": "n00022",
+  "n35": "n00023",
+  "n72": "n00024",
+  "n63": "n00025",
+  "n60": "n00026",
+  "n73": "n00027",
+  "n79": "n00028",
+  "n11": "n00029",
+  "n52": "n00030",
+  "n43": "n00031",
+  "n41": "n00032",
+  "n49": "n00033",
+  "n61": "n00035",
+  "n20": "n00036",
+  "n69": "n00037",
+  "n42": "n00038",
+  "n76": "n00039",
+  "n82": "n00040",
+  "n83": "n00041",
+  "n47": "n00042",
+  "n40": "n00043",
+  "n31": "n00044",
+  "n36": "n00045",
+  "n62": "n00046",
+  "n56": "n00047",
+  "n80": "n00048",
+  "n55": "n00049",
+  "n84": "n00051",
+  "n51": "n00052",
+  "n77": "n00053",
+  "n37": "n00054",
+  "n16": "n00055",
+  "n10": "n00056",
+  "n66": "n00057",
+  "n53": "n00058",
+  "n75": "n00059",
+  "n70": "n00060",
+  "n71": "n00061",
+  "n24": "n00062",
+  "n39": "n00063",
+  "n78": "n00064",
+  "n12": "n00065",
+  "n46": "n00067",
+  "n68": "n00068",
+  "n57": "n00069",
+  "n8": "n00070",
+  "n17": "n00071",
+  "n13": "n00072",
+  "n15": "n00073",
+  "n9": "n00074",
+  "n14": "n00075",
+  "n18": "n00076",
+  "n34": "n00077",
+  "n33": "n00078",
+  "n21": "n00079",
+  "n29": "n00080",
+  "n26": "n00081",
+  "n28": "n00082",
+  "n23": "n00084",
+  "n30": "n00085",
+  "n7": "rst_n"
+ },
+ "nets": {
+  "n10": {
+   "pins": [
+    {
+     "instance": "i00006",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "B_N",
+     "direction": "input"
+    },
+    {
+     "instance": "i00634",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00634",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n11": {
+   "pins": [
+    {
+     "instance": "i00006",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "C",
+     "direction": "input"
+    },
+    {
+     "instance": "i00633",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00633",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n12": {
+   "pins": [
+    {
+     "instance": "i00006",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00632",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00632",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n13": {
+   "pins": [
+    {
+     "instance": "i00006",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00659",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00006",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n14": {
+   "pins": [
+    {
+     "instance": "i00108",
+     "cell": "sky130_fd_sc_hd__and3_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00900",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00900",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n15": {
+   "pins": [
+    {
+     "instance": "i00108",
+     "cell": "sky130_fd_sc_hd__and3_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00975",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00975",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n16": {
+   "pins": [
+    {
+     "instance": "i00108",
+     "cell": "sky130_fd_sc_hd__and3_2",
+     "pin": "C",
+     "direction": "input"
+    },
+    {
+     "instance": "i00623",
+     "cell": "sky130_fd_sc_hd__o21bai_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00623",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n17": {
+   "pins": [
+    {
+     "instance": "i00108",
+     "cell": "sky130_fd_sc_hd__and3_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00659",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "C",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00108",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n18": {
+   "pins": [
+    {
+     "instance": "i00136",
+     "cell": "sky130_fd_sc_hd__clkbuf_16",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00141",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00142",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00146",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00180",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00181",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00182",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00348",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00368",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00136",
+   "cones": []
+  },
+  "n19": {
+   "pins": [
+    {
+     "instance": "i00137",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00138",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00146",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00617",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00711",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00895",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00146",
+   "cones": [
+    "i00142.data",
+    "i00146.data",
+    "port.S"
+   ]
+  },
+  "n2": {
+   "pins": [
+    {
+     "instance": "i00140",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    }
+   ],
+   "driver": null,
+   "cones": [
+    "i00181.data"
+   ]
+  },
+  "n20": {
+   "pins": [
+    {
+     "instance": "i00137",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00180",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00234",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00613",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i00685",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00978",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00180",
+   "cones": [
+    "i00146.data",
+    "i00180.data",
+    "port.S"
+   ]
+  },
+  "n21": {
+   "pins": [
+    {
+     "instance": "i00137",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00146",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00137",
+   "cones": [
+    "i00146.data"
+   ]
+  },
+  "n22": {
+   "pins": [
+    {
+     "instance": "i00138",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00142",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00210",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00844",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00866",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i01070",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00142",
+   "cones": [
+    "i00141.data",
+    "i00142.data",
+    "port.S"
+   ]
+  },
+  "n23": {
+   "pins": [
+    {
+     "instance": "i00138",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00142",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00138",
+   "cones": [
+    "i00142.data"
+   ]
+  },
+  "n24": {
+   "pins": [
+    {
+     "instance": "i00139",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00182",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00274",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00636",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00976",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00182",
+   "cones": [
+    "i00182.data",
+    "i00348.data",
+    "port.S"
+   ]
+  },
+  "n25": {
+   "pins": [
+    {
+     "instance": "i00139",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00141",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00210",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00618",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00639",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00841",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00141",
+   "cones": [
+    "i00141.data",
+    "i00182.data",
+    "port.S"
+   ]
+  },
+  "n26": {
+   "pins": [
+    {
+     "instance": "i00139",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00182",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00139",
+   "cones": [
+    "i00182.data"
+   ]
+  },
+  "n27": {
+   "pins": [
+    {
+     "instance": "i00140",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00181",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00339",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i01002",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i01048",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i01069",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00181",
+   "cones": [
+    "i00181.data",
+    "i00368.data",
+    "port.S"
+   ]
+  },
+  "n28": {
+   "pins": [
+    {
+     "instance": "i00140",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00181",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00140",
+   "cones": [
+    "i00181.data"
+   ]
+  },
+  "n29": {
+   "pins": [
+    {
+     "instance": "i00141",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00210",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00210",
+   "cones": [
+    "i00141.data"
+   ]
+  },
+  "n3": {
+   "pins": [
+    {
+     "instance": "i00379",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    }
+   ],
+   "driver": null,
+   "cones": [
+    "i00541.data"
+   ]
+  },
+  "n30": {
+   "pins": [
+    {
+     "instance": "i00180",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00234",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00234",
+   "cones": [
+    "i00180.data"
+   ]
+  },
+  "n31": {
+   "pins": [
+    {
+     "instance": "i00234",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00339",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00368",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00631",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00864",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00368",
+   "cones": [
+    "i00180.data",
+    "i00368.data",
+    "port.S"
+   ]
+  },
+  "n32": {
+   "pins": [
+    {
+     "instance": "i00274",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00348",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00616",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00630",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00348",
+   "cones": [
+    "i00348.data",
+    "port.S"
+   ]
+  },
+  "n33": {
+   "pins": [
+    {
+     "instance": "i00274",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00348",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00274",
+   "cones": [
+    "i00348.data"
+   ]
+  },
+  "n34": {
+   "pins": [
+    {
+     "instance": "i00339",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00368",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00339",
+   "cones": [
+    "i00368.data"
+   ]
+  },
+  "n35": {
+   "pins": [
+    {
+     "instance": "i00369",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00388",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00603",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00613",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00685",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00978",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00388",
+   "cones": [
+    "i00386.data",
+    "i00388.data",
+    "port.S"
+   ]
+  },
+  "n36": {
+   "pins": [
+    {
+     "instance": "i00369",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00378",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00433",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00631",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00864",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00433",
+   "cones": [
+    "i00388.data",
+    "i00433.data",
+    "port.S"
+   ]
+  },
+  "n37": {
+   "pins": [
+    {
+     "instance": "i00369",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00388",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00369",
+   "cones": [
+    "i00388.data"
+   ]
+  },
+  "n38": {
+   "pins": [
+    {
+     "instance": "i00378",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00379",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00541",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i01002",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i01048",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i01069",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00541",
+   "cones": [
+    "i00433.data",
+    "i00541.data",
+    "port.S"
+   ]
+  },
+  "n39": {
+   "pins": [
+    {
+     "instance": "i00378",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00433",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00378",
+   "cones": [
+    "i00433.data"
+   ]
+  },
+  "n4": {
+   "pins": [
+    {
+     "instance": "i00659",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00659",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n40": {
+   "pins": [
+    {
+     "instance": "i00379",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00541",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00379",
+   "cones": [
+    "i00541.data"
+   ]
+  },
+  "n41": {
+   "pins": [
+    {
+     "instance": "i00385",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00386",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00387",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00388",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00433",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00443",
+     "cell": "sky130_fd_sc_hd__clkbuf_16",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00453",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00541",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    },
+    {
+     "instance": "i00554",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "CLK",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00443",
+   "cones": []
+  },
+  "n42": {
+   "pins": [
+    {
+     "instance": "i00385",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00426",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00426",
+   "cones": [
+    "i00385.data"
+   ]
+  },
+  "n43": {
+   "pins": [
+    {
+     "instance": "i00385",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00404",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00426",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00636",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00976",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00385",
+   "cones": [
+    "i00385.data",
+    "i00387.data",
+    "port.S"
+   ]
+  },
+  "n44": {
+   "pins": [
+    {
+     "instance": "i00386",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00603",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00603",
+   "cones": [
+    "i00386.data"
+   ]
+  },
+  "n45": {
+   "pins": [
+    {
+     "instance": "i00386",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00418",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00603",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00617",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00711",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00895",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00386",
+   "cones": [
+    "i00386.data",
+    "i00554.data",
+    "port.S"
+   ]
+  },
+  "n46": {
+   "pins": [
+    {
+     "instance": "i00387",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00404",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00404",
+   "cones": [
+    "i00387.data"
+   ]
+  },
+  "n47": {
+   "pins": [
+    {
+     "instance": "i00387",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00404",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00616",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00630",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00387",
+   "cones": [
+    "i00387.data",
+    "port.S"
+   ]
+  },
+  "n48": {
+   "pins": [
+    {
+     "instance": "i00418",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00554",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00596",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00844",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00866",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i01070",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00554",
+   "cones": [
+    "i00453.data",
+    "i00554.data",
+    "port.S"
+   ]
+  },
+  "n49": {
+   "pins": [
+    {
+     "instance": "i00418",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00554",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00418",
+   "cones": [
+    "i00554.data"
+   ]
+  },
+  "n5": {
+   "pins": [
+    {
+     "instance": "i00005",
+     "cell": "sky130_fd_sc_hd__clkbuf_16",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": null,
+   "cones": []
+  },
+  "n50": {
+   "pins": [
+    {
+     "instance": "i00426",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00453",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "Q",
+     "direction": "output"
+    },
+    {
+     "instance": "i00596",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "A0",
+     "direction": "input"
+    },
+    {
+     "instance": "i00618",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00639",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00841",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00453",
+   "cones": [
+    "i00385.data",
+    "i00453.data",
+    "port.S"
+   ]
+  },
+  "n51": {
+   "pins": [
+    {
+     "instance": "i00453",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "D",
+     "direction": "input"
+    },
+    {
+     "instance": "i00596",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00596",
+   "cones": [
+    "i00453.data"
+   ]
+  },
+  "n52": {
+   "pins": [
+    {
+     "instance": "i00613",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A3",
+     "direction": "input"
+    },
+    {
+     "instance": "i00895",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00895",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n53": {
+   "pins": [
+    {
+     "instance": "i00613",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "B1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00711",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00765",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00711",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n54": {
+   "pins": [
+    {
+     "instance": "i00613",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00917",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "B1",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00613",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n55": {
+   "pins": [
+    {
+     "instance": "i00616",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00623",
+     "cell": "sky130_fd_sc_hd__o21bai_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00989",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00616",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n56": {
+   "pins": [
+    {
+     "instance": "i00617",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00765",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00617",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n57": {
+   "pins": [
+    {
+     "instance": "i00618",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00761",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00618",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n58": {
+   "pins": [
+    {
+     "instance": "i00619",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00781",
+     "cell": "sky130_fd_sc_hd__a21o_2",
+     "pin": "B1",
+     "direction": "input"
+    },
+    {
+     "instance": "i01070",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i01070",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n59": {
+   "pins": [
+    {
+     "instance": "i00619",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00844",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00844",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n6": {
+   "pins": [
+    {
+     "instance": "i00137",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00138",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00139",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00140",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00210",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00234",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00274",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00339",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00369",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00378",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00379",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00404",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00418",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00426",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00596",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    },
+    {
+     "instance": "i00603",
+     "cell": "sky130_fd_sc_hd__mux2_1",
+     "pin": "S",
+     "direction": "input"
+    }
+   ],
+   "driver": null,
+   "cones": [
+    "i00141.data",
+    "i00142.data",
+    "i00146.data",
+    "i00180.data",
+    "i00181.data",
+    "i00182.data",
+    "i00348.data",
+    "i00368.data",
+    "i00385.data",
+    "i00386.data",
+    "i00387.data",
+    "i00388.data",
+    "i00433.data",
+    "i00453.data",
+    "i00541.data",
+    "i00554.data"
+   ]
+  },
+  "n60": {
+   "pins": [
+    {
+     "instance": "i00619",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00633",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00635",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00781",
+     "cell": "sky130_fd_sc_hd__a21o_2",
+     "pin": "A1",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00619",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n61": {
+   "pins": [
+    {
+     "instance": "i00622",
+     "cell": "sky130_fd_sc_hd__a21boi_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00636",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00852",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00636",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n62": {
+   "pins": [
+    {
+     "instance": "i00622",
+     "cell": "sky130_fd_sc_hd__a21boi_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i00635",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00900",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00635",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n63": {
+   "pins": [
+    {
+     "instance": "i00622",
+     "cell": "sky130_fd_sc_hd__a21boi_2",
+     "pin": "B1_N",
+     "direction": "input"
+    },
+    {
+     "instance": "i00852",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00976",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00976",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n64": {
+   "pins": [
+    {
+     "instance": "i00622",
+     "cell": "sky130_fd_sc_hd__a21boi_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00623",
+     "cell": "sky130_fd_sc_hd__o21bai_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i00975",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00622",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n65": {
+   "pins": [
+    {
+     "instance": "i00623",
+     "cell": "sky130_fd_sc_hd__o21bai_2",
+     "pin": "B1_N",
+     "direction": "input"
+    },
+    {
+     "instance": "i00630",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00989",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00630",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n66": {
+   "pins": [
+    {
+     "instance": "i00629",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i01002",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i01052",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i01002",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n67": {
+   "pins": [
+    {
+     "instance": "i00629",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i01069",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i01069",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n68": {
+   "pins": [
+    {
+     "instance": "i00629",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00659",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "B_N",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00629",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n69": {
+   "pins": [
+    {
+     "instance": "i00631",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i01048",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A3",
+     "direction": "input"
+    },
+    {
+     "instance": "i01052",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00631",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n7": {
+   "pins": [
+    {
+     "instance": "i00141",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00142",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00146",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00180",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00181",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00182",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00348",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00368",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00385",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00386",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00387",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00388",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00433",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00453",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00541",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00554",
+     "cell": "sky130_fd_sc_hd__dfrtp_2",
+     "pin": "RESET_B",
+     "direction": "input"
+    }
+   ],
+   "driver": null,
+   "cones": [
+    "i00141.reset",
+    "i00142.reset",
+    "i00146.reset",
+    "i00180.reset",
+    "i00181.reset",
+    "i00182.reset",
+    "i00348.reset",
+    "i00368.reset",
+    "i00385.reset",
+    "i00386.reset",
+    "i00387.reset",
+    "i00388.reset",
+    "i00433.reset",
+    "i00453.reset",
+    "i00541.reset",
+    "i00554.reset"
+   ]
+  },
+  "n70": {
+   "pins": [
+    {
+     "instance": "i00632",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00635",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A3",
+     "direction": "input"
+    },
+    {
+     "instance": "i00761",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00761",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n71": {
+   "pins": [
+    {
+     "instance": "i00632",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00781",
+     "cell": "sky130_fd_sc_hd__a21o_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00781",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n72": {
+   "pins": [
+    {
+     "instance": "i00633",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00635",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i00781",
+     "cell": "sky130_fd_sc_hd__a21o_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i00917",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00917",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n73": {
+   "pins": [
+    {
+     "instance": "i00634",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00707",
+     "cell": "sky130_fd_sc_hd__a21bo_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00917",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A1",
+     "direction": "input"
+    },
+    {
+     "instance": "i01048",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i01048",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n74": {
+   "pins": [
+    {
+     "instance": "i00634",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00707",
+     "cell": "sky130_fd_sc_hd__a21bo_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i00917",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A2",
+     "direction": "input"
+    },
+    {
+     "instance": "i01011",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i01011",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n75": {
+   "pins": [
+    {
+     "instance": "i00635",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "B1",
+     "direction": "input"
+    },
+    {
+     "instance": "i00866",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00866",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n76": {
+   "pins": [
+    {
+     "instance": "i00639",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00761",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "B",
+     "direction": "input"
+    },
+    {
+     "instance": "i00866",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "B1",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00639",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n77": {
+   "pins": [
+    {
+     "instance": "i00659",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "A_N",
+     "direction": "input"
+    },
+    {
+     "instance": "i01052",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i01052",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n78": {
+   "pins": [
+    {
+     "instance": "i00685",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i01011",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00685",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n79": {
+   "pins": [
+    {
+     "instance": "i00707",
+     "cell": "sky130_fd_sc_hd__a21bo_2",
+     "pin": "B1_N",
+     "direction": "input"
+    },
+    {
+     "instance": "i00978",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i01011",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00978",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n8": {
+   "pins": [
+    {
+     "instance": "i00005",
+     "cell": "sky130_fd_sc_hd__clkbuf_16",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00136",
+     "cell": "sky130_fd_sc_hd__clkbuf_16",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00443",
+     "cell": "sky130_fd_sc_hd__clkbuf_16",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00005",
+   "cones": []
+  },
+  "n80": {
+   "pins": [
+    {
+     "instance": "i00707",
+     "cell": "sky130_fd_sc_hd__a21bo_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00972",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "B",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00707",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n81": {
+   "pins": [
+    {
+     "instance": "i00765",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00917",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A3",
+     "direction": "input"
+    },
+    {
+     "instance": "i00972",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00765",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n82": {
+   "pins": [
+    {
+     "instance": "i00841",
+     "cell": "sky130_fd_sc_hd__or2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i00866",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "A3",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00841",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n83": {
+   "pins": [
+    {
+     "instance": "i00852",
+     "cell": "sky130_fd_sc_hd__nand2_2",
+     "pin": "Y",
+     "direction": "output"
+    },
+    {
+     "instance": "i00900",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "A",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00852",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n84": {
+   "pins": [
+    {
+     "instance": "i00864",
+     "cell": "sky130_fd_sc_hd__and2_2",
+     "pin": "X",
+     "direction": "output"
+    },
+    {
+     "instance": "i01048",
+     "cell": "sky130_fd_sc_hd__a31o_2",
+     "pin": "B1",
+     "direction": "input"
+    }
+   ],
+   "driver": "i00864",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n85": {
+   "pins": [
+    {
+     "instance": "i00975",
+     "cell": "sky130_fd_sc_hd__xnor2_2",
+     "pin": "A",
+     "direction": "input"
+    },
+    {
+     "instance": "i00989",
+     "cell": "sky130_fd_sc_hd__nor2_2",
+     "pin": "Y",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00989",
+   "cones": [
+    "port.S"
+   ]
+  },
+  "n9": {
+   "pins": [
+    {
+     "instance": "i00006",
+     "cell": "sky130_fd_sc_hd__and4bb_2",
+     "pin": "A_N",
+     "direction": "input"
+    },
+    {
+     "instance": "i00972",
+     "cell": "sky130_fd_sc_hd__xor2_2",
+     "pin": "X",
+     "direction": "output"
+    }
+   ],
+   "driver": "i00972",
+   "cones": [
+    "port.S"
+   ]
+  }
+ },
+ "clock_nets": [
+  "n18",
+  "n41"
+ ],
+ "reset_nets": [
+  "n7"
+ ],
+ "set_nets": [],
+ "net_roots": {
+  "n8": {
+   "root": "n5",
+   "inverting": false,
+   "hops": 1
+  },
+  "n18": {
+   "root": "n5",
+   "inverting": false,
+   "hops": 2
+  },
+  "n41": {
+   "root": "n5",
+   "inverting": false,
+   "hops": 2
+  }
+ },
+ "clock_roots": {
+  "n5": [
+   "i00141",
+   "i00142",
+   "i00146",
+   "i00180",
+   "i00181",
+   "i00182",
+   "i00348",
+   "i00368",
+   "i00385",
+   "i00386",
+   "i00387",
+   "i00388",
+   "i00433",
+   "i00453",
+   "i00541",
+   "i00554"
+  ]
+ },
+ "reset_roots": {
+  "n7": [
+   "i00141",
+   "i00142",
+   "i00146",
+   "i00180",
+   "i00181",
+   "i00182",
+   "i00348",
+   "i00368",
+   "i00385",
+   "i00386",
+   "i00387",
+   "i00388",
+   "i00433",
+   "i00453",
+   "i00541",
+   "i00554"
+  ]
+ },
+ "set_roots": {},
+ "transparent_cells": {
+  "sky130_fd_sc_hd__clkbuf_16": {
+   "input": "A",
+   "output": "X",
+   "inverting": false
+  }
+ },
+ "constant_nets": {},
+ "flipflops": {
+  "i00141": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n29",
+   "q": "n25",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00210",
+    "held_when": "low",
+    "data_leg": "n22"
+   }
+  },
+  "i00142": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n23",
+   "q": "n22",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00138",
+    "held_when": "low",
+    "data_leg": "n19"
+   }
+  },
+  "i00146": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n21",
+   "q": "n19",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00137",
+    "held_when": "low",
+    "data_leg": "n20"
+   }
+  },
+  "i00180": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n30",
+   "q": "n20",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00234",
+    "held_when": "low",
+    "data_leg": "n31"
+   }
+  },
+  "i00181": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n28",
+   "q": "n27",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00140",
+    "held_when": "low",
+    "data_leg": "n2"
+   }
+  },
+  "i00182": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n26",
+   "q": "n24",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00139",
+    "held_when": "low",
+    "data_leg": "n25"
+   }
+  },
+  "i00348": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n33",
+   "q": "n32",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00274",
+    "held_when": "low",
+    "data_leg": "n24"
+   }
+  },
+  "i00368": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n18",
+   "data": "n34",
+   "q": "n31",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00339",
+    "held_when": "low",
+    "data_leg": "n27"
+   }
+  },
+  "i00385": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n42",
+   "q": "n43",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00426",
+    "held_when": "low",
+    "data_leg": "n50"
+   }
+  },
+  "i00386": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n44",
+   "q": "n45",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00603",
+    "held_when": "low",
+    "data_leg": "n35"
+   }
+  },
+  "i00387": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n46",
+   "q": "n47",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00404",
+    "held_when": "low",
+    "data_leg": "n43"
+   }
+  },
+  "i00388": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n37",
+   "q": "n35",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00369",
+    "held_when": "low",
+    "data_leg": "n36"
+   }
+  },
+  "i00433": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n39",
+   "q": "n36",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00378",
+    "held_when": "low",
+    "data_leg": "n38"
+   }
+  },
+  "i00453": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n51",
+   "q": "n50",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00596",
+    "held_when": "low",
+    "data_leg": "n48"
+   }
+  },
+  "i00541": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n40",
+   "q": "n38",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00379",
+    "held_when": "low",
+    "data_leg": "n3"
+   }
+  },
+  "i00554": {
+   "cell": "sky130_fd_sc_hd__dfrtp_2",
+   "kind": "ff",
+   "clock": "n41",
+   "data": "n49",
+   "q": "n48",
+   "reset": "n7",
+   "set": null,
+   "reset_level": "low",
+   "set_level": null,
+   "clock_root": "n5",
+   "clock_inverted": false,
+   "reset_root": "n7",
+   "reset_inverted": false,
+   "set_root": null,
+   "set_inverted": false,
+   "enable": {
+    "form": "mux_feedback",
+    "net": "n6",
+    "mux": "i00418",
+    "held_when": "low",
+    "data_leg": "n45"
+   }
+  }
+ },
+ "cone_roots": {
+  "i00141.data": "n29",
+  "i00141.reset": "n7",
+  "i00142.data": "n23",
+  "i00142.reset": "n7",
+  "i00146.data": "n21",
+  "i00146.reset": "n7",
+  "i00180.data": "n30",
+  "i00180.reset": "n7",
+  "i00181.data": "n28",
+  "i00181.reset": "n7",
+  "i00182.data": "n26",
+  "i00182.reset": "n7",
+  "i00348.data": "n33",
+  "i00348.reset": "n7",
+  "i00368.data": "n34",
+  "i00368.reset": "n7",
+  "i00385.data": "n42",
+  "i00385.reset": "n7",
+  "i00386.data": "n44",
+  "i00386.reset": "n7",
+  "i00387.data": "n46",
+  "i00387.reset": "n7",
+  "i00388.data": "n37",
+  "i00388.reset": "n7",
+  "i00433.data": "n39",
+  "i00433.reset": "n7",
+  "i00453.data": "n51",
+  "i00453.reset": "n7",
+  "i00541.data": "n40",
+  "i00541.reset": "n7",
+  "i00554.data": "n49",
+  "i00554.reset": "n7",
+  "port.S": "n4"
+ },
+ "cell_functions": {
+  "sky130_fd_sc_hd__a21bo_2": {
+   "X": "(A1&A2) | (!B1_N)"
+  },
+  "sky130_fd_sc_hd__a21boi_2": {
+   "Y": "(!A1&B1_N) | (!A2&B1_N)"
+  },
+  "sky130_fd_sc_hd__a21o_2": {
+   "X": "(A1&A2) | (B1)"
+  },
+  "sky130_fd_sc_hd__a31o_2": {
+   "X": "(A1&A2&A3) | (B1)"
+  },
+  "sky130_fd_sc_hd__and2_2": {
+   "X": "(A&B)"
+  },
+  "sky130_fd_sc_hd__and3_2": {
+   "X": "(A&B&C)"
+  },
+  "sky130_fd_sc_hd__and4bb_2": {
+   "X": "(!A_N&!B_N&C&D)"
+  },
+  "sky130_fd_sc_hd__clkbuf_16": {
+   "X": "(A)"
+  },
+  "sky130_fd_sc_hd__dfrtp_2": {
+   "Q": "IQ"
+  },
+  "sky130_fd_sc_hd__mux2_1": {
+   "X": "(A0&!S) | (A1&S)"
+  },
+  "sky130_fd_sc_hd__nand2_2": {
+   "Y": "(!A) | (!B)"
+  },
+  "sky130_fd_sc_hd__nor2_2": {
+   "Y": "(!A&!B)"
+  },
+  "sky130_fd_sc_hd__o21bai_2": {
+   "Y": "(!A1&!A2) | (B1_N)"
+  },
+  "sky130_fd_sc_hd__or2_2": {
+   "X": "(A) | (B)"
+  },
+  "sky130_fd_sc_hd__xnor2_2": {
+   "Y": "(!A&!B) | (A&B)"
+  },
+  "sky130_fd_sc_hd__xor2_2": {
+   "X": "(A&!B) | (!A&B)"
+  }
+ },
+ "cell_roles": {
+  "sky130_fd_sc_hd__dfrtp_2": {
+   "kind": "ff",
+   "clock": "CLK",
+   "data": "D",
+   "q": "Q",
+   "reset": "RESET_B",
+   "reset_level": "low",
+   "set": null,
+   "set_level": null
+  }
+ },
+ "source_disagreements": {
+  "lef_vs_liberty_direction": [],
+  "liberty_vs_cell_name": []
+ }
+}

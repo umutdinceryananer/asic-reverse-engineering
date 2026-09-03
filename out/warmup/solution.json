@@ -1,0 +1,338 @@
+{
+ "target": "warmup",
+ "graph": "out/warmup/graph.json",
+ "depth": 8,
+ "property": {
+  "port": "S",
+  "cycle": 8,
+  "value": 1
+ },
+ "clock_ports": [
+  "clk"
+ ],
+ "widths": {
+  "A": 1,
+  "B": 1,
+  "en": 1,
+  "rst_n": 1
+ },
+ "trace": [
+  {
+   "A": 1,
+   "B": 1,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 1,
+   "B": 1,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 1,
+   "B": 1,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 1,
+   "B": 1,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 1,
+   "B": 0,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 1,
+   "B": 1,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 0,
+   "B": 0,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 0,
+   "B": 0,
+   "en": 1,
+   "rst_n": 1
+  },
+  {
+   "A": 0,
+   "B": 0,
+   "en": 0,
+   "rst_n": 1
+  }
+ ],
+ "predicted_outputs": [
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 0
+  },
+  {
+   "S": 1
+  }
+ ],
+ "initial_state": {
+  "i00141": false,
+  "i00142": true,
+  "i00146": true,
+  "i00180": true,
+  "i00181": false,
+  "i00182": true,
+  "i00348": false,
+  "i00368": true,
+  "i00385": false,
+  "i00386": false,
+  "i00387": false,
+  "i00388": true,
+  "i00433": true,
+  "i00453": false,
+  "i00541": false,
+  "i00554": true
+ },
+ "initial_state_independent": true,
+ "start_states": {
+  "mode": "every state",
+  "pinned": {},
+  "free": [
+   "i00141",
+   "i00142",
+   "i00146",
+   "i00180",
+   "i00181",
+   "i00182",
+   "i00348",
+   "i00368",
+   "i00385",
+   "i00386",
+   "i00387",
+   "i00388",
+   "i00433",
+   "i00453",
+   "i00541",
+   "i00554"
+  ],
+  "quantified_over": "2^16"
+ },
+ "solver": {
+  "image": "gds-teardown-eda:latest",
+  "calls": [
+   {
+    "depth": 0,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.18,
+    "smt2_bytes": 7778
+   },
+   {
+    "depth": 0,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.16
+   },
+   {
+    "depth": 0,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.18,
+    "smt2_bytes": 15661
+   },
+   {
+    "depth": 1,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.19,
+    "smt2_bytes": 15799
+   },
+   {
+    "depth": 1,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.17
+   },
+   {
+    "depth": 1,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.15,
+    "smt2_bytes": 31553
+   },
+   {
+    "depth": 2,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.19,
+    "smt2_bytes": 23820
+   },
+   {
+    "depth": 2,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.17
+   },
+   {
+    "depth": 2,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.18,
+    "smt2_bytes": 47442
+   },
+   {
+    "depth": 3,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.18,
+    "smt2_bytes": 31841
+   },
+   {
+    "depth": 3,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.18
+   },
+   {
+    "depth": 3,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.18,
+    "smt2_bytes": 63337
+   },
+   {
+    "depth": 4,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.19,
+    "smt2_bytes": 39862
+   },
+   {
+    "depth": 4,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.18
+   },
+   {
+    "depth": 4,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.2,
+    "smt2_bytes": 79229
+   },
+   {
+    "depth": 5,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.18,
+    "smt2_bytes": 47883
+   },
+   {
+    "depth": 5,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.18
+   },
+   {
+    "depth": 5,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.17,
+    "smt2_bytes": 95121
+   },
+   {
+    "depth": 6,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.18,
+    "smt2_bytes": 55904
+   },
+   {
+    "depth": 6,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.19
+   },
+   {
+    "depth": 6,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.19,
+    "smt2_bytes": 111017
+   },
+   {
+    "depth": 7,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.17,
+    "smt2_bytes": 63925
+   },
+   {
+    "depth": 7,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.18
+   },
+   {
+    "depth": 7,
+    "copies": 2,
+    "sat": false,
+    "seconds": 0.18,
+    "smt2_bytes": 126908
+   },
+   {
+    "depth": 8,
+    "copies": 1,
+    "sat": true,
+    "seconds": 0.17,
+    "smt2_bytes": 71946
+   },
+   {
+    "depth": 8,
+    "check": "any start state",
+    "sat": true,
+    "seconds": 0.19
+   },
+   {
+    "depth": 8,
+    "copies": 2,
+    "sat": true,
+    "seconds": 0.19,
+    "smt2_bytes": 142799
+   },
+   {
+    "depth": 8,
+    "check": "any start state",
+    "sat": false,
+    "seconds": 0.2
+   }
+  ],
+  "total_seconds": 5.13
+ }
+}

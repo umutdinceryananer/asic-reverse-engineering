@@ -1,0 +1,4 @@
+open_pdks 8afc8346a57fe1ab7934ba5a6056ea8b43078e71
+library   sky130_fd_sc_hd
+source    https://github.com/fossi-foundation/ciel-releases/releases/download/sky130-8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130_fd_sc_hd.tar.zst
+member    sky130A/libs.ref/sky130_fd_sc_hd/gds/sky130_fd_sc_hd.gds

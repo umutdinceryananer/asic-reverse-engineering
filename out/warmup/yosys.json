@@ -1,0 +1,3135 @@
+{
+  "creator": "Yosys 0.23 (git sha1 7ce5011c24b)",
+  "modules": {
+    "adder_demo": {
+      "attributes": {
+        "top": "00000000000000000000000000000001",
+        "src": "out/warmup/netlist.v:1.1-167.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "S": {
+          "direction": "output",
+          "bits": [ 4 ]
+        },
+        "clk": {
+          "direction": "input",
+          "bits": [ 5 ]
+        },
+        "en": {
+          "direction": "input",
+          "bits": [ 6 ]
+        },
+        "rst_n": {
+          "direction": "input",
+          "bits": [ 7 ]
+        }
+      },
+      "cells": {
+        "i00005": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__clkbuf_16",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:88.30-88.58"
+          },
+          "port_directions": {
+            "A": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 5 ],
+            "X": [ 8 ]
+          }
+        },
+        "i00006": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and4bb_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:89.29-89.100"
+          },
+          "port_directions": {
+            "A_N": "input",
+            "B_N": "input",
+            "C": "input",
+            "D": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A_N": [ 9 ],
+            "B_N": [ 10 ],
+            "C": [ 11 ],
+            "D": [ 12 ],
+            "X": [ 13 ]
+          }
+        },
+        "i00108": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and3_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:90.27-90.82"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "C": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 14 ],
+            "B": [ 15 ],
+            "C": [ 16 ],
+            "X": [ 17 ]
+          }
+        },
+        "i00136": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__clkbuf_16",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:91.30-91.61"
+          },
+          "port_directions": {
+            "A": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 8 ],
+            "X": [ 18 ]
+          }
+        },
+        "i00137": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:92.27-92.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 19 ],
+            "A1": [ 20 ],
+            "S": [ 6 ],
+            "X": [ 21 ]
+          }
+        },
+        "i00138": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:93.27-93.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 22 ],
+            "A1": [ 19 ],
+            "S": [ 6 ],
+            "X": [ 23 ]
+          }
+        },
+        "i00139": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:94.27-94.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 24 ],
+            "A1": [ 25 ],
+            "S": [ 6 ],
+            "X": [ 26 ]
+          }
+        },
+        "i00140": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:95.27-95.75"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 27 ],
+            "A1": [ 2 ],
+            "S": [ 6 ],
+            "X": [ 28 ]
+          }
+        },
+        "i00141": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:96.28-96.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 29 ],
+            "Q": [ 25 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00142": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:97.28-97.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 23 ],
+            "Q": [ 22 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00146": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:98.28-98.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 21 ],
+            "Q": [ 19 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00180": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:99.28-99.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 30 ],
+            "Q": [ 20 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00181": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:100.28-100.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 28 ],
+            "Q": [ 27 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00182": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:101.28-101.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 26 ],
+            "Q": [ 24 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00210": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:102.27-102.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 25 ],
+            "A1": [ 22 ],
+            "S": [ 6 ],
+            "X": [ 29 ]
+          }
+        },
+        "i00234": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:103.27-103.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 20 ],
+            "A1": [ 31 ],
+            "S": [ 6 ],
+            "X": [ 30 ]
+          }
+        },
+        "i00274": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:104.27-104.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 32 ],
+            "A1": [ 24 ],
+            "S": [ 6 ],
+            "X": [ 33 ]
+          }
+        },
+        "i00339": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:105.27-105.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 31 ],
+            "A1": [ 27 ],
+            "S": [ 6 ],
+            "X": [ 34 ]
+          }
+        },
+        "i00348": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:106.28-106.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 33 ],
+            "Q": [ 32 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00368": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:107.28-107.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 18 ],
+            "D": [ 34 ],
+            "Q": [ 31 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00369": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:108.27-108.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 35 ],
+            "A1": [ 36 ],
+            "S": [ 6 ],
+            "X": [ 37 ]
+          }
+        },
+        "i00378": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:109.27-109.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 36 ],
+            "A1": [ 38 ],
+            "S": [ 6 ],
+            "X": [ 39 ]
+          }
+        },
+        "i00379": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:110.27-110.75"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 38 ],
+            "A1": [ 3 ],
+            "S": [ 6 ],
+            "X": [ 40 ]
+          }
+        },
+        "i00385": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:111.28-111.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 42 ],
+            "Q": [ 43 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00386": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:112.28-112.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 44 ],
+            "Q": [ 45 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00387": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:113.28-113.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 46 ],
+            "Q": [ 47 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00388": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:114.28-114.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 37 ],
+            "Q": [ 35 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00404": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:115.27-115.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 47 ],
+            "A1": [ 43 ],
+            "S": [ 6 ],
+            "X": [ 46 ]
+          }
+        },
+        "i00418": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:116.27-116.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 48 ],
+            "A1": [ 45 ],
+            "S": [ 6 ],
+            "X": [ 49 ]
+          }
+        },
+        "i00426": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:117.27-117.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 43 ],
+            "A1": [ 50 ],
+            "S": [ 6 ],
+            "X": [ 42 ]
+          }
+        },
+        "i00433": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:118.28-118.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 39 ],
+            "Q": [ 36 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00443": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__clkbuf_16",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:119.30-119.61"
+          },
+          "port_directions": {
+            "A": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 8 ],
+            "X": [ 41 ]
+          }
+        },
+        "i00453": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:120.28-120.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 51 ],
+            "Q": [ 50 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00541": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:121.28-121.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 40 ],
+            "Q": [ 38 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00554": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__dfrtp_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:122.28-122.90"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "RESET_B": "input"
+          },
+          "connections": {
+            "CLK": [ 41 ],
+            "D": [ 49 ],
+            "Q": [ 48 ],
+            "RESET_B": [ 7 ]
+          }
+        },
+        "i00596": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:123.27-123.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 50 ],
+            "A1": [ 48 ],
+            "S": [ 6 ],
+            "X": [ 51 ]
+          }
+        },
+        "i00603": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__mux2_1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:124.27-124.80"
+          },
+          "port_directions": {
+            "A0": "input",
+            "A1": "input",
+            "S": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A0": [ 45 ],
+            "A1": [ 35 ],
+            "S": [ 6 ],
+            "X": [ 44 ]
+          }
+        },
+        "i00613": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a31o_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:125.27-125.98"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "A3": "input",
+            "B1": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 35 ],
+            "A2": [ 20 ],
+            "A3": [ 52 ],
+            "B1": [ 53 ],
+            "X": [ 54 ]
+          }
+        },
+        "i00616": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:126.27-126.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 47 ],
+            "B": [ 32 ],
+            "Y": [ 55 ]
+          }
+        },
+        "i00617": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:127.27-127.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 45 ],
+            "B": [ 19 ],
+            "Y": [ 56 ]
+          }
+        },
+        "i00618": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:128.27-128.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 50 ],
+            "B": [ 25 ],
+            "Y": [ 57 ]
+          }
+        },
+        "i00619": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:129.27-129.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 58 ],
+            "B": [ 59 ],
+            "Y": [ 60 ]
+          }
+        },
+        "i00622": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a21boi_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:130.29-130.89"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "B1_N": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A1": [ 61 ],
+            "A2": [ 62 ],
+            "B1_N": [ 63 ],
+            "Y": [ 64 ]
+          }
+        },
+        "i00623": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__o21bai_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:131.29-131.89"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "B1_N": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A1": [ 55 ],
+            "A2": [ 64 ],
+            "B1_N": [ 65 ],
+            "Y": [ 16 ]
+          }
+        },
+        "i00629": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:132.27-132.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 66 ],
+            "B": [ 67 ],
+            "X": [ 68 ]
+          }
+        },
+        "i00630": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:133.27-133.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 47 ],
+            "B": [ 32 ],
+            "X": [ 65 ]
+          }
+        },
+        "i00631": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:134.27-134.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 36 ],
+            "B": [ 31 ],
+            "X": [ 69 ]
+          }
+        },
+        "i00632": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:135.27-135.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 70 ],
+            "B": [ 71 ],
+            "X": [ 12 ]
+          }
+        },
+        "i00633": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:136.27-136.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 60 ],
+            "B": [ 72 ],
+            "X": [ 11 ]
+          }
+        },
+        "i00634": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:137.27-137.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 73 ],
+            "B": [ 74 ],
+            "X": [ 10 ]
+          }
+        },
+        "i00635": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a31o_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:138.27-138.98"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "A3": "input",
+            "B1": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 60 ],
+            "A2": [ 72 ],
+            "A3": [ 70 ],
+            "B1": [ 75 ],
+            "X": [ 62 ]
+          }
+        },
+        "i00636": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__or2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:139.26-139.69"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 43 ],
+            "B": [ 24 ],
+            "X": [ 61 ]
+          }
+        },
+        "i00639": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:140.27-140.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 50 ],
+            "B": [ 25 ],
+            "X": [ 76 ]
+          }
+        },
+        "i00659": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and4bb_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:141.29-141.95"
+          },
+          "port_directions": {
+            "A_N": "input",
+            "B_N": "input",
+            "C": "input",
+            "D": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A_N": [ 77 ],
+            "B_N": [ 68 ],
+            "C": [ 17 ],
+            "D": [ 13 ],
+            "X": [ 4 ]
+          }
+        },
+        "i00685": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__or2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:142.26-142.69"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 35 ],
+            "B": [ 20 ],
+            "X": [ 78 ]
+          }
+        },
+        "i00707": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a21bo_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:143.28-143.88"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "B1_N": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 73 ],
+            "A2": [ 74 ],
+            "B1_N": [ 79 ],
+            "X": [ 80 ]
+          }
+        },
+        "i00711": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:144.27-144.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 45 ],
+            "B": [ 19 ],
+            "X": [ 53 ]
+          }
+        },
+        "i00761": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:145.27-145.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 57 ],
+            "B": [ 76 ],
+            "Y": [ 70 ]
+          }
+        },
+        "i00765": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:146.27-146.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 56 ],
+            "B": [ 53 ],
+            "Y": [ 81 ]
+          }
+        },
+        "i00781": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a21o_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:147.27-147.85"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "B1": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 60 ],
+            "A2": [ 72 ],
+            "B1": [ 58 ],
+            "X": [ 71 ]
+          }
+        },
+        "i00841": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__or2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:148.26-148.69"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 50 ],
+            "B": [ 25 ],
+            "X": [ 82 ]
+          }
+        },
+        "i00844": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:149.27-149.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 48 ],
+            "B": [ 22 ],
+            "Y": [ 59 ]
+          }
+        },
+        "i00852": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nand2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:150.28-150.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 63 ],
+            "B": [ 61 ],
+            "Y": [ 83 ]
+          }
+        },
+        "i00864": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:151.27-151.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 36 ],
+            "B": [ 31 ],
+            "X": [ 84 ]
+          }
+        },
+        "i00866": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a31o_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:152.27-152.98"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "A3": "input",
+            "B1": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 48 ],
+            "A2": [ 22 ],
+            "A3": [ 82 ],
+            "B1": [ 76 ],
+            "X": [ 75 ]
+          }
+        },
+        "i00895": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__or2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:153.26-153.69"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 45 ],
+            "B": [ 19 ],
+            "X": [ 52 ]
+          }
+        },
+        "i00900": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xnor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:154.28-154.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 83 ],
+            "B": [ 62 ],
+            "Y": [ 14 ]
+          }
+        },
+        "i00917": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a31o_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:155.27-155.98"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "A3": "input",
+            "B1": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 73 ],
+            "A2": [ 74 ],
+            "A3": [ 81 ],
+            "B1": [ 54 ],
+            "X": [ 72 ]
+          }
+        },
+        "i00972": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:156.27-156.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 81 ],
+            "B": [ 80 ],
+            "X": [ 9 ]
+          }
+        },
+        "i00975": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xnor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:157.28-157.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 85 ],
+            "B": [ 64 ],
+            "Y": [ 15 ]
+          }
+        },
+        "i00976": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nand2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:158.28-158.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 43 ],
+            "B": [ 24 ],
+            "Y": [ 63 ]
+          }
+        },
+        "i00978": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nand2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:159.28-159.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 35 ],
+            "B": [ 20 ],
+            "Y": [ 79 ]
+          }
+        },
+        "i00989": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:160.27-160.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 65 ],
+            "B": [ 55 ],
+            "Y": [ 85 ]
+          }
+        },
+        "i01002": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__nand2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:161.28-161.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 38 ],
+            "B": [ 27 ],
+            "Y": [ 66 ]
+          }
+        },
+        "i01011": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:162.27-162.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 78 ],
+            "B": [ 79 ],
+            "X": [ 74 ]
+          }
+        },
+        "i01048": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__a31o_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:163.27-163.98"
+          },
+          "port_directions": {
+            "A1": "input",
+            "A2": "input",
+            "A3": "input",
+            "B1": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A1": [ 38 ],
+            "A2": [ 27 ],
+            "A3": [ 69 ],
+            "B1": [ 84 ],
+            "X": [ 73 ]
+          }
+        },
+        "i01052": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__xnor2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:164.28-164.71"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 66 ],
+            "B": [ 69 ],
+            "Y": [ 77 ]
+          }
+        },
+        "i01069": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__or2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:165.26-165.69"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 38 ],
+            "B": [ 27 ],
+            "X": [ 67 ]
+          }
+        },
+        "i01070": {
+          "hide_name": 0,
+          "type": "sky130_fd_sc_hd__and2_2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "out/warmup/netlist.v:166.27-166.70"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "X": "output"
+          },
+          "connections": {
+            "A": [ 48 ],
+            "B": [ 22 ],
+            "X": [ 58 ]
+          }
+        }
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:2.9-2.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:3.9-3.10"
+          }
+        },
+        "S": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:4.10-4.11"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:5.9-5.12"
+          }
+        },
+        "en": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:6.9-6.11"
+          }
+        },
+        "n00002": {
+          "hide_name": 0,
+          "bits": [ 27 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:9.8-9.14"
+          }
+        },
+        "n00003": {
+          "hide_name": 0,
+          "bits": [ 48 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:10.8-10.14"
+          }
+        },
+        "n00004": {
+          "hide_name": 0,
+          "bits": [ 22 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:11.8-11.14"
+          }
+        },
+        "n00006": {
+          "hide_name": 0,
+          "bits": [ 38 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:12.8-12.14"
+          }
+        },
+        "n00007": {
+          "hide_name": 0,
+          "bits": [ 67 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:13.8-13.14"
+          }
+        },
+        "n00008": {
+          "hide_name": 0,
+          "bits": [ 32 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:14.8-14.14"
+          }
+        },
+        "n00009": {
+          "hide_name": 0,
+          "bits": [ 58 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:15.8-15.14"
+          }
+        },
+        "n00011": {
+          "hide_name": 0,
+          "bits": [ 65 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:16.8-16.14"
+          }
+        },
+        "n00012": {
+          "hide_name": 0,
+          "bits": [ 44 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:17.8-17.14"
+          }
+        },
+        "n00013": {
+          "hide_name": 0,
+          "bits": [ 59 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:18.8-18.14"
+          }
+        },
+        "n00014": {
+          "hide_name": 0,
+          "bits": [ 50 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:19.8-19.14"
+          }
+        },
+        "n00015": {
+          "hide_name": 0,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:20.8-20.14"
+          }
+        },
+        "n00016": {
+          "hide_name": 0,
+          "bits": [ 45 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:21.8-21.14"
+          }
+        },
+        "n00017": {
+          "hide_name": 0,
+          "bits": [ 81 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:22.8-22.14"
+          }
+        },
+        "n00018": {
+          "hide_name": 0,
+          "bits": [ 25 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:23.8-23.14"
+          }
+        },
+        "n00019": {
+          "hide_name": 0,
+          "bits": [ 54 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:24.8-24.14"
+          }
+        },
+        "n00020": {
+          "hide_name": 0,
+          "bits": [ 85 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:25.8-25.14"
+          }
+        },
+        "n00021": {
+          "hide_name": 0,
+          "bits": [ 74 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:26.8-26.14"
+          }
+        },
+        "n00022": {
+          "hide_name": 0,
+          "bits": [ 64 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:27.8-27.14"
+          }
+        },
+        "n00023": {
+          "hide_name": 0,
+          "bits": [ 35 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:28.8-28.14"
+          }
+        },
+        "n00024": {
+          "hide_name": 0,
+          "bits": [ 72 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:29.8-29.14"
+          }
+        },
+        "n00025": {
+          "hide_name": 0,
+          "bits": [ 63 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:30.8-30.14"
+          }
+        },
+        "n00026": {
+          "hide_name": 0,
+          "bits": [ 60 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:31.8-31.14"
+          }
+        },
+        "n00027": {
+          "hide_name": 0,
+          "bits": [ 73 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:32.8-32.14"
+          }
+        },
+        "n00028": {
+          "hide_name": 0,
+          "bits": [ 79 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:33.8-33.14"
+          }
+        },
+        "n00029": {
+          "hide_name": 0,
+          "bits": [ 11 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:34.8-34.14"
+          }
+        },
+        "n00030": {
+          "hide_name": 0,
+          "bits": [ 52 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:35.8-35.14"
+          }
+        },
+        "n00031": {
+          "hide_name": 0,
+          "bits": [ 43 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:36.8-36.14"
+          }
+        },
+        "n00032": {
+          "hide_name": 0,
+          "bits": [ 41 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:37.8-37.14"
+          }
+        },
+        "n00033": {
+          "hide_name": 0,
+          "bits": [ 49 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:38.8-38.14"
+          }
+        },
+        "n00035": {
+          "hide_name": 0,
+          "bits": [ 61 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:39.8-39.14"
+          }
+        },
+        "n00036": {
+          "hide_name": 0,
+          "bits": [ 20 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:40.8-40.14"
+          }
+        },
+        "n00037": {
+          "hide_name": 0,
+          "bits": [ 69 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:41.8-41.14"
+          }
+        },
+        "n00038": {
+          "hide_name": 0,
+          "bits": [ 42 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:42.8-42.14"
+          }
+        },
+        "n00039": {
+          "hide_name": 0,
+          "bits": [ 76 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:43.8-43.14"
+          }
+        },
+        "n00040": {
+          "hide_name": 0,
+          "bits": [ 82 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:44.8-44.14"
+          }
+        },
+        "n00041": {
+          "hide_name": 0,
+          "bits": [ 83 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:45.8-45.14"
+          }
+        },
+        "n00042": {
+          "hide_name": 0,
+          "bits": [ 47 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:46.8-46.14"
+          }
+        },
+        "n00043": {
+          "hide_name": 0,
+          "bits": [ 40 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:47.8-47.14"
+          }
+        },
+        "n00044": {
+          "hide_name": 0,
+          "bits": [ 31 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:48.8-48.14"
+          }
+        },
+        "n00045": {
+          "hide_name": 0,
+          "bits": [ 36 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:49.8-49.14"
+          }
+        },
+        "n00046": {
+          "hide_name": 0,
+          "bits": [ 62 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:50.8-50.14"
+          }
+        },
+        "n00047": {
+          "hide_name": 0,
+          "bits": [ 56 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:51.8-51.14"
+          }
+        },
+        "n00048": {
+          "hide_name": 0,
+          "bits": [ 80 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:52.8-52.14"
+          }
+        },
+        "n00049": {
+          "hide_name": 0,
+          "bits": [ 55 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:53.8-53.14"
+          }
+        },
+        "n00051": {
+          "hide_name": 0,
+          "bits": [ 84 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:54.8-54.14"
+          }
+        },
+        "n00052": {
+          "hide_name": 0,
+          "bits": [ 51 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:55.8-55.14"
+          }
+        },
+        "n00053": {
+          "hide_name": 0,
+          "bits": [ 77 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:56.8-56.14"
+          }
+        },
+        "n00054": {
+          "hide_name": 0,
+          "bits": [ 37 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:57.8-57.14"
+          }
+        },
+        "n00055": {
+          "hide_name": 0,
+          "bits": [ 16 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:58.8-58.14"
+          }
+        },
+        "n00056": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:59.8-59.14"
+          }
+        },
+        "n00057": {
+          "hide_name": 0,
+          "bits": [ 66 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:60.8-60.14"
+          }
+        },
+        "n00058": {
+          "hide_name": 0,
+          "bits": [ 53 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:61.8-61.14"
+          }
+        },
+        "n00059": {
+          "hide_name": 0,
+          "bits": [ 75 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:62.8-62.14"
+          }
+        },
+        "n00060": {
+          "hide_name": 0,
+          "bits": [ 70 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:63.8-63.14"
+          }
+        },
+        "n00061": {
+          "hide_name": 0,
+          "bits": [ 71 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:64.8-64.14"
+          }
+        },
+        "n00062": {
+          "hide_name": 0,
+          "bits": [ 24 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:65.8-65.14"
+          }
+        },
+        "n00063": {
+          "hide_name": 0,
+          "bits": [ 39 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:66.8-66.14"
+          }
+        },
+        "n00064": {
+          "hide_name": 0,
+          "bits": [ 78 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:67.8-67.14"
+          }
+        },
+        "n00065": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:68.8-68.14"
+          }
+        },
+        "n00067": {
+          "hide_name": 0,
+          "bits": [ 46 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:69.8-69.14"
+          }
+        },
+        "n00068": {
+          "hide_name": 0,
+          "bits": [ 68 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:70.8-70.14"
+          }
+        },
+        "n00069": {
+          "hide_name": 0,
+          "bits": [ 57 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:71.8-71.14"
+          }
+        },
+        "n00070": {
+          "hide_name": 0,
+          "bits": [ 8 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:72.8-72.14"
+          }
+        },
+        "n00071": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:73.8-73.14"
+          }
+        },
+        "n00072": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:74.8-74.14"
+          }
+        },
+        "n00073": {
+          "hide_name": 0,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:75.8-75.14"
+          }
+        },
+        "n00074": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:76.8-76.14"
+          }
+        },
+        "n00075": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:77.8-77.14"
+          }
+        },
+        "n00076": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:78.8-78.14"
+          }
+        },
+        "n00077": {
+          "hide_name": 0,
+          "bits": [ 34 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:79.8-79.14"
+          }
+        },
+        "n00078": {
+          "hide_name": 0,
+          "bits": [ 33 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:80.8-80.14"
+          }
+        },
+        "n00079": {
+          "hide_name": 0,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:81.8-81.14"
+          }
+        },
+        "n00080": {
+          "hide_name": 0,
+          "bits": [ 29 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:82.8-82.14"
+          }
+        },
+        "n00081": {
+          "hide_name": 0,
+          "bits": [ 26 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:83.8-83.14"
+          }
+        },
+        "n00082": {
+          "hide_name": 0,
+          "bits": [ 28 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:84.8-84.14"
+          }
+        },
+        "n00084": {
+          "hide_name": 0,
+          "bits": [ 23 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:85.8-85.14"
+          }
+        },
+        "n00085": {
+          "hide_name": 0,
+          "bits": [ 30 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:86.8-86.14"
+          }
+        },
+        "rst_n": {
+          "hide_name": 0,
+          "bits": [ 7 ],
+          "attributes": {
+            "src": "out/warmup/netlist.v:7.9-7.14"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__a21bo_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:6.1-11.10"
+      },
+      "ports": {
+        "A1": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "A2": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "B1_N": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A1": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:7.9-7.11"
+          }
+        },
+        "A2": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:8.9-8.11"
+          }
+        },
+        "B1_N": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:9.9-9.13"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:10.10-10.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__a21boi_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:14.1-19.10"
+      },
+      "ports": {
+        "A1": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "A2": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "B1_N": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "Y": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A1": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:15.9-15.11"
+          }
+        },
+        "A2": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:16.9-16.11"
+          }
+        },
+        "B1_N": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:17.9-17.13"
+          }
+        },
+        "Y": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:18.10-18.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__a21o_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:22.1-27.10"
+      },
+      "ports": {
+        "A1": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "A2": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "B1": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A1": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:23.9-23.11"
+          }
+        },
+        "A2": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:24.9-24.11"
+          }
+        },
+        "B1": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:25.9-25.11"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:26.10-26.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__a31o_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:30.1-36.10"
+      },
+      "ports": {
+        "A1": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "A2": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "A3": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "B1": {
+          "direction": "input",
+          "bits": [ 5 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 6 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A1": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:31.9-31.11"
+          }
+        },
+        "A2": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:32.9-32.11"
+          }
+        },
+        "A3": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:33.9-33.11"
+          }
+        },
+        "B1": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:34.9-34.11"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:35.10-35.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__and2_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:39.1-43.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:40.9-40.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:41.9-41.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:42.10-42.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__and3_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:46.1-51.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "C": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:47.9-47.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:48.9-48.10"
+          }
+        },
+        "C": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:49.9-49.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:50.10-50.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__and4bb_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:54.1-60.10"
+      },
+      "ports": {
+        "A_N": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B_N": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "C": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "D": {
+          "direction": "input",
+          "bits": [ 5 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 6 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A_N": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:55.9-55.12"
+          }
+        },
+        "B_N": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:56.9-56.12"
+          }
+        },
+        "C": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:57.9-57.10"
+          }
+        },
+        "D": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:58.9-58.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:59.10-59.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__clkbuf_16": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:63.1-66.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 3 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:64.9-64.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:65.10-65.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__dfrtp_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:69.1-74.10"
+      },
+      "ports": {
+        "CLK": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "D": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "Q": {
+          "direction": "output",
+          "bits": [ 4 ]
+        },
+        "RESET_B": {
+          "direction": "input",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "CLK": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:70.9-70.12"
+          }
+        },
+        "D": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:71.9-71.10"
+          }
+        },
+        "Q": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:72.10-72.11"
+          }
+        },
+        "RESET_B": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:73.9-73.16"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__mux2_1": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:77.1-82.10"
+      },
+      "ports": {
+        "A0": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "A1": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "S": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A0": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:78.9-78.11"
+          }
+        },
+        "A1": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:79.9-79.11"
+          }
+        },
+        "S": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:80.9-80.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:81.10-81.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__nand2_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:85.1-89.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "Y": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:86.9-86.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:87.9-87.10"
+          }
+        },
+        "Y": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:88.10-88.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__nor2_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:92.1-96.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "Y": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:93.9-93.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:94.9-94.10"
+          }
+        },
+        "Y": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:95.10-95.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__o21bai_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:99.1-104.10"
+      },
+      "ports": {
+        "A1": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "A2": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "B1_N": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "Y": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A1": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:100.9-100.11"
+          }
+        },
+        "A2": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:101.9-101.11"
+          }
+        },
+        "B1_N": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:102.9-102.13"
+          }
+        },
+        "Y": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:103.10-103.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__or2_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:107.1-111.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:108.9-108.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:109.9-109.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:110.10-110.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__xnor2_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:114.1-118.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "Y": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:115.9-115.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:116.9-116.10"
+          }
+        },
+        "Y": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:117.10-117.11"
+          }
+        }
+      }
+    },
+    "sky130_fd_sc_hd__xor2_2": {
+      "attributes": {
+        "blackbox": "00000000000000000000000000000001",
+        "src": "out/warmup/blackbox.v:121.1-125.10"
+      },
+      "ports": {
+        "A": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "B": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "X": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "A": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:122.9-122.10"
+          }
+        },
+        "B": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:123.9-123.10"
+          }
+        },
+        "X": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "out/warmup/blackbox.v:124.10-124.11"
+          }
+        }
+      }
+    }
+  }
+}

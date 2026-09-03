@@ -1,0 +1,77 @@
+{
+ "registers": [
+  {
+   "register": "R0",
+   "width": 16,
+   "clock": "clk",
+   "clock_inverted": false,
+   "reset": "rst_n",
+   "reset_level": "low",
+   "set": null,
+   "set_level": null,
+   "hold": "en",
+   "cells": {
+    "dfrtp_2": 16
+   },
+   "flops": [
+    "i00141",
+    "i00142",
+    "i00146",
+    "i00180",
+    "i00181",
+    "i00182",
+    "i00348",
+    "i00368",
+    "i00385",
+    "i00386",
+    "i00387",
+    "i00388",
+    "i00433",
+    "i00453",
+    "i00541",
+    "i00554"
+   ],
+   "bit_order": {
+    "method": "shift chain, following D <- Q",
+    "chains": [
+     [
+      "i00181",
+      "i00368",
+      "i00180",
+      "i00146",
+      "i00142",
+      "i00141",
+      "i00182",
+      "i00348"
+     ],
+     [
+      "i00541",
+      "i00433",
+      "i00388",
+      "i00386",
+      "i00554",
+      "i00453",
+      "i00385",
+      "i00387"
+     ]
+    ],
+    "why": "2 path(s) covering all 16 bits, head first"
+   }
+  }
+ ],
+ "edges": {},
+ "reads": {
+  "R0": [
+   "A",
+   "B",
+   "en"
+  ]
+ },
+ "drives": {
+  "R0": [
+   "S"
+  ]
+ },
+ "candidate_splits": {},
+ "refinement_sizes": []
+}

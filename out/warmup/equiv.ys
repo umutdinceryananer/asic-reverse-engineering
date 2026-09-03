@@ -1,0 +1,18 @@
+read_verilog out/warmup/celllib.v puzzle/warmup/01_netlist.v
+hierarchy -check -top adder_demo
+proc; flatten; opt_clean; async2sync; opt_clean
+stat
+design -stash gold
+read_verilog out/warmup/celllib.v out/warmup/graph.v
+hierarchy -check -top adder_demo
+proc; flatten; opt_clean; async2sync; opt_clean
+stat
+design -stash gate
+design -copy-from gold -as gold adder_demo
+design -copy-from gate -as gate adder_demo
+equiv_make gold gate equiv
+hierarchy -top equiv
+equiv_struct -icells -maxiter 40
+equiv_simple -seq 5
+equiv_induct -seq 5
+equiv_status -assert
