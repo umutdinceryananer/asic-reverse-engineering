@@ -77,6 +77,8 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 51 | Three known-bad inputs that could not be bad, on the warm up | verification | understood |
 | 52 | The replay bench declared every output a scalar, and the puzzle has a bus | inversion | understood |
 | 53 | Moving the Icarus driver made the packet's container column go stale | tooling | understood |
+| 54 | Stage 6 read one driver as two, the first time it met a tie cell | inversion | understood |
+| 55 | Two cells on one net were invisible, and the design still solved | inversion | understood |
 
 Two remain unresolved: **1** and **4**.
 

@@ -125,7 +125,7 @@ cannot run is **blocked** — neither pass nor fail, counted separately, stated 
 the top — because a stopped Docker Desktop once presented itself as eleven
 failing gates.
 
-At the current commit: **39 gates and one report, 38 passing, one deliberately
+At the current commit: **40 gates and one report, 39 passing, one deliberately
 red, zero blocked.** The figures quoted in this file are summaries;
 `out/review.md` is the source of truth and one command regenerates it.
 
@@ -351,7 +351,7 @@ the commit history:
 
 ## Status
 
-All seven stages built and gated; 38 passing gates and one deliberately red in
+All seven stages built and gated; 39 passing gates and one deliberately red in
 `out/review.md`. What remains is the author's: the puzzle runs, the
 interpretation of what the circuit computes, the winning input, and
 `docs/writeup.md`. Schedule in [docs/endgame.md](docs/endgame.md).

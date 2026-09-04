@@ -79,6 +79,8 @@ IMAGES = ("gds-teardown-sim:latest", "gds-teardown-eda:latest")
 NATIVE_MODES = {
     ("tools/verify_functions.py", "--selftest"):
         "compares parsers in process; measured to exit 0 with docker off PATH",
+    ("tools/stage6_invert.py", "--selftest"):
+        "builds Design over synthetic graphs in process, and the solver is\n         reached only after construction; measured to exit 0 under\n         PATH=/nonexistent, where no docker is resolvable at all",
 }
 
 # Every gate, in the order the pipeline runs. `container` marks the ones that
@@ -149,6 +151,8 @@ GATES = [
      ["tools/verify_corpus.py", "--selftest"], False, "gate"),
     ("stage 4, the composed cone read back by an independent evaluator",
      ["tools/verify_cone.py", "warmup"], False, "gate"),
+    ("stage 6, the tie cell and double driver checks on known-bad input",
+     ["tools/stage6_invert.py", "--selftest"], False, "gate"),
     ("stage 6, an input sequence solved for out of the graph",
      ["tools/stage6_invert.py", "warmup"], True, "gate"),
     ("stage 6, the same over the start states a toggled rst_n leaves",
