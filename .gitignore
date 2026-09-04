@@ -22,3 +22,5 @@ pdk/
 # Generated corpus RTL. Reproducible from tools/stage5_corpus.py, and the
 # generators are the artifact worth reviewing, not their output.
 synth/
+.venv-linux/
+synth_tie/

@@ -77,7 +77,7 @@ be checked, which is worse than no output.
 
 The pipeline's real product is its gates. The rules they follow, each paid for
 by a defect that slipped past their absence — the full register is
-[docs/problems.md](docs/problems.md), 53 entries with symptom, root cause, and
+[docs/problems.md](docs/problems.md), 55 entries with symptom, root cause, and
 whether the fix is understood or only worked around:
 
 - **A passing test that was never able to fail is not evidence.** Every gate is
@@ -261,7 +261,7 @@ Derived by the tools above, on the puzzle, by the author:
 
 ```
 docs/            one document per stage (00–07), plus:
-  problems.md      53 defects: symptom, root cause, fix status
+  problems.md      55 defects: symptom, root cause, fix status
   packages.md      the work-package map (who built what, in what order)
   references.md    primary sources: the three official documents, both hints
   solver-pipeline.md  the build spec: what gets built, and why in that order

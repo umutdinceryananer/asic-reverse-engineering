@@ -1603,9 +1603,89 @@ that is exactly the commit where nobody is looking at it.
 
 ---
 
+### 54. Stage 6 read one driver as two, the first time it met a tie cell
+
+**Symptom.** `stage6_invert.py` on the puzzle, on its first run ever against
+that target, exited before solving anything:
+
+    net n104 is driven by more than one thing: ('const', 0) and i07290.LO
+
+**Cause.** `i07290` is a `conb_1`, a tie cell whose `LO` pin is a constant 0.
+Stage 3 reads that from the pin's own liberty function and writes the net into
+`constant_nets` (`stage3_graph.py:455-462`), where it becomes a cone boundary
+alongside flop outputs and primary inputs. Stage 6 loads those into
+`self.driver` first, then walks `produced` -- every net a cell with a function
+drives -- and the tie cell arrives there too. The same fact, recorded twice, was
+read as a conflict. Six `conb_1` cells drive twelve constant nets and every one
+of them collides.
+
+**Why nothing caught it.** The warm up has no tie cell, and its `constant_nets`
+is empty, so the path was unreachable there. `docs/06-inversion.md:443` says
+plainly that nothing in that file had run on the puzzle. This is problem 52's
+shape again: every place the puzzle is wider than the warm up is a place an
+assumption survives the whole project.
+
+**The fix that was measured and rejected.** Skipping unconditionally whenever
+the net is a known constant -- three words shorter and wrong. Stage 1 resolved
+those six `conb_1` placements through the *structural fallback tier* rather than
+an exact fingerprint, because the fetched PDK revision is not the one that drew
+the puzzle. A blind skip is exactly what would swallow a mis-identified tie
+cell. The skip is conditional on the cell's own function being that same
+constant, `int()` on both sides because stage 3 writes an int from a liberty
+function and a string for a `const:` literal (`:462` against `:465`). A
+disagreement still exits, and now names the net and the pin.
+
+The count of skipped tie cells is printed beside the design summary, so a graph
+whose skipped count and recorded count disagree says so instead of passing
+quietly.
+
+**Verdict: understood.** Demonstrated both ways on ground truth: the pre-fix
+code fails identically on `out/synth_tie/streamer_hello`, a corpus circuit that
+carries one `conb_1`; the fixed code solves it, and the trace reproduces through
+Icarus. Flipping a recorded constant against its cell's function makes the new
+check exit, so it is a check that can fail.
+
+---
+
+### 55. Two cells on one net were invisible, and the design still solved
+
+**Symptom.** None. That is the entry.
+
+**Cause.** `stage6_invert.py` built `produced` with a plain assignment,
+`produced[net] = (instance, pin, tree)`. A second cell driving the same net
+overwrote the first and left nothing behind. The double-driver check below it
+reads `self.driver`, which by then held whichever cell iteration order put last,
+so it could only ever catch a cell against a *constant, an input or a flop* --
+never a cell against another cell. Which of the two survived was decided by
+sorted instance name.
+
+**How it was found.** Not by looking for it. Problem 54's fix needed a
+demonstration that its guard could still fail, and building that meant reading
+what the guard actually guards. The blindness was one line above.
+
+**What it cost, measured.** Two cells were planted on one net of the warm up's
+graph and the pre-fix code was run on it. On a clock tree net it reported *38
+net(s) read and undriven ... the transition relation is incomplete* and exited 2
+-- a true statement about a downstream symptom, naming the clock tree, pointing
+nowhere near the defect. On a datapath net it reported **`RESULT: pass, a trace
+was found`** and exited 0. It solved a design that does not exist and called it
+an answer.
+
+**Verdict: understood.** This library has no tristate, so one driver per net is
+structural and a collision is a defect rather than a shape to support. The guard
+exits with both pins named. No false alarm on the warm up, or on the four corpus
+circuits built to exercise the tie cell path.
+
+Worth recording for the ordering: problem 54 *masked* this one. On a graph
+carrying a tie cell the old code exited at the first constant collision and
+never reached the datapath net, so the two defects could not be seen at the same
+time. Fixing the loud one is what made the silent one reachable.
+
+---
+
 ## The shapes these fall into
 
-Fifty three problems, six recurring shapes.
+Fifty five problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source
