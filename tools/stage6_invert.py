@@ -79,6 +79,10 @@ Usage:
                                                           # answer: exits 1
     python tools/stage6_invert.py warmup --property S
     python tools/stage6_invert.py --graph out/synth/x/graph.json --depth 4
+    python tools/stage6_invert.py --selftest            # the two driver
+                                                        # checks, on
+                                                        # synthetic graphs;
+                                                        # no container
 """
 
 import json
@@ -756,8 +760,126 @@ def run(target, graph_path, depth, property_port, start, post_reset=False):
     return 0
 
 
+# --------------------------------------------------------------------------
+# selftest
+#
+# Problems 54 and 55 both live in `Design.__init__`, and neither could be
+# exercised by the warm up, whose `constant_nets` is empty. 54 was a check that
+# fired on every correct tie cell; 55 was a check that could not fire at all.
+# These cases are the standing demonstration that both now speak, and they need
+# no container, no solver and no corpus: every one of them is settled while the
+# design is being constructed.
+
+
+def selftest_graph(recorded=0, second_driver=False, literal=False):
+    """A small design carrying one tie cell, built in memory.
+
+    `AND2` reads the tie cell's output so the constant is not merely declared.
+    The flip flop gives the clock walk something to walk.
+    """
+    cells = {
+        "tie": {"type": "TIE", "connections": {"LO": ["nlo"]}},
+        "a1": {"type": "AND2",
+               "connections": {"A": ["nlo"], "B": ["nin"], "X": ["nd"]}},
+    }
+    constant_nets = {"nlo": recorded}
+    ports = {
+        "clk": {"direction": "input", "bits": ["nclk"]},
+        "din": {"direction": "input", "bits": ["nin"]},
+        "o": {"direction": "output", "bits": ["nq"]},
+    }
+    if second_driver:
+        cells["a2"] = {"type": "AND2",
+                       "connections": {"A": ["nin"], "B": ["nin"],
+                                       "X": ["nlo"]}}
+    if literal:
+        # A constant that is a net *name* rather than a cell output. Stage 3
+        # writes these as strings (`stage3_graph.py:465`) and they have no
+        # producer, so they are never skipped and never counted -- which is why
+        # skipped and recorded are allowed to differ.
+        cells["a3"] = {"type": "AND2",
+                       "connections": {"A": ["const:1"], "B": ["nin"],
+                                       "X": ["nr"]}}
+        constant_nets["const:1"] = "1"
+        ports["p"] = {"direction": "output", "bits": ["nr"]}
+    return {
+        "cells": cells,
+        "flipflops": {
+            "ff": {"cell": "FF", "kind": "ff", "clock": "nclk", "data": "nd",
+                   "q": "nq", "reset": None, "set": None,
+                   "reset_level": None, "set_level": None,
+                   "clock_root": "nclk", "clock_inverted": False,
+                   "reset_root": None, "reset_inverted": False,
+                   "set_root": None, "set_inverted": False, "enable": None},
+        },
+        "cell_functions": {"TIE": {"LO": "0", "HI": "1"},
+                           "AND2": {"X": "A&B"}},
+        "constant_nets": constant_nets,
+        "clock_nets": ["nclk"],
+        "clock_roots": {"nclk": ["ff"]},
+        "ports": ports,
+    }
+
+
+def selftest():
+    """Build four synthetic graphs and check what `Design` does with each."""
+    print("selftest: Design construction, four synthetic graphs")
+
+    def build(**kwargs):
+        try:
+            return Design(selftest_graph(**kwargs)), None
+        except SystemExit as refusal:
+            return None, str(refusal)
+
+    rows = []
+
+    # The clean subject first. A corruption test on a subject that already
+    # refuses proves nothing, and every corruption would look caught.
+    design, refused = build()
+    good = design is not None and design.constants_skipped == 1
+    rows.append(("a tie cell that agrees", good,
+                 "built, 1 skipped" if good else f"REFUSED: {refused}"))
+    if not good:
+        print(f"  {rows[0][0]:<34} {rows[0][2]}")
+        print("\nRESULT: fail, the subject does not build before it is broken")
+        return 1
+
+    design, refused = build(recorded=1)
+    good = bool(refused) and "nlo" in refused and "tie.LO" in refused
+    rows.append(("the recorded constant flipped", good,
+                 f"caught: {refused}" if good else "NOT CAUGHT"))
+
+    design, refused = build(second_driver=True)
+    good = (bool(refused) and "two cells" in refused
+            and "tie.LO" in refused and "a2.X" in refused)
+    rows.append(("a second cell on that net", good,
+                 f"caught: {refused}" if good else "NOT CAUGHT"))
+
+    # Legitimate, and the reason the two counts are allowed to differ.
+    design, refused = build(literal=True)
+    good = (design is not None and design.constants_skipped == 1
+            and len(design.graph["constant_nets"]) == 2)
+    rows.append(("a literal constant, no producer", good,
+                 "built, 1 skipped of 2 recorded" if good
+                 else f"REFUSED: {refused}"))
+
+    for name, _good, note in rows:
+        print(f"  {name:<34} {note}")
+
+    wrong = [name for name, good, _note in rows if not good]
+    if wrong:
+        print(f"\nRESULT: fail, {len(wrong)} of {len(rows)} case(s) did not "
+              f"behave: {', '.join(wrong)}")
+        return 1
+    print(f"\nRESULT: pass, {len(rows)} of {len(rows)} cases behaved as "
+          f"specified")
+    return 0
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if "--selftest" in args:
+        sys.exit(selftest())
     target, graph_path = None, None
     depth, property_port, start = DEFAULT_DEPTH, None, 0
     post_reset = False

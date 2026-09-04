@@ -199,6 +199,9 @@ python tools/stage6_invert.py warmup --post-reset  # start states as a toggled
                                           # the puzzle instead of 2^92.
                                           # -> out/warmup/solution_post_reset.json
 python tools/sim/replay.py warmup --solution out/warmup/solution_post_reset.json
+python tools/stage6_invert.py --selftest  # gate: the tie cell and double
+                                          # driver checks, on synthetic
+                                          # graphs; no container needed
 python tools/stage6_invert.py warmup --depth 6   # a bound below the answer:
                                           # exits 1 and says how deep it looked
 python tools/sim/replay.py warmup         # gate: that trace back through stage
@@ -253,6 +256,7 @@ ground truth, not built yet), `puzzle` (the real run). **No stage runs on
 | 4 | `verify_functions.py --selftest`: 2 of 3 deliberately wrong parsers are exposed by the library; the third is covered by hand written tables | passing |
 | 4 | every circuit in the synthetic corpus recovered with correct parameters | todo |
 | 3 | `verify_equiv.py warmup`: the recovered netlist proven sequentially equivalent to `01_netlist.v`, 153 correspondence points, all proven | passing |
+| 6 | `stage6_invert.py --selftest`: four synthetic graphs put the tie cell check and the double driver check to known-bad input, 4 of 4; removing either guard turns its own case red. No container, no solver, no corpus | passing |
 | 6 | `stage6_invert.py warmup`: a trace found at depth 8, proven to hold from every start state; `--post-reset` finds the same depth over the one state a toggled `rst_n` leaves, in 10 solver calls against 28 | passing |
 | 6 | `sim/replay.py warmup`: that trace reproduces against **stage 2's** netlist and the output is high at the predicted cycle | passing |
 | 7 | `stage7_output.py warmup --extend 6`: the trace replayed through the shared harness, one sample per cycle, every output read back. The warm up has no multi-bit output, and `stream NONE` is the right answer rather than a failure | passing |
