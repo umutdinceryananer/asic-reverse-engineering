@@ -34,6 +34,11 @@ starting state before it writes it down.
 Usage:
     python tools/sim/replay.py warmup
     python tools/sim/replay.py warmup --solution out/warmup/tampered.json
+    python tools/sim/replay.py --dir out/synth/streamer_hello   # a corpus
+                                                                # circuit,
+                                                                # not a
+                                                                # named
+                                                                # target
 """
 
 import json
@@ -146,16 +151,24 @@ def testbench(solution, top, module_ports, out_widths):
     return "\n".join(lines) + "\n"
 
 
-def run(target, solution_path=None):
-    solution_path = solution_path or os.path.join("out", target, "solution.json")
+def run(target, solution_path=None, art_dir=None):
+    # `art_dir` is where this target's artifacts live. It defaults to the
+    # layout every named target uses, and is given explicitly for a corpus
+    # circuit, whose netlist sits under out/synth/<name>/ and which is not in
+    # TARGETS. Mirrors `--graph` in stage6_invert.py: the gate is the same, only
+    # the path is supplied rather than derived.
+    art_dir = art_dir or os.path.join("out", target)
+    solution_path = solution_path or os.path.join(art_dir, "solution.json")
     if not os.path.exists(solution_path):
         sys.exit(f"{solution_path} missing; run tools/stage6_invert.py {target}")
     with open(solution_path, encoding="utf-8") as handle:
         solution = json.load(handle)
 
     # Stage 2's netlist, on purpose: stage 6 solved stage 3's graph, and a
-    # cross check has to come from the other representation.
-    netlist = os.path.join("out", target, "netlist.v")
+    # cross check has to come from the other representation. For a corpus
+    # circuit the same relation holds one step earlier: stage 5 synthesised
+    # netlist.v and stage 3 read graph.json out of it.
+    netlist = os.path.join(art_dir, "netlist.v")
     if not os.path.exists(netlist):
         sys.exit(f"{netlist} missing; run tools/stage2_nets.py {target}")
     if not os.path.isdir(PDK):
@@ -185,7 +198,7 @@ def run(target, solution_path=None):
               "same design")
         return 2
 
-    out_dir = os.path.join("out", target)
+    out_dir = art_dir
     bench = os.path.join(out_dir, "tb_solution.v").replace("\\", "/")
     with open(bench, "w", encoding="utf-8") as handle:
         handle.write(testbench(
@@ -214,10 +227,23 @@ def run(target, solution_path=None):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    override = None
-    if len(args) >= 3 and args[1] == "--solution":
-        override, args = args[2], args[:1]
-    if len(args) != 1 or args[0] not in TARGETS:
-        sys.exit(f"usage: python tools/sim/replay.py "
-                 f"[{' | '.join(TARGETS)}] [--solution <path>]")
-    sys.exit(run(args[0], override))
+    override, art_dir, rest, index = None, None, [], 0
+    while index < len(args):
+        if args[index] == "--solution":
+            override, index = args[index + 1], index + 2
+        elif args[index] == "--dir":
+            art_dir, index = args[index + 1], index + 2
+        else:
+            rest.append(args[index])
+            index += 1
+    if art_dir is not None:
+        target = rest[0] if rest else os.path.basename(
+            art_dir.rstrip("/\\")) or art_dir
+    else:
+        if len(rest) != 1 or rest[0] not in TARGETS:
+            sys.exit(f"usage: python tools/sim/replay.py "
+                     f"[{' | '.join(TARGETS)}] [--solution <path>]\n"
+                     f"       python tools/sim/replay.py --dir "
+                     f"out/synth/<circuit> [--solution <path>]")
+        target = rest[0]
+    sys.exit(run(target, override, art_dir))
