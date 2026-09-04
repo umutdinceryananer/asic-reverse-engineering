@@ -121,6 +121,16 @@ class Design:
             for pin in sorted(graph["cell_functions"].get(cell["type"], {})):
                 wires = cell["connections"].get(pin)
                 if wires:
+                    # A plain assignment here let a second cell on the same net
+                    # overwrite the first, silently, so the double-driver check
+                    # further down could only ever see a cell against a
+                    # constant, an input or a flop -- never a cell against
+                    # another cell. This library has no tristate, so one driver
+                    # per net is structural and a collision is a defect.
+                    if wires[0] in produced:
+                        prev = produced[wires[0]]
+                        sys.exit(f"net {wires[0]} is driven by two cells: "
+                                 f"{prev[0]}.{prev[1]} and {instance}.{pin}")
                     produced[wires[0]] = (instance, pin,
                                           functions[(cell["type"], pin)])
 
