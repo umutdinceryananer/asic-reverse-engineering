@@ -80,6 +80,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 54 | Stage 6 read one driver as two, the first time it met a tie cell | inversion | understood |
 | 55 | Two cells on one net were invisible, and the design still solved | inversion | understood |
 | 56 | Both stage 6 modes wrote the same query files | inversion | understood |
+| 57 | One verdict for two findings, and the run contradicted itself | inversion | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1735,9 +1736,56 @@ the last artifact that appeared not to.
 
 ---
 
+### 57. One verdict for two findings, and the same run contradicted itself
+
+**Symptom.** `sim/replay.py` on the puzzle's `--post-reset` trace printed a
+note near the top -- *this trace was not proven independent of the starting
+state, so simulation from x may legitimately disagree with it* -- and then
+closed, twenty lines later, with *RESULT: fail, the trace does not reproduce.
+That is a defect in the model tools/stage6_invert.py built, not a solution.*
+
+Both sentences were produced by the same run, about the same trace, and they do
+not agree. Nothing was wrong with the model.
+
+**Cause.** The testbench distinguishes three outcomes and the tool collapsed
+them into two. It counts `mismatches`, where a cycle disagrees, and `unknown`,
+where the property cycle is still `x`, and it prints `RESULT: FAIL` for either.
+The caller read only that string. So a cycle that *disagreed* -- which really is
+a modelling defect, and the only thing this gate exists to catch -- and a cycle
+that was never resolved from `x` under a mode whose own claim does not cover the
+all-`x` start, arrived at the same line and were given the stronger of the two
+accusations.
+
+This is problem 49's shape at the row level rather than the table level: two
+states sharing one cell, where the honest answer is a third. There it was a
+stopped Docker reading as eleven failing gates; here it is a weaker claim
+reading as a broken model.
+
+**Fix.** `mismatches == 0 and unknown > 0` **and** the solution's own
+`initial_state_independent` being false is now its own verdict and its own exit
+code: **unconfirmable**, 3, saying that the result is consistent with the claim
+that was made and is not evidence for it, and pointing at the mode that can be
+confirmed. Every other combination is untouched -- a real disagreement still
+fails, and it still fails on a non-independent trace, because the new branch
+requires `mismatches == 0`.
+
+**Verdict: understood.** Demonstrated both directions. The puzzle's post-reset
+trace now returns 3 with the new wording. A tampered solution whose property
+cycle is moved to one where `success` is 0 returns 1 and the old wording, and
+the same tamper with `initial_state_independent` forced to false still returns
+1 -- which is the check that the new branch is narrow rather than a way to make
+red gates quiet.
+
+Worth recording for where it hid: the contradiction was printed in full, in
+every such run, and was invisible because nobody had run this mode on a design
+whose flops are not all asynchronously controlled. The warm up has 0 of 16; the
+puzzle has 4 of 92.
+
+---
+
 ## The shapes these fall into
 
-Fifty six problems, six recurring shapes.
+Fifty seven problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

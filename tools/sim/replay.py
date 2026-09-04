@@ -43,6 +43,7 @@ Usage:
 
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -151,6 +152,17 @@ def testbench(solution, top, module_ports, out_widths):
     return "\n".join(lines) + "\n"
 
 
+def counted(output, label):
+    """A count the testbench printed, or -1 if it did not print one.
+
+    The bench writes `mismatches      0` and `unknown         1`. Reading them
+    back is how the caller tells a disagreement from an unresolved `x`, which
+    are different findings and had been sharing a verdict.
+    """
+    match = re.search(rf"(?m)^{label}\s+(\d+)\s*$", output)
+    return int(match.group(1)) if match else -1
+
+
 def run(target, solution_path=None, art_dir=None):
     # `art_dir` is where this target's artifacts live. It defaults to the
     # layout every named target uses, and is given explicitly for a corpus
@@ -220,6 +232,25 @@ def run(target, solution_path=None, art_dir=None):
         print(f"\nRESULT: pass, the trace reproduces and {port} is high at "
               f"cycle {at}")
         return 0
+
+    # Two different things reached this line and were given one verdict. A
+    # cycle that disagrees is a modelling defect. A cycle that is still `x`
+    # under a trace whose own solution says it was never proven independent of
+    # the starting state is the weaker claim behaving exactly as the NOTE above
+    # says it may -- and calling that "a defect in the model" contradicts the
+    # note printed twenty lines earlier, in the same run. This is problem 49's
+    # shape: one cell for two states, where the third is neither pass nor fail.
+    mismatches = counted(output, "mismatches")
+    unknown = counted(output, "unknown")
+    if (mismatches == 0 and unknown > 0
+            and not solution.get("initial_state_independent")):
+        print(f"\nRESULT: unconfirmable, {port} is x at cycle {at} and no "
+              f"cycle disagrees.\nThe trace was proven only over this mode's "
+              f"start states, and simulation\nbegins at x, so this is "
+              f"consistent with the claim that was made. It is not\nevidence "
+              f"for it. Re-run stage 6 without --post-reset for a trace that "
+              f"can be\nconfirmed from x, which is the stronger claim anyway.")
+        return 3
     print(f"\nRESULT: fail, the trace does not reproduce. That is a defect in "
           f"the\nmodel tools/stage6_invert.py built, not a solution.")
     return 1

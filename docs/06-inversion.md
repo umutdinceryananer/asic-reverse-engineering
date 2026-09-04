@@ -255,6 +255,31 @@ must not be suppressed: the replay does start from `x`, and a puzzle testbench
 that means to reproduce a post-reset trace has to toggle `rst_n` first, exactly
 as the hint says.
 
+### Measured on the puzzle, and the weaker mode did not carry it
+
+Both modes were run. `--post-reset` found a trace at depth 122 in 25.4 seconds
+over 3 solver calls, quantifying over the 2^4 start states a toggled `rst_n`
+leaves. Replay could not confirm it: `mismatches 0, unknown 1`, `success` still
+`x` at cycle 122.
+
+The cause is a shape the warm up does not have. Four of the puzzle's 92 flops
+are `dfxtp_2` and carry no asynchronous control at all -- no clear, no preset --
+against **0 of 16** on the warm up. `--post-reset` leaves exactly those four
+free, and a simulation that starts at `x` has nothing that will resolve them, so
+the `x` reaches `success` through its cone. The mode's proof is over 16 start
+states that the simulation cannot enter.
+
+The default mode then found a trace at depth 124 in 193.6 seconds over 13 solver
+calls, and replay reproduced it with 0 mismatches and 0 unknown.
+
+This is the first measured case of the claim this document opens with: the
+default is strictly stronger, and here the difference was not academic. It also
+says something about the gate. Simulation from `x` is *pessimistic* -- an `x`
+propagates wherever the design has not been pinned down -- so a replay that
+passes from `x` has confirmed the trace without being told any starting state at
+all. That is why it is worth the extra 168 seconds, and why the cheaper question
+cannot stand in for it here.
+
 ## The answer, which nothing told it
 
 ```

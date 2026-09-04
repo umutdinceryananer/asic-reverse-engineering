@@ -94,6 +94,15 @@ design one cycle later. `en=1` lets the shift registers keep loading and the sum
 moves off 496. `hold-last` holds. A default that hid itself would have been a
 guess wearing a result's clothes.
 
+**Measured on the puzzle, where the difference is the whole answer.** Under
+`hold-last` the stream is 15 bytes, cycles 124 to 138. Under `zeros` it is one
+byte, at cycle 124, and then nothing. The reason is the row above, on a design
+that has 84 flops on an asynchronous clear and 4 on a preset: `zeros` drops
+`rst_n` and the chip is reset before the second byte. **Driving nothing is not
+neutral**, and on a target with no ground truth the difference between a
+15-byte reading and a 1-byte one is not something a default should decide
+silently. Both rows are printed, which is the point of printing them.
+
 A per-port policy starts from `hold-last` and overrides only what it names, so
 naming one port says nothing accidental about the others, and the exact resulting
 row is printed underneath.
