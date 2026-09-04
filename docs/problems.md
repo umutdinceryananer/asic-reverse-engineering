@@ -1637,7 +1637,9 @@ disagreement still exits, and now names the net and the pin.
 
 The count of skipped tie cells is printed beside the design summary, so a graph
 whose skipped count and recorded count disagree says so instead of passing
-quietly.
+quietly -- though the two are *expected* to differ on a graph carrying literal
+`const:` nets, which have no producer at all, because the skipped count counts
+only the constants a cell drives. An inequality is a question, not a defect.
 
 **Verdict: understood.** Demonstrated both ways on ground truth: the pre-fix
 code fails identically on `out/synth_tie/streamer_hello`, a corpus circuit that
@@ -1676,10 +1678,19 @@ structural and a collision is a defect rather than a shape to support. The guard
 exits with both pins named. No false alarm on the warm up, or on the four corpus
 circuits built to exercise the tie cell path.
 
-Worth recording for the ordering: problem 54 *masked* this one. On a graph
-carrying a tie cell the old code exited at the first constant collision and
-never reached the datapath net, so the two defects could not be seen at the same
-time. Fixing the loud one is what made the silent one reachable.
+Worth recording for how it surfaced, which is not that 54 hid it. The overwrite
+is in the loop that *builds* `produced` (`stage6_invert.py:117-125`), and that
+loop finishes before the driver loop where 54's exit lives, so cell against cell
+was invisible on every path whether or not a tie cell was present -- the cost
+measurement above ran on the warm up, which has no tie cell and cannot trigger
+54 at all.
+
+What found it was auditing 54. Ten lines of one invariant -- *one driver per
+net* -- held a check that fired on every correct `conb_1`, and a check that
+could not fire at all. Reading the first closely is what made the second
+visible. The transferable part: when a loud check turns out to be wrong about
+what it is looking at, read the other half of the same invariant before
+believing the half that stayed quiet.
 
 ---
 
