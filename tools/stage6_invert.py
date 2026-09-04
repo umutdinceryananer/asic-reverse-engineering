@@ -530,7 +530,8 @@ def predicted_of(design, values, depth, names):
     return rows
 
 
-def search(design, depth, property_port, out_dir, start=0, initial=None):
+def search(design, depth, property_port, out_dir, start=0, initial=None,
+           suffix=""):
     """Iterative deepening, with the robustness loop at each depth.
 
     `initial` is the constraint on every copy's starting state: None for a free
@@ -538,12 +539,19 @@ def search(design, depth, property_port, out_dir, start=0, initial=None):
     the same constraint, so `--post-reset` looks for a start state *among the
     post-reset ones* that defeats the trace, and the default looks among all of
     them.
+
+    `suffix` keeps the two modes' queries apart on disk. The solutions were
+    already separated -- `solution.json` against `solution_post_reset.json` --
+    and the queries were not, so whichever mode ran last owned every
+    `bmc_k*.smt2` and the file could not say which question it asked. That is
+    the weaker claim silently replacing the stronger one, which `docs/06` names
+    as the thing this mode must never do.
     """
     timings = []
     for k in range(start, depth + 1):
         copies, rounds = [initial], 0
         while True:
-            path = os.path.join(out_dir, f"bmc_k{k}.smt2")
+            path = os.path.join(out_dir, f"bmc_k{k}{suffix}.smt2")
             names = {}
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write(encode(design, k, copies, property_port,
@@ -561,7 +569,7 @@ def search(design, depth, property_port, out_dir, start=0, initial=None):
 
             # The opposite question: is there a start state these same inputs
             # fail from? An unsat here is what makes the trace usable.
-            check = os.path.join(out_dir, f"bmc_k{k}_anystart.smt2")
+            check = os.path.join(out_dir, f"bmc_k{k}{suffix}_anystart.smt2")
             with open(check, "w", encoding="utf-8") as handle:
                 handle.write(encode(design, k, [initial], property_port,
                                     pinned=rows, want=False))
@@ -690,7 +698,8 @@ def run(target, graph_path, depth, property_port, start, post_reset=False):
     started = time.time()
     found, rows, initial, predicted, timings = search(
         design, depth, property_port, out_dir, start,
-        pinned if post_reset else None)
+        pinned if post_reset else None,
+        "_post_reset" if post_reset else "")
     total = time.time() - started
 
     if found is None:

@@ -79,6 +79,7 @@ Dates: work started 14 August 2026; everything from stage 1 onward is 15 August.
 | 53 | Moving the Icarus driver made the packet's container column go stale | tooling | understood |
 | 54 | Stage 6 read one driver as two, the first time it met a tie cell | inversion | understood |
 | 55 | Two cells on one net were invisible, and the design still solved | inversion | understood |
+| 56 | Both stage 6 modes wrote the same query files | inversion | understood |
 
 Two remain unresolved: **1** and **4**.
 
@@ -1696,9 +1697,47 @@ believing the half that stayed quiet.
 
 ---
 
+### 56. Both stage 6 modes wrote the same query files, so neither could say which question it asked
+
+**Symptom.** None, until two machines were compared. The archived
+`out/warmup/bmc_k*.smt2` and the ones regenerated here differed -- the archive's
+carried two copies of the unrolled design, `q0_` and `q1_`, and the new ones
+carried one. It read like a solver path that varies by host, which would have
+been a real problem for a pipeline whose whole claim is that its artifacts
+reproduce.
+
+**Cause.** `stage6_invert.py` wrote `bmc_k{k}.smt2` in both modes. The default
+run pins a counterexample start state as a *second copy* of the design;
+`--post-reset` pins the start state directly and never needs one. So the file on
+disk carried whichever mode ran last, and `tools/review_packet.py` runs both.
+Nothing was wrong with either query. The name was.
+
+**Why it matters more than a stale file.** The solutions were already kept
+apart: `solution.json` against `solution_post_reset.json`. `docs/06` is explicit
+that the default is the stronger claim -- a trace good from every start state is
+good from the post-reset ones and not the reverse -- and that **the weaker claim
+must not silently replace the stronger one**. The solution files obeyed that
+rule and the query files quietly did not, so the evidence *behind* a strong
+claim could be overwritten by the evidence behind a weak one, with the artifact
+giving no sign.
+
+**Fix.** `search()` takes a `suffix`, `_post_reset` under that mode, applied to
+both the main query and its `_anystart` companion. Measured after: from a clean
+tree the default run leaves every `bmc_k*.smt2` byte identical to the archive
+and touches only `solution.json`, and `--post-reset` writes
+`bmc_k*_post_reset.smt2` and touches none of them.
+
+**Verdict: understood**, and it closes an open question rather than opening one.
+The Mac-against-Linux difference recorded in the resurrection runbook was this
+and nothing else: the CEGAR path did not vary across hosts at all. The
+extraction spine had already been shown to reproduce byte for byte, and this was
+the last artifact that appeared not to.
+
+---
+
 ## The shapes these fall into
 
-Fifty five problems, six recurring shapes.
+Fifty six problems, six recurring shapes.
 
 **Reasoning from a secondary source while the primary sits there.** Problems 6,
 7, 8, 9, and 24 — which is the same shape enlarged: not a secondary source

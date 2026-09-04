@@ -389,6 +389,14 @@ archive and touches only `solution.json`. Running `--post-reset` afterwards is
 what rewrites all nine. So a diff of these files reports which mode ran last,
 not which machine ran it, and the CEGAR path did not vary across hosts at all.
 
+**Closed.** This is now `docs/problems.md` 56 and the names are fixed:
+`--post-reset` writes `bmc_k*_post_reset.smt2`, so the two modes no longer
+overwrite each other and each query file says which question it asked.
+Re-measured after the fix: the default run still leaves every archived
+`bmc_k*.smt2` byte identical, and `--post-reset` touches none of them. **Every
+artifact difference between the Mac and this machine is now accounted for**,
+and none of them was a difference in what the pipeline computed.
+
 ## Corpus and gate results
 
 `stage5_corpus.py` full run: **99 circuits, 197 netlists, 0 failed, 2m57s** --
