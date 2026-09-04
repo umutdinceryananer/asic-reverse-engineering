@@ -267,7 +267,7 @@ docs/            one document per stage (00–07), plus:
   solver-pipeline.md  the build spec: what gets built, and why in that order
   jane-street-asic-roadmap.md  the schedule, phase budgets, gates
   endgame.md       from build-freeze to submission
-  lectures/        00–07: step-by-step lessons in Turkish, written for a
+  lectures/        00–09: step-by-step lessons in Turkish, written for a
                    reader with no hardware background, after each stage's
                    gates passed — never before
 tools/           every stage and every gate
