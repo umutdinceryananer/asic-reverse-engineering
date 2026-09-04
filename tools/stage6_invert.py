@@ -175,14 +175,33 @@ class Design:
 
         self.clock_nets = clock_nets
         self.cells = []
+        constants = (graph.get("constant_nets") or {})
+        skipped = 0
         for net, (instance, pin, tree) in sorted(produced.items()):
             if net in clock_nets:
                 continue                        # a clock tree cell: not a signal
+            # A tie cell drives a constant, and stage 3 has already written that
+            # output into `constant_nets`, where a cone stops. The same fact
+            # arrives here a second time as a cell that produces a net, so the
+            # generic check below would read one driver as two. Skip it -- but
+            # only after the cell's own function agrees with what was recorded.
+            # A disagreement is a mis-identified cell, which is the thing this
+            # path must not hide. `int` on both sides because stage 3 writes an
+            # int from a liberty function and a string for a `const:` literal.
+            recorded = constants.get(net)
+            if recorded is not None:
+                if tree.kind == "const" and int(tree.value) == int(recorded):
+                    skipped += 1
+                    continue
+                sys.exit(f"net {net}: recorded constant {recorded} but driven "
+                         f"by {instance}.{pin}, whose function is not that "
+                         f"constant")
             if net in self.driver:
                 sys.exit(f"net {net} is driven by more than one thing: "
                          f"{self.driver[net]} and {instance}.{pin}")
             self.driver[net] = ("cell", instance, pin)
             self.cells.append((net, instance, pin, tree))
+        self.constants_skipped = skipped
         self.pins = {i: c["connections"] for i, c in graph["cells"].items()}
         self.tree_of = {(i, p): t for _n, i, p, t in self.cells}
         self.width = {port: len(bits) for port, bits in self.inputs}
@@ -574,6 +593,8 @@ def run(target, graph_path, depth, property_port, start, post_reset=False):
     print(f"  graph        {graph_path}")
     print(f"  {len(design.cells)} combinational cell outputs, "
           f"{len(design.flops)} flip flops")
+    print(f"  {design.constants_skipped} tie cell output(s) skipped, "
+          f"{len(graph.get('constant_nets') or {})} net(s) recorded constant")
     print(f"  clock ports  {design.clock_ports or 'none'}   "
           f"(implicit in the cycle, not solved for)")
     print(f"  free inputs  "
