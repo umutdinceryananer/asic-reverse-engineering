@@ -1,0 +1,266 @@
+{
+ "netlist": "out/puzzle/netlist.v",
+ "toolchain": {
+  "iverilog": "/home/umut/tools/oss-cad-suite/bin/iverilog",
+  "vvp": "/home/umut/tools/oss-cad-suite/bin/vvp",
+  "flags": "-g2012 -DFUNCTIONAL -DUNIT_DELAY=#1",
+  "container": null
+ },
+ "framing_derived_from": "out/puzzle/stimulus.txt",
+ "framing": {
+  "reset_cycles": 3,
+  "idle_after_reset": 1,
+  "attempt_bits": 121,
+  "extend": 64,
+  "cycle_model": "tools/sim/harness.py clocked_bench: inputs move while clk low, outputs sampled before the rising edge"
+ },
+ "winning_vector": "0000000101010000100000000000010101010000000000001010000001000001000000100000101000010000000100000010000010010001010000000",
+ "known_messages": [
+  "TRY AGAIN",
+  "(* TWO STARS *)",
+  "EMPTY SKY",
+  "BIG BANG"
+ ],
+ "positive_control": {
+  "expected": "(* TWO STARS *)",
+  "passed": true
+ },
+ "fifth_message_found": false,
+ "probes": [
+  {
+   "id": "control-winning",
+   "kind": "probe",
+   "cycles": 189,
+   "success_ever": true,
+   "success_first_cycle": 126,
+   "success_high_cycles": 63,
+   "o_defined_cycles": 189,
+   "trimmed_first_cycle": 126,
+   "trimmed_last_cycle": 140,
+   "trimmed_bytes": [
+    40,
+    42,
+    32,
+    84,
+    87,
+    79,
+    32,
+    83,
+    84,
+    65,
+    82,
+    83,
+    32,
+    42,
+    41
+   ],
+   "trimmed_text": "(* TWO STARS *)",
+   "printable_fraction_trimmed": 1.0,
+   "success_last_cycle": 188,
+   "o_live_cycles": 15,
+   "o_undefined_cycles": 0,
+   "segments": [
+    "(* TWO STARS *)"
+   ],
+   "segment_classes": [
+    "known"
+   ],
+   "new_segments": [],
+   "is_new_string": false,
+   "fed": "the unmodified winning frame",
+   "after_row_used": {
+    "rst_n": 1,
+    "enable": 0,
+    "I": 0
+   }
+  },
+  {
+   "id": "probe1-idle-300",
+   "kind": "probe",
+   "cycles": 304,
+   "success_ever": false,
+   "success_first_cycle": null,
+   "success_high_cycles": 0,
+   "o_defined_cycles": 304,
+   "trimmed_first_cycle": null,
+   "trimmed_last_cycle": null,
+   "trimmed_bytes": [],
+   "trimmed_text": "",
+   "printable_fraction_trimmed": null,
+   "success_last_cycle": null,
+   "o_live_cycles": 0,
+   "o_undefined_cycles": 0,
+   "segments": [],
+   "segment_classes": [],
+   "new_segments": [],
+   "is_new_string": false,
+   "fed": "reset toggled, then 300 cycles with enable never raised",
+   "after_row_used": {
+    "rst_n": 1,
+    "enable": 0,
+    "I": 0
+   }
+  },
+  {
+   "id": "probe2-double-enable-held",
+   "kind": "probe",
+   "cycles": 310,
+   "success_ever": true,
+   "success_first_cycle": 126,
+   "success_high_cycles": 184,
+   "o_defined_cycles": 310,
+   "trimmed_first_cycle": 126,
+   "trimmed_last_cycle": 140,
+   "trimmed_bytes": [
+    40,
+    42,
+    32,
+    84,
+    87,
+    79,
+    32,
+    83,
+    84,
+    65,
+    82,
+    83,
+    32,
+    42,
+    41
+   ],
+   "trimmed_text": "(* TWO STARS *)",
+   "printable_fraction_trimmed": 1.0,
+   "success_last_cycle": 309,
+   "o_live_cycles": 15,
+   "o_undefined_cycles": 0,
+   "segments": [
+    "(* TWO STARS *)"
+   ],
+   "segment_classes": [
+    "known"
+   ],
+   "new_segments": [],
+   "is_new_string": false,
+   "fed": "winning vector twice back to back, enable high 242 cycles and held through extension, no reset between",
+   "after_row_used": {
+    "rst_n": 1,
+    "enable": 1,
+    "I": 0
+   }
+  },
+  {
+   "id": "probe3-midmessage-reset",
+   "kind": "probe",
+   "cycles": 189,
+   "success_ever": true,
+   "success_first_cycle": 126,
+   "success_high_cycles": 7,
+   "o_defined_cycles": 189,
+   "trimmed_first_cycle": 126,
+   "trimmed_last_cycle": 132,
+   "trimmed_bytes": [
+    40,
+    42,
+    32,
+    84,
+    87,
+    79,
+    32
+   ],
+   "trimmed_text": "(* TWO ",
+   "printable_fraction_trimmed": 1.0,
+   "success_last_cycle": 132,
+   "o_live_cycles": 7,
+   "o_undefined_cycles": 0,
+   "segments": [
+    "(* TWO "
+   ],
+   "segment_classes": [
+    "truncation of '(* TWO STARS *)'"
+   ],
+   "new_segments": [],
+   "is_new_string": false,
+   "fed": "the winning frame with rst_n low for one cycle at cycle 133, mid-message (control streamed cycles 126..140)",
+   "after_row_used": {
+    "rst_n": 1,
+    "enable": 0,
+    "I": 0
+   },
+   "pulse_cycle": 133
+  },
+  {
+   "id": "probe4a-60bit-window",
+   "kind": "probe",
+   "cycles": 128,
+   "success_ever": false,
+   "success_first_cycle": null,
+   "success_high_cycles": 0,
+   "o_defined_cycles": 128,
+   "trimmed_first_cycle": null,
+   "trimmed_last_cycle": null,
+   "trimmed_bytes": [],
+   "trimmed_text": "",
+   "printable_fraction_trimmed": null,
+   "success_last_cycle": null,
+   "o_live_cycles": 0,
+   "o_undefined_cycles": 0,
+   "segments": [],
+   "segment_classes": [],
+   "new_segments": [],
+   "is_new_string": false,
+   "fed": "a 60-bit enable window carrying the winning vector's prefix",
+   "after_row_used": {
+    "rst_n": 1,
+    "enable": 0,
+    "I": 0
+   }
+  },
+  {
+   "id": "probe4b-242bit-window",
+   "kind": "probe",
+   "cycles": 310,
+   "success_ever": true,
+   "success_first_cycle": 126,
+   "success_high_cycles": 184,
+   "o_defined_cycles": 310,
+   "trimmed_first_cycle": 126,
+   "trimmed_last_cycle": 140,
+   "trimmed_bytes": [
+    40,
+    42,
+    32,
+    84,
+    87,
+    79,
+    32,
+    83,
+    84,
+    65,
+    82,
+    83,
+    32,
+    42,
+    41
+   ],
+   "trimmed_text": "(* TWO STARS *)",
+   "printable_fraction_trimmed": 1.0,
+   "success_last_cycle": 309,
+   "o_live_cycles": 15,
+   "o_undefined_cycles": 0,
+   "segments": [
+    "(* TWO STARS *)"
+   ],
+   "segment_classes": [
+    "known"
+   ],
+   "new_segments": [],
+   "is_new_string": false,
+   "fed": "a 242-bit enable window carrying the winning vector doubled, enable falling after the window as in a normal attempt",
+   "after_row_used": {
+    "rst_n": 1,
+    "enable": 0,
+    "I": 0
+   }
+  }
+ ]
+}

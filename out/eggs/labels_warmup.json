@@ -1,0 +1,3449 @@
+{
+  "target": "warmup",
+  "gds_path": "/home/umut/Projects/gds-teardown/puzzle/warmup/04_final.gds",
+  "header": {
+    "gds_version": 600,
+    "library_name": "LIB",
+    "unit_user": 0.001,
+    "unit_meters": 1e-09,
+    "bgnlib_modified": "2026-07-30 03:03:48",
+    "bgnlib_accessed": "2026-07-30 03:03:48"
+  },
+  "structure_timestamps": [
+    {
+      "name": "sky130_fd_sc_hd__decap_3",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__nand2_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__and2_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__xor2_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__xnor2_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__a31o_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__or2_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__nor2_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__a21bo_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__a21o_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__a21boi_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__o21bai_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__clkbuf_16",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__and3_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__and4bb_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__mux2_1",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "sky130_fd_sc_hd__dfrtp_2",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_via5_6_2000_2000_1_1_1600_1600",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_via4_5_2000_480_1_5_400_400",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_via3_4_2000_480_1_5_400_400",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_via2_3_2000_480_1_6_320_320",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_M2M3_PR",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_M1M2_PR",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_L1M1_PR_MR",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "VIA_M3M4_PR",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    },
+    {
+      "name": "adder_demo",
+      "modified": "2026-07-30 03:03:48",
+      "accessed": "2026-07-30 03:03:48"
+    }
+  ],
+  "structures": [
+    {
+      "name": "VIA_L1M1_PR_MR",
+      "references_to_it": 268,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_M1M2_PR",
+      "references_to_it": 313,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_M2M3_PR",
+      "references_to_it": 45,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_M3M4_PR",
+      "references_to_it": 5,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_via2_3_2000_480_1_6_320_320",
+      "references_to_it": 75,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_via3_4_2000_480_1_5_400_400",
+      "references_to_it": 75,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_via4_5_2000_480_1_5_400_400",
+      "references_to_it": 75,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "VIA_via5_6_2000_2000_1_1_1600_1600",
+      "references_to_it": 13,
+      "class": "known_non_cell",
+      "is_top": false
+    },
+    {
+      "name": "adder_demo",
+      "references_to_it": 0,
+      "class": "known_non_cell",
+      "is_top": true
+    },
+    {
+      "name": "sky130_fd_sc_hd__a21bo_2",
+      "references_to_it": 1,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__a21boi_2",
+      "references_to_it": 1,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__a21o_2",
+      "references_to_it": 1,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__a31o_2",
+      "references_to_it": 5,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__and2_2",
+      "references_to_it": 7,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__and3_2",
+      "references_to_it": 1,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__and4bb_2",
+      "references_to_it": 2,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__clkbuf_16",
+      "references_to_it": 3,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__decap_3",
+      "references_to_it": 58,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__dfrtp_2",
+      "references_to_it": 16,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__mux2_1",
+      "references_to_it": 16,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__nand2_2",
+      "references_to_it": 4,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__nor2_2",
+      "references_to_it": 8,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__o21bai_2",
+      "references_to_it": 1,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__or2_2",
+      "references_to_it": 5,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "references_to_it": 93,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__xnor2_2",
+      "references_to_it": 3,
+      "class": "pdk_cell",
+      "is_top": false
+    },
+    {
+      "name": "sky130_fd_sc_hd__xor2_2",
+      "references_to_it": 5,
+      "class": "pdk_cell",
+      "is_top": false
+    }
+  ],
+  "top_level": [
+    "adder_demo"
+  ],
+  "labels": [
+    {
+      "structure": "adder_demo",
+      "text": "en",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 30.26,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "B",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 35.7,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "A",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 41.14,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "rst_n",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 57.46,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "clk",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 73.78,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "S",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 99.7,
+      "y_um": 16.66,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VPWR",
+      "layer": 71,
+      "texttype": 5,
+      "x_um": 26.44,
+      "y_um": 50.32,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (71,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VGND",
+      "layer": 71,
+      "texttype": 5,
+      "x_um": 30.14,
+      "y_um": 50.32,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (71,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VPWR",
+      "layer": 72,
+      "texttype": 5,
+      "x_um": 49.91,
+      "y_um": 27.53,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (72,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VGND",
+      "layer": 72,
+      "texttype": 5,
+      "x_um": 49.91,
+      "y_um": 31.23,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (72,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "B1_N",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.015,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "A2",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.47,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "a21bo_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "B1_N",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.635,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.015,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "A2",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.475,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "a21boi_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.695,
+      "y_um": 2.21,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "B1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.615,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.535,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.535,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "A2",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.99,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "a21o_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "A3",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "A3",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "A2",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.615,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.075,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "B1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.99,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "B1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.995,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "a31o_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.69,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.15,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 2.21,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "and2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "C",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.15,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.15,
+      "y_um": 2.21,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 2.21,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.53,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "and3_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "A_N",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "A_N",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "C",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.995,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "C",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.995,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "C",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.995,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "D",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.455,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "B_N",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.905,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "and4bb_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.05,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.05,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.05,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.51,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.51,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.51,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "clkbuf_16",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "decap_3",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "CLK",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "CLK",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "D",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.61,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "RESET_B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 7.49,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "RESET_B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 7.49,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "Q",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.965,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "Q",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.965,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "Q",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.965,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "Q",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 8.965,
+      "y_um": 2.21,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "dfrtp_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.455,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.505,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.51,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.21,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "A0",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.075,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.535,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.535,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "S",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.995,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "S",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.455,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "mux2_1",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.695,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.615,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.075,
+      "y_um": 0.85,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.075,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.075,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "nand2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.615,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "nor2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "B1_N",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.61,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "A2",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.53,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "A1",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.45,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "o21bai_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.155,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.075,
+      "y_um": 1.87,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "or2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "text": "tapvpwrvgnd_1",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.15,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 2.07,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "Y",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 5.79,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "xnor2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "A",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 1.15,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "B",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 3.91,
+      "y_um": 1.19,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "X",
+      "layer": 67,
+      "texttype": 5,
+      "x_um": 5.75,
+      "y_um": 1.53,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "VGND",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "VPWR",
+      "layer": 68,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": true,
+      "flag_reasons": [],
+      "mundane_reason": null
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "xor2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    }
+  ],
+  "label_layer_histogram": {
+    "64,5": 18,
+    "64,59": 18,
+    "67,5": 94,
+    "68,5": 38,
+    "70,5": 6,
+    "71,5": 2,
+    "72,5": 2,
+    "83,44": 18
+  },
+  "flagged_labels": [
+    {
+      "structure": "adder_demo",
+      "text": "en",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 30.26,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "B",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 35.7,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "A",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 41.14,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "rst_n",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 57.46,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "clk",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 0.3,
+      "y_um": 73.78,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "S",
+      "layer": 70,
+      "texttype": 5,
+      "x_um": 99.7,
+      "y_um": 16.66,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (70,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VPWR",
+      "layer": 71,
+      "texttype": 5,
+      "x_um": 26.44,
+      "y_um": 50.32,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (71,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VGND",
+      "layer": 71,
+      "texttype": 5,
+      "x_um": 30.14,
+      "y_um": 50.32,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (71,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VPWR",
+      "layer": 72,
+      "texttype": 5,
+      "x_um": 49.91,
+      "y_um": 27.53,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (72,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "adder_demo",
+      "text": "VGND",
+      "layer": 72,
+      "texttype": 5,
+      "x_um": 49.91,
+      "y_um": 31.23,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (72,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "documented top-level port/power label"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21bo_2",
+      "text": "a21bo_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21boi_2",
+      "text": "a21boi_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a21o_2",
+      "text": "a21o_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__a31o_2",
+      "text": "a31o_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and2_2",
+      "text": "and2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and3_2",
+      "text": "and3_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__and4bb_2",
+      "text": "and4bb_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__clkbuf_16",
+      "text": "clkbuf_16",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__decap_3",
+      "text": "decap_3",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__dfrtp_2",
+      "text": "dfrtp_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.455,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.505,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__mux2_1",
+      "text": "mux2_1",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nand2_2",
+      "text": "nand2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__nor2_2",
+      "text": "nor2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__o21bai_2",
+      "text": "o21bai_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.235,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.235,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__or2_2",
+      "text": "or2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+      "text": "tapvpwrvgnd_1",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xnor2_2",
+      "text": "xnor2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "VPB",
+      "layer": 64,
+      "texttype": 5,
+      "x_um": 0.23,
+      "y_um": 2.72,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,5) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "VNB",
+      "layer": 64,
+      "texttype": 59,
+      "x_um": 0.23,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (64,59) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "power/well pin label, standard library content"
+    },
+    {
+      "structure": "sky130_fd_sc_hd__xor2_2",
+      "text": "xor2_2",
+      "layer": 83,
+      "texttype": 44,
+      "x_um": 0.0,
+      "y_um": 0.0,
+      "expected_pin_label": false,
+      "flag_reasons": [
+        "off-layer (83,44) not in li1(67,5)/met1(68,5)"
+      ],
+      "mundane_reason": "cell-name text on 83/44, standard library content"
+    }
+  ],
+  "flagged_mundane": 64,
+  "unexplained_labels": [],
+  "other_structures": []
+}

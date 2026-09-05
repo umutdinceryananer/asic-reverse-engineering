@@ -1,0 +1,404 @@
+{
+ "target": "pdk_diode_2",
+ "gds": "pdk/sky130_fd_sc_hd/sky130_fd_sc_hd__diode_2.gds",
+ "top_cell": "sky130_fd_sc_hd__diode_2",
+ "top_cells_in_library": [
+  "sky130_fd_sc_hd__diode_2"
+ ],
+ "n_cells": 1,
+ "n_top_references": 0,
+ "layers": {
+  "64/5": {
+   "class": "pdk-doc",
+   "name": "nwell.label",
+   "top": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 1
+   },
+   "effective": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 1
+   },
+   "cells_carrying": 1
+  },
+  "64/16": {
+   "class": "pdk-doc",
+   "name": "nwell.pin",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "64/20": {
+   "class": "pdk-doc",
+   "name": "nwell.drawing",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "64/59": {
+   "class": "pdk-doc",
+   "name": "pwell.label",
+   "top": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 1
+   },
+   "effective": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 1
+   },
+   "cells_carrying": 1
+  },
+  "65/20": {
+   "class": "pdk-doc",
+   "name": "diff.drawing",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "66/44": {
+   "class": "pdk-doc",
+   "name": "licon1.drawing",
+   "top": {
+    "polygons": 4,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 4,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "67/5": {
+   "class": "pdk-doc",
+   "name": "li1.label",
+   "top": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 12
+   },
+   "effective": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 12
+   },
+   "cells_carrying": 1
+  },
+  "67/16": {
+   "class": "pdk-doc",
+   "name": "li1.pin",
+   "top": {
+    "polygons": 12,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 12,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "67/20": {
+   "class": "pdk-doc",
+   "name": "li1.drawing",
+   "top": {
+    "polygons": 1,
+    "paths": 2,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 2,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "67/44": {
+   "class": "pdk-doc",
+   "name": "mcon.drawing",
+   "top": {
+    "polygons": 4,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 4,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "68/5": {
+   "class": "pdk-doc",
+   "name": "met1.label",
+   "top": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 2
+   },
+   "effective": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 2
+   },
+   "cells_carrying": 1
+  },
+  "68/16": {
+   "class": "pdk-doc",
+   "name": "met1.pin",
+   "top": {
+    "polygons": 2,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 2,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "68/20": {
+   "class": "pdk-doc",
+   "name": "met1.drawing",
+   "top": {
+    "polygons": 0,
+    "paths": 2,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 0,
+    "paths": 2,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "78/44": {
+   "class": "pdk-doc",
+   "name": "hvtp.drawing",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "81/4": {
+   "class": "pdk-doc",
+   "name": "areaid.sc",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "81/23": {
+   "class": "UNKNOWN",
+   "name": "not in any known table",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "83/44": {
+   "class": "pdk-doc",
+   "name": "text",
+   "top": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 1
+   },
+   "effective": {
+    "polygons": 0,
+    "paths": 0,
+    "labels": 1
+   },
+   "cells_carrying": 1
+  },
+  "93/44": {
+   "class": "pdk-doc",
+   "name": "nsdm.drawing",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "94/20": {
+   "class": "pdk-doc",
+   "name": "psdm.drawing",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "122/16": {
+   "class": "pdk-doc",
+   "name": "pwell.pin",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  },
+  "236/0": {
+   "class": "nonpdk-known",
+   "name": "per-cell outline inside std cells",
+   "top": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "effective": {
+    "polygons": 1,
+    "paths": 0,
+    "labels": 0
+   },
+   "cells_carrying": 1
+  }
+ },
+ "candidates": [
+  {
+   "pair": "81/23",
+   "carried_by_cells": [
+    "sky130_fd_sc_hd__diode_2"
+   ],
+   "nonrect_polygons": 0,
+   "stats": {
+    "count": 1,
+    "bbox_um": [
+     0.155,
+     0.195,
+     0.785,
+     0.885
+    ],
+    "width_height_top10": [
+     {
+      "w": 0.63,
+      "h": 0.69,
+      "n": 1
+     }
+    ],
+    "distinct_sizes": 1
+   },
+   "interpretations": {
+    "morse": {
+     "status": "refused",
+     "reason": "only 1 marks (<5)"
+    },
+    "binary": {
+     "status": "refused",
+     "reason": "only 1 marks (<8)"
+    },
+    "bitmap": {
+     "status": "refused",
+     "reason": "only 1 marks (<4)"
+    },
+    "input": "pdk_diode_2 81/23 flattened"
+   }
+  }
+ ],
+ "marker_checks": {
+  "200/0": {
+   "effective_polygons": 0,
+   "pure_marker_cells": [],
+   "marker_cell_placements": 0,
+   "polygons_beyond_marker_cells": 0,
+   "top_cell_own": 0
+  },
+  "235/4": {
+   "top_polygons": 0,
+   "effective_polygons": 0
+  },
+  "236/0": {
+   "effective_polygons": 1,
+   "cells_carrying": 1,
+   "leaf_placements": 0
+  }
+ },
+ "controls": {
+  "negative_met3_topcell": {
+   "n_shapes": 0,
+   "nonrect": 0,
+   "morse": {
+    "status": "refused",
+    "reason": "only 0 marks (<5)"
+   },
+   "binary": {
+    "status": "refused",
+    "reason": "only 0 marks (<8)"
+   },
+   "bitmap": {
+    "status": "refused",
+    "reason": "only 0 marks (<4)"
+   }
+  }
+ }
+}

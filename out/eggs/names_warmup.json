@@ -1,0 +1,2033 @@
+{
+ "01_netlist.v": {
+  "modules": [
+   "adder_demo"
+  ],
+  "wires": [
+   "a_reg[0]",
+   "a_reg[1]",
+   "a_reg[2]",
+   "a_reg[3]",
+   "a_reg[4]",
+   "a_reg[5]",
+   "a_reg[6]",
+   "a_reg[7]",
+   "b_reg[0]",
+   "b_reg[1]",
+   "b_reg[2]",
+   "b_reg[3]",
+   "b_reg[4]",
+   "b_reg[5]",
+   "b_reg[6]",
+   "b_reg[7]",
+   "sum[0]",
+   "sum[1]",
+   "sum[2]",
+   "sum[3]",
+   "sum[4]",
+   "sum[5]",
+   "sum[6]",
+   "sum[7]",
+   "sum[8]",
+   "add0/_00_",
+   "add0/_01_",
+   "add0/_02_",
+   "add0/_03_",
+   "add0/_04_",
+   "add0/_05_",
+   "add0/_06_",
+   "add0/_07_",
+   "add0/_08_",
+   "add0/_09_",
+   "add0/_10_",
+   "add0/_11_",
+   "add0/_12_",
+   "add0/_13_",
+   "add0/_14_",
+   "add0/_15_",
+   "add0/_16_",
+   "add0/_17_",
+   "add0/_18_",
+   "add0/_19_",
+   "add0/_20_",
+   "add0/_21_",
+   "add0/_22_",
+   "add0/_23_",
+   "add0/_24_",
+   "add0/_25_",
+   "add0/_26_",
+   "add0/_27_",
+   "add0/_28_",
+   "add0/_29_",
+   "add0/_30_",
+   "add0/_31_",
+   "cmp0/_0_",
+   "cmp0/_1_",
+   "sr_a/_00_",
+   "sr_a/_01_",
+   "sr_a/_02_",
+   "sr_a/_03_",
+   "sr_a/_04_",
+   "sr_a/_05_",
+   "sr_a/_06_",
+   "sr_a/_07_",
+   "sr_b/_00_",
+   "sr_b/_01_",
+   "sr_b/_02_",
+   "sr_b/_03_",
+   "sr_b/_04_",
+   "sr_b/_05_",
+   "sr_b/_06_",
+   "sr_b/_07_",
+   "clknet_0_clk",
+   "clknet_1_0__leaf_clk",
+   "clknet_1_1__leaf_clk"
+  ],
+  "instances": [
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_0_Left_29"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_0_Right_0"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_10_Left_39"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_10_Right_10"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_11_Left_40"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_11_Right_11"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_12_Left_41"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_12_Right_12"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_13_Left_42"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_13_Right_13"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_14_Left_43"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_14_Right_14"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_15_Left_44"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_15_Right_15"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_16_Left_45"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_16_Right_16"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_17_Left_46"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_17_Right_17"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_18_Left_47"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_18_Right_18"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_19_Left_48"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_19_Right_19"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_1_Left_30"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_1_Right_1"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_20_Left_49"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_20_Right_20"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_21_Left_50"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_21_Right_21"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_22_Left_51"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_22_Right_22"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_23_Left_52"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_23_Right_23"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_24_Left_53"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_24_Right_24"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_25_Left_54"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_25_Right_25"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_26_Left_55"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_26_Right_26"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_27_Left_56"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_27_Right_27"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_28_Left_57"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_28_Right_28"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_2_Left_31"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_2_Right_2"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_3_Left_32"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_3_Right_3"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_4_Left_33"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_4_Right_4"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_5_Left_34"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_5_Right_5"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_6_Left_35"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_6_Right_6"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_7_Left_36"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_7_Right_7"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_8_Left_37"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_8_Right_8"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_9_Left_38"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__decap_3",
+    "name": "PHY_EDGE_ROW_9_Right_9"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_0_58"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_0_59"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_0_60"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_0_61"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_0_62"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_0_63"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_10_91"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_10_92"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_10_93"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_11_94"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_11_95"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_11_96"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_12_97"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_12_98"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_12_99"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_13_100"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_13_101"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_13_102"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_14_103"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_14_104"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_14_105"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_15_106"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_15_107"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_15_108"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_16_109"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_16_110"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_16_111"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_17_112"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_17_113"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_17_114"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_18_115"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_18_116"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_18_117"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_19_118"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_19_119"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_19_120"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_1_64"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_1_65"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_1_66"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_20_121"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_20_122"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_20_123"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_21_124"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_21_125"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_21_126"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_22_127"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_22_128"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_22_129"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_23_130"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_23_131"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_23_132"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_24_133"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_24_134"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_24_135"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_25_136"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_25_137"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_25_138"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_26_139"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_26_140"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_26_141"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_27_142"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_27_143"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_27_144"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_28_145"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_28_146"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_28_147"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_28_148"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_28_149"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_28_150"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_2_67"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_2_68"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_2_69"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_3_70"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_3_71"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_3_72"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_4_73"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_4_74"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_4_75"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_5_76"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_5_77"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_5_78"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_6_79"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_6_80"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_6_81"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_7_82"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_7_83"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_7_84"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_8_85"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_8_86"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_8_87"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_9_88"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_9_89"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1",
+    "name": "TAP_TAPCELL_ROW_9_90"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nand2_2",
+    "name": "add0/_32_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_33_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xor2_2",
+    "name": "add0/_34_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xnor2_2",
+    "name": "add0/_35_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a31o_2",
+    "name": "add0/_36_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__or2_2",
+    "name": "add0/_37_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nand2_2",
+    "name": "add0/_38_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_39_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xor2_2",
+    "name": "add0/_40_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_41_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__or2_2",
+    "name": "add0/_42_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_43_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_44_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a21bo_2",
+    "name": "add0/_45_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xor2_2",
+    "name": "add0/_46_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_47_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_48_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_49_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a31o_2",
+    "name": "add0/_50_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a31o_2",
+    "name": "add0/_51_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xor2_2",
+    "name": "add0/_52_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_53_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__or2_2",
+    "name": "add0/_54_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_55_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_56_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a21o_2",
+    "name": "add0/_57_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xor2_2",
+    "name": "add0/_58_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nand2_2",
+    "name": "add0/_59_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__or2_2",
+    "name": "add0/_60_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nand2_2",
+    "name": "add0/_61_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a31o_2",
+    "name": "add0/_62_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a31o_2",
+    "name": "add0/_63_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xnor2_2",
+    "name": "add0/_64_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_65_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_66_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__nor2_2",
+    "name": "add0/_67_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__a21boi_2",
+    "name": "add0/_68_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__xnor2_2",
+    "name": "add0/_69_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__or2_2",
+    "name": "add0/_70_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and2_2",
+    "name": "add0/_71_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__o21bai_2",
+    "name": "add0/_72_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__clkbuf_16",
+    "name": "clkbuf_0_clk"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__clkbuf_16",
+    "name": "clkbuf_1_0__f_clk"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__clkbuf_16",
+    "name": "clkbuf_1_1__f_clk"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and3_2",
+    "name": "cmp0/_2_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and4bb_2",
+    "name": "cmp0/_3_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__and4bb_2",
+    "name": "cmp0/_4_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_08_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_09_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_10_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_11_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_12_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_13_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_14_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_a/_15_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_16_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_17_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_18_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_19_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_20_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_21_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_22_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_a/_23_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_08_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_09_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_10_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_11_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_12_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_13_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_14_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__mux2_1",
+    "name": "sr_b/_15_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_16_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_17_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_18_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_19_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_20_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_21_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_22_"
+   },
+   {
+    "cell": "sky130_fd_sc_hd__dfrtp_2",
+    "name": "sr_b/_23_"
+   }
+  ]
+ },
+ "03_post_place_and_route.def": {
+  "components": [
+   {
+    "name": "PHY_EDGE_ROW_0_Left_29",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_0_Right_0",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_10_Left_39",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_10_Right_10",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_11_Left_40",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_11_Right_11",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_12_Left_41",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_12_Right_12",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_13_Left_42",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_13_Right_13",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_14_Left_43",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_14_Right_14",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_15_Left_44",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_15_Right_15",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_16_Left_45",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_16_Right_16",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_17_Left_46",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_17_Right_17",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_18_Left_47",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_18_Right_18",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_19_Left_48",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_19_Right_19",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_1_Left_30",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_1_Right_1",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_20_Left_49",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_20_Right_20",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_21_Left_50",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_21_Right_21",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_22_Left_51",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_22_Right_22",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_23_Left_52",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_23_Right_23",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_24_Left_53",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_24_Right_24",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_25_Left_54",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_25_Right_25",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_26_Left_55",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_26_Right_26",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_27_Left_56",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_27_Right_27",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_28_Left_57",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_28_Right_28",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_2_Left_31",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_2_Right_2",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_3_Left_32",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_3_Right_3",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_4_Left_33",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_4_Right_4",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_5_Left_34",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_5_Right_5",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_6_Left_35",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_6_Right_6",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_7_Left_36",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_7_Right_7",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_8_Left_37",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_8_Right_8",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_9_Left_38",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "PHY_EDGE_ROW_9_Right_9",
+    "cell": "sky130_fd_sc_hd__decap_3"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_0_58",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_0_59",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_0_60",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_0_61",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_0_62",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_0_63",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_10_91",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_10_92",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_10_93",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_11_94",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_11_95",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_11_96",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_12_97",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_12_98",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_12_99",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_13_100",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_13_101",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_13_102",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_14_103",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_14_104",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_14_105",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_15_106",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_15_107",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_15_108",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_16_109",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_16_110",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_16_111",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_17_112",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_17_113",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_17_114",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_18_115",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_18_116",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_18_117",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_19_118",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_19_119",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_19_120",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_1_64",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_1_65",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_1_66",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_20_121",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_20_122",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_20_123",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_21_124",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_21_125",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_21_126",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_22_127",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_22_128",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_22_129",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_23_130",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_23_131",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_23_132",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_24_133",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_24_134",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_24_135",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_25_136",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_25_137",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_25_138",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_26_139",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_26_140",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_26_141",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_27_142",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_27_143",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_27_144",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_28_145",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_28_146",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_28_147",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_28_148",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_28_149",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_28_150",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_2_67",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_2_68",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_2_69",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_3_70",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_3_71",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_3_72",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_4_73",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_4_74",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_4_75",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_5_76",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_5_77",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_5_78",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_6_79",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_6_80",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_6_81",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_7_82",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_7_83",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_7_84",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_8_85",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_8_86",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_8_87",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_9_88",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_9_89",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "TAP_TAPCELL_ROW_9_90",
+    "cell": "sky130_fd_sc_hd__tapvpwrvgnd_1"
+   },
+   {
+    "name": "add0/_32_",
+    "cell": "sky130_fd_sc_hd__nand2_2"
+   },
+   {
+    "name": "add0/_33_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_34_",
+    "cell": "sky130_fd_sc_hd__xor2_2"
+   },
+   {
+    "name": "add0/_35_",
+    "cell": "sky130_fd_sc_hd__xnor2_2"
+   },
+   {
+    "name": "add0/_36_",
+    "cell": "sky130_fd_sc_hd__a31o_2"
+   },
+   {
+    "name": "add0/_37_",
+    "cell": "sky130_fd_sc_hd__or2_2"
+   },
+   {
+    "name": "add0/_38_",
+    "cell": "sky130_fd_sc_hd__nand2_2"
+   },
+   {
+    "name": "add0/_39_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_40_",
+    "cell": "sky130_fd_sc_hd__xor2_2"
+   },
+   {
+    "name": "add0/_41_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_42_",
+    "cell": "sky130_fd_sc_hd__or2_2"
+   },
+   {
+    "name": "add0/_43_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_44_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_45_",
+    "cell": "sky130_fd_sc_hd__a21bo_2"
+   },
+   {
+    "name": "add0/_46_",
+    "cell": "sky130_fd_sc_hd__xor2_2"
+   },
+   {
+    "name": "add0/_47_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_48_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_49_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_50_",
+    "cell": "sky130_fd_sc_hd__a31o_2"
+   },
+   {
+    "name": "add0/_51_",
+    "cell": "sky130_fd_sc_hd__a31o_2"
+   },
+   {
+    "name": "add0/_52_",
+    "cell": "sky130_fd_sc_hd__xor2_2"
+   },
+   {
+    "name": "add0/_53_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_54_",
+    "cell": "sky130_fd_sc_hd__or2_2"
+   },
+   {
+    "name": "add0/_55_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_56_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_57_",
+    "cell": "sky130_fd_sc_hd__a21o_2"
+   },
+   {
+    "name": "add0/_58_",
+    "cell": "sky130_fd_sc_hd__xor2_2"
+   },
+   {
+    "name": "add0/_59_",
+    "cell": "sky130_fd_sc_hd__nand2_2"
+   },
+   {
+    "name": "add0/_60_",
+    "cell": "sky130_fd_sc_hd__or2_2"
+   },
+   {
+    "name": "add0/_61_",
+    "cell": "sky130_fd_sc_hd__nand2_2"
+   },
+   {
+    "name": "add0/_62_",
+    "cell": "sky130_fd_sc_hd__a31o_2"
+   },
+   {
+    "name": "add0/_63_",
+    "cell": "sky130_fd_sc_hd__a31o_2"
+   },
+   {
+    "name": "add0/_64_",
+    "cell": "sky130_fd_sc_hd__xnor2_2"
+   },
+   {
+    "name": "add0/_65_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_66_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_67_",
+    "cell": "sky130_fd_sc_hd__nor2_2"
+   },
+   {
+    "name": "add0/_68_",
+    "cell": "sky130_fd_sc_hd__a21boi_2"
+   },
+   {
+    "name": "add0/_69_",
+    "cell": "sky130_fd_sc_hd__xnor2_2"
+   },
+   {
+    "name": "add0/_70_",
+    "cell": "sky130_fd_sc_hd__or2_2"
+   },
+   {
+    "name": "add0/_71_",
+    "cell": "sky130_fd_sc_hd__and2_2"
+   },
+   {
+    "name": "add0/_72_",
+    "cell": "sky130_fd_sc_hd__o21bai_2"
+   },
+   {
+    "name": "clkbuf_0_clk",
+    "cell": "sky130_fd_sc_hd__clkbuf_16"
+   },
+   {
+    "name": "clkbuf_1_0__f_clk",
+    "cell": "sky130_fd_sc_hd__clkbuf_16"
+   },
+   {
+    "name": "clkbuf_1_1__f_clk",
+    "cell": "sky130_fd_sc_hd__clkbuf_16"
+   },
+   {
+    "name": "cmp0/_2_",
+    "cell": "sky130_fd_sc_hd__and3_2"
+   },
+   {
+    "name": "cmp0/_3_",
+    "cell": "sky130_fd_sc_hd__and4bb_2"
+   },
+   {
+    "name": "cmp0/_4_",
+    "cell": "sky130_fd_sc_hd__and4bb_2"
+   },
+   {
+    "name": "sr_a/_08_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_09_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_10_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_11_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_12_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_13_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_14_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_15_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_a/_16_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_17_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_18_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_19_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_20_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_21_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_22_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_a/_23_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_08_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_09_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_10_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_11_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_12_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_13_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_14_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_15_",
+    "cell": "sky130_fd_sc_hd__mux2_1"
+   },
+   {
+    "name": "sr_b/_16_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_17_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_18_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_19_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_20_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_21_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_22_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   },
+   {
+    "name": "sr_b/_23_",
+    "cell": "sky130_fd_sc_hd__dfrtp_2"
+   }
+  ],
+  "pins": [
+   "A",
+   "B",
+   "S",
+   "VGND",
+   "VPWR",
+   "clk",
+   "en",
+   "rst_n"
+  ],
+  "nets": [
+   "A",
+   "B",
+   "S",
+   "a_reg\\[0\\]",
+   "a_reg\\[1\\]",
+   "a_reg\\[2\\]",
+   "a_reg\\[3\\]",
+   "a_reg\\[4\\]",
+   "a_reg\\[5\\]",
+   "a_reg\\[6\\]",
+   "a_reg\\[7\\]",
+   "add0/_00_",
+   "add0/_01_",
+   "add0/_02_",
+   "add0/_03_",
+   "add0/_04_",
+   "add0/_05_",
+   "add0/_06_",
+   "add0/_07_",
+   "add0/_08_",
+   "add0/_09_",
+   "add0/_10_",
+   "add0/_11_",
+   "add0/_12_",
+   "add0/_13_",
+   "add0/_14_",
+   "add0/_15_",
+   "add0/_16_",
+   "add0/_17_",
+   "add0/_18_",
+   "add0/_19_",
+   "add0/_20_",
+   "add0/_21_",
+   "add0/_22_",
+   "add0/_23_",
+   "add0/_24_",
+   "add0/_25_",
+   "add0/_26_",
+   "add0/_27_",
+   "add0/_28_",
+   "add0/_29_",
+   "add0/_30_",
+   "add0/_31_",
+   "b_reg\\[0\\]",
+   "b_reg\\[1\\]",
+   "b_reg\\[2\\]",
+   "b_reg\\[3\\]",
+   "b_reg\\[4\\]",
+   "b_reg\\[5\\]",
+   "b_reg\\[6\\]",
+   "b_reg\\[7\\]",
+   "clk",
+   "clknet_0_clk",
+   "clknet_1_0__leaf_clk",
+   "clknet_1_1__leaf_clk",
+   "cmp0/_0_",
+   "cmp0/_1_",
+   "en",
+   "rst_n",
+   "sr_a/_00_",
+   "sr_a/_01_",
+   "sr_a/_02_",
+   "sr_a/_03_",
+   "sr_a/_04_",
+   "sr_a/_05_",
+   "sr_a/_06_",
+   "sr_a/_07_",
+   "sr_b/_00_",
+   "sr_b/_01_",
+   "sr_b/_02_",
+   "sr_b/_03_",
+   "sr_b/_04_",
+   "sr_b/_05_",
+   "sr_b/_06_",
+   "sr_b/_07_",
+   "sum\\[0\\]",
+   "sum\\[1\\]",
+   "sum\\[2\\]",
+   "sum\\[3\\]",
+   "sum\\[4\\]",
+   "sum\\[5\\]",
+   "sum\\[6\\]",
+   "sum\\[7\\]",
+   "sum\\[8\\]"
+  ],
+  "specialnets": [
+   "VGND",
+   "VPWR"
+  ]
+ }
+}

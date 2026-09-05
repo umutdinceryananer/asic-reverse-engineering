@@ -1,0 +1,176 @@
+{
+ "sources": {
+  "winner": {
+   "path": "out/puzzle/solution_post_reset.json",
+   "extraction": "trace[*].I where trace[*].enable == 1",
+   "bits": 121,
+   "hamming_weight": 22
+  },
+  "xor": {
+   "path": "puzzle/example_inputs.vcd",
+   "extraction": "attempt1 XOR attempt2, enable-framed windows sampled at rising clk edges",
+   "bits": 121,
+   "hamming_distance_attempt1_attempt2": 30
+  }
+ },
+ "control": {
+  "seed": 20260905,
+  "bits": 121,
+  "decodes": {
+   "11-bit LSB": {
+    "chars": 11,
+    "leftover_bits": 0,
+    "printable_fraction": 0.0909,
+    "fragments": []
+   },
+   "11-bit MSB": {
+    "chars": 11,
+    "leftover_bits": 0,
+    "printable_fraction": 0.0,
+    "fragments": []
+   },
+   "8-bit MSB": {
+    "chars": 15,
+    "leftover_bits": 1,
+    "printable_fraction": 0.2667,
+    "fragments": []
+   },
+   "8-bit LSB": {
+    "chars": 15,
+    "leftover_bits": 1,
+    "printable_fraction": 0.4,
+    "fragments": [
+     "`dp"
+    ]
+   },
+   "7-bit MSB": {
+    "chars": 17,
+    "leftover_bits": 2,
+    "printable_fraction": 0.7059,
+    "string": "X@\\x09(ACboF{\\x00\\x09W,\\x0c&\\x07"
+   },
+   "7-bit LSB": {
+    "chars": 17,
+    "leftover_bits": 2,
+    "printable_fraction": 0.6471,
+    "string": "\\x0d\\x01H\\x0aAa#{1o\\x00Hu\\x1a\\x182p"
+   }
+  },
+  "non_discriminating_decoders": [
+   "7-bit MSB",
+   "7-bit LSB"
+  ]
+ },
+ "printable_majority_threshold": 0.6,
+ "decodes": {
+  "winner": {
+   "11-bit LSB": {
+    "chars": 11,
+    "leftover_bits": 0,
+    "printable_fraction": 0.2727,
+    "fragments": [],
+    "control_floor": 0.0909,
+    "verdict": "SPECULATIVE at best (above floor, below printable majority)"
+   },
+   "11-bit MSB": {
+    "chars": 11,
+    "leftover_bits": 0,
+    "printable_fraction": 0.2727,
+    "fragments": [],
+    "control_floor": 0.0,
+    "verdict": "SPECULATIVE at best (above floor, below printable majority)"
+   },
+   "8-bit MSB": {
+    "chars": 15,
+    "leftover_bits": 1,
+    "printable_fraction": 0.3333,
+    "fragments": [],
+    "control_floor": 0.2667,
+    "verdict": "SPECULATIVE at best (above floor, below printable majority)"
+   },
+   "8-bit LSB": {
+    "chars": 15,
+    "leftover_bits": 1,
+    "printable_fraction": 0.1333,
+    "fragments": [
+     "@P"
+    ],
+    "control_floor": 0.4,
+    "verdict": "NOISE (at or below control floor)"
+   },
+   "7-bit MSB": {
+    "chars": 17,
+    "leftover_bits": 2,
+    "printable_fraction": 0.6471,
+    "string": "\\x00T\\x10\\x00*@\\x01  @A!\\x00@A\\x11 ",
+    "control_floor": 0.7059,
+    "verdict": "NOISE (at or below control floor)"
+   },
+   "7-bit LSB": {
+    "chars": 17,
+    "leftover_bits": 2,
+    "printable_fraction": 0.3529,
+    "fragments": [
+     "AB",
+     "AD"
+    ],
+    "control_floor": 0.6471,
+    "verdict": "NOISE (at or below control floor)"
+   }
+  },
+  "xor": {
+   "11-bit LSB": {
+    "chars": 11,
+    "leftover_bits": 0,
+    "printable_fraction": 0.3636,
+    "fragments": [
+     "EA"
+    ],
+    "control_floor": 0.0909,
+    "verdict": "SPECULATIVE at best (above floor, below printable majority)"
+   },
+   "11-bit MSB": {
+    "chars": 11,
+    "leftover_bits": 0,
+    "printable_fraction": 0.0,
+    "fragments": [],
+    "control_floor": 0.0,
+    "verdict": "NOISE (at or below control floor)"
+   },
+   "8-bit MSB": {
+    "chars": 15,
+    "leftover_bits": 1,
+    "printable_fraction": 0.2,
+    "fragments": [],
+    "control_floor": 0.2667,
+    "verdict": "NOISE (at or below control floor)"
+   },
+   "8-bit LSB": {
+    "chars": 15,
+    "leftover_bits": 1,
+    "printable_fraction": 0.2,
+    "fragments": [],
+    "control_floor": 0.4,
+    "verdict": "NOISE (at or below control floor)"
+   },
+   "7-bit MSB": {
+    "chars": 17,
+    "leftover_bits": 2,
+    "printable_fraction": 0.2353,
+    "fragments": [
+     " (B"
+    ],
+    "control_floor": 0.7059,
+    "verdict": "NOISE (at or below control floor)"
+   },
+   "7-bit LSB": {
+    "chars": 17,
+    "leftover_bits": 2,
+    "printable_fraction": 0.3529,
+    "fragments": [],
+    "control_floor": 0.6471,
+    "verdict": "NOISE (at or below control floor)"
+   }
+  }
+ }
+}

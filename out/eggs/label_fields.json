@@ -1,0 +1,3369 @@
+{
+  "tool": "egg_label_fields.py",
+  "reports": [
+    {
+      "file": "pdk/sky130_fd_sc_hd/sky130_fd_sc_hd__conb_1.gds",
+      "text_elements": 11,
+      "field_records_by_container": {
+        "ANGLE in TEXT": 5,
+        "MAG in TEXT": 11,
+        "PRESENTATION in TEXT": 10,
+        "STRANS in TEXT": 11
+      },
+      "per_layer": {
+        "64/5": {
+          "labels": 1,
+          "presentation": {
+            "5": 1
+          },
+          "strans": {
+            "0": 1
+          },
+          "mag": {
+            "0.1": 1
+          },
+          "angle": {
+            "absent": 1
+          },
+          "presence": {
+            "PSM": 1
+          }
+        },
+        "64/59": {
+          "labels": 1,
+          "presentation": {
+            "5": 1
+          },
+          "strans": {
+            "0": 1
+          },
+          "mag": {
+            "0.1": 1
+          },
+          "angle": {
+            "absent": 1
+          },
+          "presence": {
+            "PSM": 1
+          }
+        },
+        "67/5": {
+          "labels": 2,
+          "presentation": {
+            "5": 2
+          },
+          "strans": {
+            "0": 2
+          },
+          "mag": {
+            "0.1": 2
+          },
+          "angle": {
+            "absent": 2
+          },
+          "presence": {
+            "PSM": 2
+          }
+        },
+        "68/5": {
+          "labels": 2,
+          "presentation": {
+            "5": 2
+          },
+          "strans": {
+            "0": 2
+          },
+          "mag": {
+            "0.1": 2
+          },
+          "angle": {
+            "absent": 2
+          },
+          "presence": {
+            "PSM": 2
+          }
+        },
+        "83/44": {
+          "labels": 5,
+          "presentation": {
+            "5": 4,
+            "absent": 1
+          },
+          "strans": {
+            "0": 5
+          },
+          "mag": {
+            "0.1": 5
+          },
+          "angle": {
+            "90": 5
+          },
+          "presence": {
+            "PSMA": 4,
+            "SMA": 1
+          }
+        }
+      },
+      "fields": {
+        "presentation": {
+          "dominant_per_layer": {
+            "67/5": "5",
+            "64/5": "5",
+            "64/59": "5",
+            "68/5": "5",
+            "83/44": "5"
+          },
+          "deviating_labels": 1,
+          "deviants": [
+            {
+              "index": 6,
+              "layer": "83/44",
+              "text": "conb_1",
+              "value": "absent",
+              "dominant": "5"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "presentation",
+              "method": "deviation bitmap over all 11 labels, MSB-first bytes",
+              "symbols": 11,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presentation",
+              "method": "deviation bitmap over all 11 labels, LSB-first bytes",
+              "symbols": 11,
+              "printable_fraction": 1.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presentation",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 1,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ],
+          "value_meanings": {
+            "5": "font0,middle,center"
+          }
+        },
+        "strans": {
+          "dominant_per_layer": {
+            "67/5": "0",
+            "64/5": "0",
+            "64/59": "0",
+            "68/5": "0",
+            "83/44": "0"
+          },
+          "deviating_labels": 0,
+          "deviants": [],
+          "decode_attempts": []
+        },
+        "mag": {
+          "dominant_per_layer": {
+            "67/5": "0.1",
+            "64/5": "0.1",
+            "64/59": "0.1",
+            "68/5": "0.1",
+            "83/44": "0.1"
+          },
+          "deviating_labels": 0,
+          "deviants": [],
+          "decode_attempts": []
+        },
+        "angle": {
+          "dominant_per_layer": {
+            "67/5": "absent",
+            "64/5": "absent",
+            "64/59": "absent",
+            "68/5": "absent",
+            "83/44": "90"
+          },
+          "deviating_labels": 0,
+          "deviants": [],
+          "decode_attempts": []
+        },
+        "presence": {
+          "dominant_per_layer": {
+            "67/5": "PSM",
+            "64/5": "PSM",
+            "64/59": "PSM",
+            "68/5": "PSM",
+            "83/44": "PSMA"
+          },
+          "deviating_labels": 1,
+          "deviants": [
+            {
+              "index": 6,
+              "layer": "83/44",
+              "text": "conb_1",
+              "value": "SMA",
+              "dominant": "PSMA"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "presence",
+              "method": "deviation bitmap over all 11 labels, MSB-first bytes",
+              "symbols": 11,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presence",
+              "method": "deviation bitmap over all 11 labels, LSB-first bytes",
+              "symbols": 11,
+              "printable_fraction": 1.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presence",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 1,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        }
+      },
+      "pad_scan": {
+        "records_scanned": 13,
+        "padded_records": 6,
+        "odd_length_contents": 6,
+        "pad_length_histogram": {
+          "1": 6
+        },
+        "by_record": {
+          "LIBNAME": 1,
+          "STRING": 11,
+          "STRNAME": 1
+        },
+        "non_nul_pad_findings": [],
+        "verdict": "clean: every pad byte NUL"
+      },
+      "role": "control (flow default)"
+    },
+    {
+      "file": "puzzle/warmup/04_final.gds",
+      "text_elements": 196,
+      "field_records_by_container": {
+        "ANGLE in SREF": 55,
+        "ANGLE in TEXT": 20,
+        "MAG in TEXT": 186,
+        "PRESENTATION in TEXT": 168,
+        "STRANS in SREF": 134,
+        "STRANS in TEXT": 186
+      },
+      "per_layer": {
+        "64/5": {
+          "labels": 18,
+          "presentation": {
+            "5": 18
+          },
+          "strans": {
+            "0": 18
+          },
+          "mag": {
+            "0.1": 17,
+            "0.125": 1
+          },
+          "angle": {
+            "absent": 18
+          },
+          "presence": {
+            "PSM": 18
+          }
+        },
+        "64/59": {
+          "labels": 18,
+          "presentation": {
+            "5": 18
+          },
+          "strans": {
+            "0": 18
+          },
+          "mag": {
+            "0.1": 17,
+            "0.125": 1
+          },
+          "angle": {
+            "absent": 18
+          },
+          "presence": {
+            "PSM": 18
+          }
+        },
+        "67/5": {
+          "labels": 94,
+          "presentation": {
+            "5": 94
+          },
+          "strans": {
+            "0": 92,
+            "32768": 2
+          },
+          "mag": {
+            "0.1": 34,
+            "0.2": 25,
+            "0.125": 22,
+            "0.17": 13
+          },
+          "angle": {
+            "absent": 92,
+            "180": 2
+          },
+          "presence": {
+            "PSM": 92,
+            "PSMA": 2
+          }
+        },
+        "68/5": {
+          "labels": 38,
+          "presentation": {
+            "5": 38
+          },
+          "strans": {
+            "0": 38
+          },
+          "mag": {
+            "0.1": 38
+          },
+          "angle": {
+            "absent": 38
+          },
+          "presence": {
+            "PSM": 38
+          }
+        },
+        "70/5": {
+          "labels": 6,
+          "presentation": {
+            "absent": 6
+          },
+          "strans": {
+            "absent": 6
+          },
+          "mag": {
+            "absent": 6
+          },
+          "angle": {
+            "absent": 6
+          },
+          "presence": {
+            "-": 6
+          }
+        },
+        "71/5": {
+          "labels": 2,
+          "presentation": {
+            "absent": 2
+          },
+          "strans": {
+            "absent": 2
+          },
+          "mag": {
+            "absent": 2
+          },
+          "angle": {
+            "absent": 2
+          },
+          "presence": {
+            "-": 2
+          }
+        },
+        "72/5": {
+          "labels": 2,
+          "presentation": {
+            "absent": 2
+          },
+          "strans": {
+            "absent": 2
+          },
+          "mag": {
+            "absent": 2
+          },
+          "angle": {
+            "absent": 2
+          },
+          "presence": {
+            "-": 2
+          }
+        },
+        "83/44": {
+          "labels": 18,
+          "presentation": {
+            "absent": 18
+          },
+          "strans": {
+            "0": 18
+          },
+          "mag": {
+            "0.1": 18
+          },
+          "angle": {
+            "90": 18
+          },
+          "presence": {
+            "SMA": 18
+          }
+        }
+      },
+      "fields": {
+        "presentation": {
+          "dominant_per_layer": {
+            "68/5": "5",
+            "64/5": "5",
+            "64/59": "5",
+            "83/44": "absent",
+            "67/5": "5",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 0,
+          "deviants": [],
+          "decode_attempts": [],
+          "value_meanings": {
+            "5": "font0,middle,center"
+          }
+        },
+        "strans": {
+          "dominant_per_layer": {
+            "68/5": "0",
+            "64/5": "0",
+            "64/59": "0",
+            "83/44": "0",
+            "67/5": "0",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 2,
+          "deviants": [
+            {
+              "index": 109,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 110,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "32768",
+              "dominant": "0"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "strans",
+              "method": "deviation bitmap over all 196 labels, MSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "strans",
+              "method": "deviation bitmap over all 196 labels, LSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.042,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "strans",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 2,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        },
+        "mag": {
+          "dominant_per_layer": {
+            "68/5": "0.1",
+            "64/5": "0.1",
+            "64/59": "0.1",
+            "83/44": "0.1",
+            "67/5": "0.1",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 62,
+          "deviants": [
+            {
+              "index": 8,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 9,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 10,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 11,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 12,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 18,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 19,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 20,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 21,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 22,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 23,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 24,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 25,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 26,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 32,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 33,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 34,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 40,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 41,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 42,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 71,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 72,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 73,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 79,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 80,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 81,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 82,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 88,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 89,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 90,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 91,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 92,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 98,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 99,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 100,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 101,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 107,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 108,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 109,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 110,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 131,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 134,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 135,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 159,
+              "layer": "67/5",
+              "text": "S",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 160,
+              "layer": "67/5",
+              "text": "S",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 161,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 162,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 163,
+              "layer": "67/5",
+              "text": "A0",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 164,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 165,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 166,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 169,
+              "layer": "64/5",
+              "text": "VPB",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 170,
+              "layer": "64/59",
+              "text": "VNB",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 172,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 173,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 174,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 175,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 176,
+              "layer": "67/5",
+              "text": "RESET_B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 177,
+              "layer": "67/5",
+              "text": "D",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 178,
+              "layer": "67/5",
+              "text": "CLK",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 179,
+              "layer": "67/5",
+              "text": "CLK",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 180,
+              "layer": "67/5",
+              "text": "RESET_B",
+              "value": "0.2",
+              "dominant": "0.1"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "mag",
+              "method": "deviation bitmap over all 196 labels, MSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.125,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "mag",
+              "method": "deviation bitmap over all 196 labels, LSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.083,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "mag",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 62,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        },
+        "angle": {
+          "dominant_per_layer": {
+            "68/5": "absent",
+            "64/5": "absent",
+            "64/59": "absent",
+            "83/44": "90",
+            "67/5": "absent",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 2,
+          "deviants": [
+            {
+              "index": 109,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 110,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "180",
+              "dominant": "absent"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "angle",
+              "method": "deviation bitmap over all 196 labels, MSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "angle",
+              "method": "deviation bitmap over all 196 labels, LSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.042,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "angle",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 2,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        },
+        "presence": {
+          "dominant_per_layer": {
+            "68/5": "PSM",
+            "64/5": "PSM",
+            "64/59": "PSM",
+            "83/44": "SMA",
+            "67/5": "PSM",
+            "70/5": "-",
+            "71/5": "-",
+            "72/5": "-"
+          },
+          "deviating_labels": 2,
+          "deviants": [
+            {
+              "index": 109,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 110,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "PSMA",
+              "dominant": "PSM"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "presence",
+              "method": "deviation bitmap over all 196 labels, MSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presence",
+              "method": "deviation bitmap over all 196 labels, LSB-first bytes",
+              "symbols": 196,
+              "printable_fraction": 0.042,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presence",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 2,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        }
+      },
+      "pad_scan": {
+        "records_scanned": 1323,
+        "padded_records": 773,
+        "odd_length_contents": 773,
+        "pad_length_histogram": {
+          "1": 773
+        },
+        "by_record": {
+          "LIBNAME": 1,
+          "SNAME": 1099,
+          "STRING": 196,
+          "STRNAME": 27
+        },
+        "non_nul_pad_findings": [],
+        "verdict": "clean: every pad byte NUL"
+      },
+      "role": "target"
+    },
+    {
+      "file": "puzzle/puzzle.gds",
+      "text_elements": 893,
+      "field_records_by_container": {
+        "ANGLE in SREF": 448,
+        "ANGLE in TEXT": 89,
+        "MAG in TEXT": 876,
+        "PRESENTATION in TEXT": 809,
+        "STRANS in SREF": 994,
+        "STRANS in TEXT": 876
+      },
+      "per_layer": {
+        "64/5": {
+          "labels": 71,
+          "presentation": {
+            "5": 70,
+            "4": 1
+          },
+          "strans": {
+            "0": 71
+          },
+          "mag": {
+            "0.1": 69,
+            "0.2": 1,
+            "0.125": 1
+          },
+          "angle": {
+            "absent": 71
+          },
+          "presence": {
+            "PSM": 71
+          }
+        },
+        "64/59": {
+          "labels": 71,
+          "presentation": {
+            "5": 70,
+            "4": 1
+          },
+          "strans": {
+            "0": 71
+          },
+          "mag": {
+            "0.1": 69,
+            "0.2": 1,
+            "0.125": 1
+          },
+          "angle": {
+            "absent": 71
+          },
+          "presence": {
+            "PSM": 71
+          }
+        },
+        "67/5": {
+          "labels": 521,
+          "presentation": {
+            "5": 519,
+            "4": 2
+          },
+          "strans": {
+            "0": 502,
+            "32768": 19
+          },
+          "mag": {
+            "0.1": 273,
+            "0.2": 144,
+            "0.125": 73,
+            "0.17": 31
+          },
+          "angle": {
+            "absent": 505,
+            "180": 16
+          },
+          "presence": {
+            "PSM": 505,
+            "PSMA": 16
+          }
+        },
+        "68/5": {
+          "labels": 140,
+          "presentation": {
+            "5": 140
+          },
+          "strans": {
+            "0": 140
+          },
+          "mag": {
+            "0.1": 140
+          },
+          "angle": {
+            "absent": 140
+          },
+          "presence": {
+            "PSM": 140
+          }
+        },
+        "70/5": {
+          "labels": 13,
+          "presentation": {
+            "absent": 13
+          },
+          "strans": {
+            "absent": 13
+          },
+          "mag": {
+            "absent": 13
+          },
+          "angle": {
+            "absent": 13
+          },
+          "presence": {
+            "-": 13
+          }
+        },
+        "71/5": {
+          "labels": 2,
+          "presentation": {
+            "absent": 2
+          },
+          "strans": {
+            "absent": 2
+          },
+          "mag": {
+            "absent": 2
+          },
+          "angle": {
+            "absent": 2
+          },
+          "presence": {
+            "-": 2
+          }
+        },
+        "72/5": {
+          "labels": 2,
+          "presentation": {
+            "absent": 2
+          },
+          "strans": {
+            "absent": 2
+          },
+          "mag": {
+            "absent": 2
+          },
+          "angle": {
+            "absent": 2
+          },
+          "presence": {
+            "-": 2
+          }
+        },
+        "83/44": {
+          "labels": 73,
+          "presentation": {
+            "absent": 67,
+            "5": 6
+          },
+          "strans": {
+            "0": 73
+          },
+          "mag": {
+            "0.1": 73
+          },
+          "angle": {
+            "90": 73
+          },
+          "presence": {
+            "SMA": 67,
+            "PSMA": 6
+          }
+        }
+      },
+      "fields": {
+        "presentation": {
+          "dominant_per_layer": {
+            "67/5": "5",
+            "68/5": "5",
+            "64/5": "5",
+            "64/59": "5",
+            "83/44": "absent",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 10,
+          "deviants": [
+            {
+              "index": 263,
+              "layer": "67/5",
+              "text": "VPWR",
+              "value": "4",
+              "dominant": "5"
+            },
+            {
+              "index": 270,
+              "layer": "67/5",
+              "text": "VGND",
+              "value": "4",
+              "dominant": "5"
+            },
+            {
+              "index": 274,
+              "layer": "64/5",
+              "text": "VPB",
+              "value": "4",
+              "dominant": "5"
+            },
+            {
+              "index": 276,
+              "layer": "64/59",
+              "text": "VNB",
+              "value": "4",
+              "dominant": "5"
+            },
+            {
+              "index": 702,
+              "layer": "83/44",
+              "text": "conb_1",
+              "value": "5",
+              "dominant": "absent"
+            },
+            {
+              "index": 703,
+              "layer": "83/44",
+              "text": "resistive_li1_ok",
+              "value": "5",
+              "dominant": "absent"
+            },
+            {
+              "index": 704,
+              "layer": "83/44",
+              "text": "resistive_li1_ok",
+              "value": "5",
+              "dominant": "absent"
+            },
+            {
+              "index": 705,
+              "layer": "83/44",
+              "text": "no_jumper_check",
+              "value": "5",
+              "dominant": "absent"
+            },
+            {
+              "index": 706,
+              "layer": "83/44",
+              "text": "no_jumper_check",
+              "value": "5",
+              "dominant": "absent"
+            },
+            {
+              "index": 812,
+              "layer": "83/44",
+              "text": "inv_2",
+              "value": "5",
+              "dominant": "absent"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "presentation",
+              "method": "deviation bitmap over all 893 labels, MSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.009,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presentation",
+              "method": "deviation bitmap over all 893 labels, LSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.009,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presentation",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 10,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ],
+          "value_meanings": {
+            "4": "font0,middle,left",
+            "5": "font0,middle,center"
+          }
+        },
+        "strans": {
+          "dominant_per_layer": {
+            "67/5": "0",
+            "68/5": "0",
+            "64/5": "0",
+            "64/59": "0",
+            "83/44": "0",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 19,
+          "deviants": [
+            {
+              "index": 36,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 38,
+              "layer": "67/5",
+              "text": "X",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 203,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 204,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 240,
+              "layer": "67/5",
+              "text": "B",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 242,
+              "layer": "67/5",
+              "text": "X",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 430,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 431,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 489,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 490,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 491,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 569,
+              "layer": "67/5",
+              "text": "C",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 570,
+              "layer": "67/5",
+              "text": "A",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 571,
+              "layer": "67/5",
+              "text": "X",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 572,
+              "layer": "67/5",
+              "text": "C",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 573,
+              "layer": "67/5",
+              "text": "B",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 641,
+              "layer": "67/5",
+              "text": "X",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 644,
+              "layer": "67/5",
+              "text": "X",
+              "value": "32768",
+              "dominant": "0"
+            },
+            {
+              "index": 648,
+              "layer": "67/5",
+              "text": "X",
+              "value": "32768",
+              "dominant": "0"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "strans",
+              "method": "deviation bitmap over all 893 labels, MSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.027,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "strans",
+              "method": "deviation bitmap over all 893 labels, LSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.018,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "strans",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 19,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        },
+        "mag": {
+          "dominant_per_layer": {
+            "67/5": "0.1",
+            "68/5": "0.1",
+            "64/5": "0.1",
+            "64/59": "0.1",
+            "83/44": "0.1",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 252,
+          "deviants": [
+            {
+              "index": 11,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 12,
+              "layer": "67/5",
+              "text": "CLK",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 21,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 22,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 23,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 24,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 25,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 26,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 27,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 28,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 29,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 30,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 36,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 37,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 38,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 39,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 45,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 46,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 47,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 48,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 49,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 75,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 76,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 77,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 78,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 105,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 106,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 107,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 108,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 109,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 115,
+              "layer": "67/5",
+              "text": "A1_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 116,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 117,
+              "layer": "67/5",
+              "text": "A2_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 118,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 119,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 145,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 146,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 147,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 148,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 149,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 150,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 151,
+              "layer": "67/5",
+              "text": "A3",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 152,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 153,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 154,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 155,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 156,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 201,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 202,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 203,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 204,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 210,
+              "layer": "67/5",
+              "text": "D_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 211,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 212,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 213,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 214,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 239,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 240,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 241,
+              "layer": "67/5",
+              "text": "C_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 248,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 249,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 250,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 251,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 252,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 258,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 259,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 260,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 263,
+              "layer": "67/5",
+              "text": "VPWR",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 264,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 265,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 266,
+              "layer": "67/5",
+              "text": "Q",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 267,
+              "layer": "67/5",
+              "text": "SET_B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 268,
+              "layer": "67/5",
+              "text": "CLK",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 269,
+              "layer": "67/5",
+              "text": "CLK",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 270,
+              "layer": "67/5",
+              "text": "VGND",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 274,
+              "layer": "64/5",
+              "text": "VPB",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 276,
+              "layer": "64/59",
+              "text": "VNB",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 278,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 279,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 280,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 281,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 282,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 288,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 289,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 290,
+              "layer": "67/5",
+              "text": "A3",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 291,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 292,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 293,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 294,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 295,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 296,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 297,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 298,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 304,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 305,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 306,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 307,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 327,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 328,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 329,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 330,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 331,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 332,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 333,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 334,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 340,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 343,
+              "layer": "67/5",
+              "text": "A_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 344,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 359,
+              "layer": "67/5",
+              "text": "D1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 360,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 361,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 362,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 363,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 364,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 370,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 371,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 372,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 373,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 374,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 398,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 399,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 400,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 402,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 403,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 404,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 410,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 411,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 412,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 413,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 419,
+              "layer": "67/5",
+              "text": "C_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 420,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 421,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 422,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 428,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 429,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 430,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 431,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 432,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 433,
+              "layer": "67/5",
+              "text": "B2",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 434,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 435,
+              "layer": "67/5",
+              "text": "C1",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 458,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 459,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 460,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 487,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 488,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 489,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 490,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 491,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 497,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 498,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 499,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 541,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 542,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 543,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 544,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 545,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 551,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 552,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 553,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 559,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 560,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 561,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 562,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 563,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 569,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 570,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 572,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 573,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 574,
+              "layer": "67/5",
+              "text": "D_N",
+              "value": "0.2",
+              "dominant": "0.1"
+            },
+            {
+              "index": 580,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 581,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 582,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 583,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 584,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 585,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 586,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 587,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 588,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 594,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 595,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 596,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 597,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 598,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 599,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 600,
+              "layer": "67/5",
+              "text": "A_N",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 606,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 607,
+              "layer": "67/5",
+              "text": "B1",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 608,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 609,
+              "layer": "67/5",
+              "text": "X",
+              "value": "0.17",
+              "dominant": "0.1"
+            },
+            {
+              "index": 615,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 616,
+              "layer": "67/5",
+              "text": "B",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 617,
+              "layer": "67/5",
+              "text": "A",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 618,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 619,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 620,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 621,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 622,
+              "layer": "67/5",
+              "text": "D",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 623,
+              "layer": "67/5",
+              "text": "D",
+              "value": "0.125",
+              "dominant": "0.1"
+            },
+            {
+              "index": 624,
+              "layer": "67/5",
+              "text": "C",
+              "value": "0.125",
+              "dominant": "0.1"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "mag",
+              "method": "deviation bitmap over all 893 labels, MSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.126,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "mag",
+              "method": "deviation bitmap over all 893 labels, LSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.09,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "mag",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 252,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        },
+        "angle": {
+          "dominant_per_layer": {
+            "67/5": "absent",
+            "68/5": "absent",
+            "64/5": "absent",
+            "64/59": "absent",
+            "83/44": "90",
+            "70/5": "absent",
+            "71/5": "absent",
+            "72/5": "absent"
+          },
+          "deviating_labels": 16,
+          "deviants": [
+            {
+              "index": 36,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 38,
+              "layer": "67/5",
+              "text": "X",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 203,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 204,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 240,
+              "layer": "67/5",
+              "text": "B",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 242,
+              "layer": "67/5",
+              "text": "X",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 430,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 431,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 489,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 490,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 491,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 569,
+              "layer": "67/5",
+              "text": "C",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 570,
+              "layer": "67/5",
+              "text": "A",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 571,
+              "layer": "67/5",
+              "text": "X",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 572,
+              "layer": "67/5",
+              "text": "C",
+              "value": "180",
+              "dominant": "absent"
+            },
+            {
+              "index": 573,
+              "layer": "67/5",
+              "text": "B",
+              "value": "180",
+              "dominant": "absent"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "angle",
+              "method": "deviation bitmap over all 893 labels, MSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.018,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "angle",
+              "method": "deviation bitmap over all 893 labels, LSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.018,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "angle",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 16,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        },
+        "presence": {
+          "dominant_per_layer": {
+            "67/5": "PSM",
+            "68/5": "PSM",
+            "64/5": "PSM",
+            "64/59": "PSM",
+            "83/44": "SMA",
+            "70/5": "-",
+            "71/5": "-",
+            "72/5": "-"
+          },
+          "deviating_labels": 22,
+          "deviants": [
+            {
+              "index": 36,
+              "layer": "67/5",
+              "text": "B1_N",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 38,
+              "layer": "67/5",
+              "text": "X",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 203,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 204,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 240,
+              "layer": "67/5",
+              "text": "B",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 242,
+              "layer": "67/5",
+              "text": "X",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 430,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 431,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 489,
+              "layer": "67/5",
+              "text": "A2",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 490,
+              "layer": "67/5",
+              "text": "A1",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 491,
+              "layer": "67/5",
+              "text": "Y",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 569,
+              "layer": "67/5",
+              "text": "C",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 570,
+              "layer": "67/5",
+              "text": "A",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 571,
+              "layer": "67/5",
+              "text": "X",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 572,
+              "layer": "67/5",
+              "text": "C",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 573,
+              "layer": "67/5",
+              "text": "B",
+              "value": "PSMA",
+              "dominant": "PSM"
+            },
+            {
+              "index": 702,
+              "layer": "83/44",
+              "text": "conb_1",
+              "value": "PSMA",
+              "dominant": "SMA"
+            },
+            {
+              "index": 703,
+              "layer": "83/44",
+              "text": "resistive_li1_ok",
+              "value": "PSMA",
+              "dominant": "SMA"
+            },
+            {
+              "index": 704,
+              "layer": "83/44",
+              "text": "resistive_li1_ok",
+              "value": "PSMA",
+              "dominant": "SMA"
+            },
+            {
+              "index": 705,
+              "layer": "83/44",
+              "text": "no_jumper_check",
+              "value": "PSMA",
+              "dominant": "SMA"
+            },
+            {
+              "index": 706,
+              "layer": "83/44",
+              "text": "no_jumper_check",
+              "value": "PSMA",
+              "dominant": "SMA"
+            },
+            {
+              "index": 812,
+              "layer": "83/44",
+              "text": "inv_2",
+              "value": "PSMA",
+              "dominant": "SMA"
+            }
+          ],
+          "decode_attempts": [
+            {
+              "channel": "presence",
+              "method": "deviation bitmap over all 893 labels, MSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.018,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presence",
+              "method": "deviation bitmap over all 893 labels, LSB-first bytes",
+              "symbols": 893,
+              "printable_fraction": 0.018,
+              "decoded": null,
+              "verdict": "not printable"
+            },
+            {
+              "channel": "presence",
+              "method": "deviating values as ASCII codes, file order",
+              "symbols": 22,
+              "printable_fraction": 0.0,
+              "decoded": null,
+              "verdict": "not printable"
+            }
+          ]
+        }
+      },
+      "pad_scan": {
+        "records_scanned": 10850,
+        "padded_records": 6324,
+        "odd_length_contents": 6324,
+        "pad_length_histogram": {
+          "1": 6324
+        },
+        "by_record": {
+          "LIBNAME": 1,
+          "SNAME": 9875,
+          "STRING": 893,
+          "STRNAME": 81
+        },
+        "non_nul_pad_findings": [],
+        "verdict": "clean: every pad byte NUL"
+      },
+      "role": "target"
+    }
+  ]
+}
