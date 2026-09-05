@@ -24,3 +24,6 @@ pdk/
 synth/
 .venv-linux/
 synth_tie/
+
+# Turkish lecture notes. Kept locally, out of the public repository.
+docs/lectures/
