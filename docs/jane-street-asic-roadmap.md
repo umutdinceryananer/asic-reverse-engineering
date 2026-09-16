@@ -31,11 +31,10 @@ answer is already known.
 
 ## Repository visibility
 
-Keep this repository private until 4 September 2026. It will accumulate the
-recovered netlist, the analysis and eventually the answer, and a public copy
-before the deadline spoils the puzzle for everyone still working on it. Flip it
-to public once submissions close, at which point the writeup can be published
-independently.
+This repository was kept private until 4 September 2026, the submission
+deadline: it accumulates the recovered netlist, the analysis and eventually the
+answer, and a public copy before the deadline would have spoiled the puzzle for
+everyone still working on it. Submissions have closed and it is public.
 
 ## Assistance model
 

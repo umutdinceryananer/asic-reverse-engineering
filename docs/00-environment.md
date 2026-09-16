@@ -169,11 +169,17 @@ on 67/5, and the top level port names appear on 70/5, which is consistent with
 | Top cell | `adder_demo` | `puzzle` |
 | Extent | 100 x 100 um | 200 x 352.72 um |
 | Placements | 1099 | 9875 |
+| Recognised standard cells | 230 | 1618 |
 | Distinct cells | 26 | 80 |
-| Logic cells | ~90 | 722 |
-| Physical only cells | ~150 | 896 |
-| Via cells | ~850 | 8221 |
+| Logic cells | 79 | 728 |
+| Physical only cells | 151 | 890 |
+| Via cells | 869 | 8257 |
 | Sequential elements | 16 `dfrtp_2` | 84 `dfrtp_2`, 4 `dfstp_2`, 4 `dfxtp_2` |
+
+Every row above is `out/<target>/instances.json` counted by `role`, not an
+estimate: the four that read `~90`, `~150`, `~850` and `722` were approximations
+and one stale figure, and they survived every gate because
+`tools/verify_figures.py` does not cover this document.
 
 Both are flat: only the top cell contains references, everything below it is a
 leaf. There is no module hierarchy to exploit in either file.

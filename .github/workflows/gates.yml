@@ -1,0 +1,86 @@
+# The gates that need nothing but Python and what the repository already carries.
+#
+# Deliberately a SUBSET, and the boundary is measured rather than guessed. Three
+# things keep the rest out:
+#
+#   Docker      14 of the 40 gates run Icarus or Yosys in a container. Building
+#               both images on every push would cost more than it tells anyone.
+#   the corpus  out/synth/ is 99 synthesised circuits and is not committed --
+#               it takes ~40 minutes of Yosys to make. `verify_figures.py`
+#               needs it, and was excluded after being measured failing without
+#               it, not on a hunch.
+#   the red one `verify_blocks.py` fails on purpose. It is the honest residue of
+#               an undecided question, and a CI that went green by dropping it
+#               quietly would be worse than no CI.
+#
+# So this is not "the gates pass". It is "these ten gates, plus a byte-for-byte
+# reproduction check, pass on a clean machine with no toolchain installed".
+# The full set is `python tools/review_packet.py`, locally, with Docker up.
+
+name: gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 3.12, not 3.14, on purpose: the README claims the pipeline runs on 3.12
+      # and this is what holds it to that. The single tool that needs 3.14 is
+      # fetch_open_pdks.py, which is optional and says so when it is missing.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install (the whole dependency surface is two pinned wheels)
+        run: pip install -r requirements.txt
+
+      - name: Stage 1 and 2, against the DEF ground truth
+        run: python tools/compare_def.py warmup
+
+      - name: Stage 2, an independent second extractor agrees
+        run: python tools/stage2_unionfind.py warmup
+
+      - name: Stage 3, annotations against the RTL the design was written from
+        run: python tools/verify_annotations.py warmup
+
+      - name: Stage 4, liberty functions against the PDK's behavioural models
+        run: python tools/verify_functions.py --selftest
+
+      - name: Stage 4, the grouping metrics against a hand computed table
+        run: python tools/stage4_registers.py --selftest
+
+      - name: Stage 4, the same metrics from an implementation sharing no code
+        run: python tools/verify_metrics.py
+
+      - name: Stage 4, and would that audit notice a wrong metric
+        run: python tools/verify_metrics.py --selftest
+
+      - name: Stage 4, placement clustering and bit order against the netlist
+        run: python tools/verify_grouping.py warmup
+
+      - name: Stage 4, and would that audit notice a wrong derivation
+        run: python tools/verify_grouping.py warmup --selftest
+
+      - name: Stage 4, the composed cone read back by an independent evaluator
+        run: python tools/verify_cone.py warmup
+
+      # The strongest thing here. out/warmup/instances.json is committed; this
+      # deletes it, regenerates it from the layout, and requires the result to
+      # be byte identical. A recognition pass that drifted on a different OS,
+      # a different Python or a different gdstk would fail here and nowhere
+      # else -- which is exactly what the machine move put to the test once
+      # already, by hand.
+      - name: Stage 1 reproduces its committed artifact, byte for byte
+        run: |
+          python tools/stage1_cells.py warmup
+          git diff --exit-code -- out/warmup/instances.json
+
+      - name: Nothing else moved
+        run: git diff --exit-code

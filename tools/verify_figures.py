@@ -170,6 +170,49 @@ def family_count(text):
 # `stage5_corpus.py` build, which needs Docker and forty minutes; the last comes
 # from `corpus_reach.py puzzle`, which needs the target. Neither can be one of
 # the container-free runs above.
+def instance_roles(target):
+    """(placements, cells, logic, physical, unmatched) from an instances.json."""
+    def read(_):
+        import json as _json
+        with open(f"out/{target}/instances.json", encoding="utf-8") as handle:
+            data = _json.load(handle)
+        cells, un = data["instances"], data["unmatched"]
+        logic = sum(1 for c in cells if c.get("role") == "logic")
+        return (str(len(cells) + len(un)), str(len(cells)), str(logic),
+                str(len(cells) - logic), str(len(un)))
+    return read
+
+
+# docs/00-environment.md's "What the two layouts contain" table, against the
+# artifacts themselves rather than against a run.
+#
+# This exists because that table went stale and no gate noticed: it read
+# `~90`, `~150`, `~850` and `722` where the measured values are 79, 151, 869
+# and 728. The number was wrong for weeks, and the reason was not carelessness
+# -- it was that `TABLE_DOCS` and `DOC_NUMBERS` between them covered four
+# documents and this was not one of them. A figure no gate watches is a figure
+# that will drift, which is the thesis of `docs/problems.md` applied to this
+# file's own coverage.
+#
+# The artifacts are committed, so no run is needed and this costs nothing.
+ARTIFACT_NUMBERS = [
+    ("docs/00: the warm up's layout counts", "docs/00-environment.md",
+     r"\| Placements \| (\d+) \|.*?"
+     r"\| Recognised standard cells \| (\d+) \|.*?"
+     r"\| Logic cells \| (\d+) \|.*?"
+     r"\| Physical only cells \| (\d+) \|.*?"
+     r"\| Via cells \| (\d+) \|",
+     instance_roles("warmup")),
+    ("docs/00: the puzzle's layout counts", "docs/00-environment.md",
+     r"\| Placements \| \d+ \| (\d+) \|.*?"
+     r"\| Recognised standard cells \| \d+ \| (\d+) \|.*?"
+     r"\| Logic cells \| \d+ \| (\d+) \|.*?"
+     r"\| Physical only cells \| \d+ \| (\d+) \|.*?"
+     r"\| Via cells \| \d+ \| (\d+) \|",
+     instance_roles("puzzle")),
+]
+
+
 DOC_NUMBERS = [
     ("docs/05: circuits whose two mappings differ",
      "docs/05-synthetic-corpus.md",
@@ -289,7 +332,7 @@ def captured(spec, text):
 
 
 def check(doc_rows, figures, outputs, verbose=True, fences=None,
-          doc_numbers=None):
+          doc_numbers=None, artifacts=None):
     """Every figure against its run. Returns the list that did not hold."""
     problems = []
 
@@ -357,6 +400,22 @@ def check(doc_rows, figures, outputs, verbose=True, fences=None,
                    f"{'/'.join(said)}" if said == printed
                    else f"document says {'/'.join(said)}, the run prints "
                         f"{'/'.join(printed)}")
+
+    artifacts = ARTIFACT_NUMBERS if artifacts is None else artifacts
+    for label, path, doc_pattern, extract in artifacts:
+        said = captured(doc_pattern, open(path, encoding="utf-8").read())
+        try:
+            measured = extract(None)
+        except (OSError, KeyError, ValueError) as problem:
+            report(False, f"{label[:44]:<44}", f"the artifact: {problem}")
+            continue
+        if said is None:
+            report(False, f"{label[:44]:<44}", "the document does not say it")
+        else:
+            report(said == measured, f"{label[:44]:<44}",
+                   "/".join(said) if said == measured
+                   else f"document says {'/'.join(said)}, the artifact has "
+                        f"{'/'.join(measured)}")
     return problems
 
 
@@ -453,7 +512,8 @@ def run():
     problems = check(doc_rows, FIGURES, outputs)
     print(f"\n{len(doc_rows)} table rows over {len(TABLE_DOCS)} documents, "
           f"{len(FIGURES)} registry figures, {len(FENCES)} quoted fence(s), "
-          f"{len(DOC_NUMBERS)} document numbers, {len(RUNS)} runs")
+          f"{len(DOC_NUMBERS)} document numbers, "
+          f"{len(ARTIFACT_NUMBERS)} artifact-backed tables, {len(RUNS)} runs")
     if problems:
         print(f"\nRESULT: fail, {len(problems)} figure(s) are not produced by "
               f"the run that\n  is supposed to produce them")

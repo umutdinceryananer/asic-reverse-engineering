@@ -1,5 +1,23 @@
 # Endgame — 23 August to 4 September 2026
 
+> **Closed. This is the plan as it was written, kept as a record rather than
+> rewritten into a report.** The unticked boxes below are what the plan asked
+> for, not a list of things left undone — read this note first, because the two
+> are easy to confuse.
+>
+> **What the repository can evidence.** The puzzle run completed: stage 6 solved
+> it at depth 124 over every start state, the replay reproduced the trace, and
+> stage 7 read `(* TWO STARS *)` off the output bus at cycles 124–138
+> (`out/puzzle/`). The easter eggs were decoded — the Morse row reads
+> `PER ARENAM AD ASTRA` (`out/eggs/`). Four defects surfaced on first contact
+> with the real target and are problems 54 to 57. The repository is public.
+>
+> **What it cannot.** `docs/writeup.md` was never written; `README.md` and
+> `docs/` are the account instead. The evidence packet was not regenerated after
+> the puzzle run, so `out/review.md` is stamped at an earlier commit and says so.
+> Whether the submission form was filed is not something a git repository
+> records, and nothing here should be read as claiming it either way.
+
 The build is done, stage 7 included. From here the critical path is the
 author's time, not tooling. This file replaces the stale dates in
 `docs/jane-street-asic-roadmap.md`; the phase logic there still stands. It is

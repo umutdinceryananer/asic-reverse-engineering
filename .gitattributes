@@ -9,12 +9,19 @@
 # The sky130 standard cell library, fetched by tools/fetch_pdk.py from
 # google/skywater-pdk-libs-sky130_fd_sc_hd@ac7fb61f, and the same cells as
 # open_pdks builds them, fetched by tools/fetch_open_pdks.py.
+# `-text` as well as vendored: never convert line endings in content this
+# project did not write. tools/common/liberty.py caches the parsed functions
+# beside them and stamps the cache with each source's BYTE SIZE, so a CRLF
+# checkout silently invalidates all 429 of them -- measured, 65866 -> 68885 on
+# the first file. The parsed functions were identical; only the stamp moved.
 pdk/**          linguist-vendored
+pdk/**          -text
 
 # The puzzle's published material, from janestreet/asic-puzzle-2026. Vendored
 # here rather than left as a submodule so this repository stays readable for
 # as long as it stands, and not only for as long as the upstream does.
 puzzle/**       linguist-vendored
+puzzle/**       -text
 
 # Artifacts the pipeline produced: netlists, graphs, solver traces, the review
 # packet. Kept because the machine that made them has been sold and they are

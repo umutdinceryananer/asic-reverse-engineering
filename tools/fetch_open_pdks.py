@@ -109,8 +109,21 @@ def fetch():
         return 0
 
     # 3.14's stdlib zstd. Nothing here needs a third party package, which
-    # matters for a tool whose whole point is a reproducible environment.
-    from compression import zstd                             # noqa: PLC0415
+    # matters for a tool whose whole point is a reproducible environment -- but
+    # it does mean this one tool needs 3.14, where the rest of the pipeline runs
+    # on 3.12 as well. Said plainly rather than left as a bare ImportError
+    # three frames down.
+    try:
+        from compression import zstd                         # noqa: PLC0415
+    except ImportError:
+        version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        sys.exit(
+            f"this tool needs Python 3.14 or later for the stdlib zstd "
+            f"decoder, and this is {version}.\n"
+            f"  Nothing else in the pipeline does -- only the open_pdks "
+            f"comparison, which is optional.\n"
+            f"  Either run it under 3.14, or skip it: tools/fetch_pdk.py "
+            f"alone is enough for every stage.")
 
     print(f"streaming {RELEASE}")
     print(f"  for {MEMBER}")

@@ -30,8 +30,8 @@ trimmed stream runs from the first non-0x00 byte to the last.
     zeros       every input 0 -- NOTE this holds rst_n low, i.e. reset.
     port=value  overrides applied to the idle row.
 
-Native toolchain only: /home/umut/tools/oss-cad-suite/bin/{iverilog,vvp},
-with the exact flags tools/sim/harness.py uses (-g2012 -DFUNCTIONAL
+Native toolchain only -- `iverilog` and `vvp` as found on PATH, or wherever
+GDS_IVERILOG and GDS_VVP point -- with the exact flags tools/sim/harness.py uses (-g2012 -DFUNCTIONAL
 -DUNIT_DELAY=#1, model files listed explicitly, -I per cell directory).
 No docker, no container. Simulations run sequentially.
 
@@ -47,6 +47,7 @@ Writes out/eggs/output_battery.json.
 import json
 import os
 import random
+import shutil
 import subprocess
 import sys
 
@@ -59,8 +60,13 @@ os.chdir(REPO)
 import harness                                                  # noqa: E402
 from run import model_files                                     # noqa: E402
 
-IVERILOG = "/home/umut/tools/oss-cad-suite/bin/iverilog"
-VVP = "/home/umut/tools/oss-cad-suite/bin/vvp"
+# Resolved rather than hard coded. This used to name one machine's
+# oss-cad-suite install, which meant the tool could not run for anybody who
+# cloned the repository -- the author's own path, shipped as if it were an
+# interface. PATH first, then an override for a toolchain installed somewhere
+# the shell does not know about.
+IVERILOG = os.environ.get("GDS_IVERILOG") or shutil.which("iverilog")
+VVP = os.environ.get("GDS_VVP") or shutil.which("vvp")
 NETLIST = os.path.join("out", "puzzle", "netlist.v")
 STIMULUS = os.path.join("out", "puzzle", "stimulus.txt")
 SOLUTION = os.path.join("out", "puzzle", "solution_post_reset.json")
@@ -537,4 +543,11 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    # Said here rather than left to a None creeping into a subprocess call and
+    # surfacing as an unreadable TypeError three functions down.
+    for name, found in (("iverilog", IVERILOG), ("vvp", VVP)):
+        if not found:
+            sys.exit(f"{name} not found. Put it on PATH, or point "
+                     f"GDS_{name.upper()} at it. This battery runs the "
+                     f"simulator natively and does not use the containers.")
     sys.exit(main(sys.argv[1:]))

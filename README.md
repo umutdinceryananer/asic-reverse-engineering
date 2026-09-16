@@ -1,5 +1,7 @@
 # gds-teardown
 
+[![gates](https://github.com/umutdinceryananer/gds-teardown/actions/workflows/gates.yml/badge.svg)](https://github.com/umutdinceryananer/gds-teardown/actions/workflows/gates.yml)
+
 **Recovering what a chip computes from a picture of the chip.**
 
 No source code. No netlist. No labels. Just the mask layout — the polygons a
@@ -37,9 +39,11 @@ and raises the `success` flag the puzzle asks for.
 
 Three sentences for anyone, hardware background or not:
 
-1. **A chip layout is just coloured polygons.** 9,875 of them in this file.
-   Somewhere in there are 1,618 logic gates wired into a circuit, but nothing
-   says which polygon is which gate or where any wire goes.
+1. **A chip layout is a field of shapes with no names on them.** This one
+   holds 9,875 cell placements. 1,618 of them are standard cells the pipeline
+   recognises, and 728 of *those* are logic gates — the rest are filler, taps
+   and decoupling, structure rather than computation. Nothing in the file says
+   which is which, or where any wire goes.
 2. **Seven programs turn those polygons back into a circuit** — recognising
    gates by their geometric fingerprints, tracing the metal wiring into a
    netlist, and working out what each piece does.
@@ -69,10 +73,10 @@ Each stage is documented in [`docs/`](docs/), numbered to match.
 | | |
 |---|---|
 | GDS placements read | 9,875 |
-| Standard cells recovered | 1,618 |
+| Standard cells recovered | 1,618 — of which 728 logic, 890 physical-only |
 | Flip-flops | 92 |
 | Input sequence solved for | 121 serial bits, BMC depth 124 |
-| Start states the trace is proven over | all 2^92 — the solver refuses a trace that works only from one |
+| Start states the trace is proven over | all 2^92, in 13 solver calls over 193.59 s |
 | Replay through the independent simulator | 0 mismatches, 0 unknown |
 | Bytes recovered | 15, at cycles 124–138 |
 
@@ -101,6 +105,12 @@ cause, and whether the fix is understood or merely worked around.
   Annotations are derived forwards and backwards. The clustering metrics are
   recomputed by an implementation sharing no code. The decoded output is read
   back by a second, separate parser.
+
+Ten of those gates, plus a check that stage 1 reproduces its committed artifact
+byte for byte, run in CI on every push — on Python 3.12, with no toolchain
+installed beyond two pip wheels. The badge above is that subset, and the
+workflow file says plainly why it is a subset: 14 gates need Docker, one needs a
+corpus that takes forty minutes of Yosys to build, and one is red on purpose.
 
 `tools/review_packet.py` runs the lot — **41 rows: 40 gates and one report** —
 and writes a reviewable evidence file with every gate's status, runtime and full
@@ -168,6 +178,19 @@ docker/         Icarus Verilog and Yosys images
 
 ### Running it
 
+**Python 3.12 or later**, and Docker. The entire Python dependency surface is
+two pinned packages, both shipping wheels for Windows, Linux and macOS:
+
+```
+gdstk==1.0.1
+klayout==0.30.10
+```
+
+Everything heavier — Yosys, Icarus Verilog, z3 — lives in the two Docker images,
+so the host needs no EDA toolchain at all. One optional tool,
+`fetch_open_pdks.py`, needs 3.14 for the stdlib zstd decoder and says so if it
+does not get it; nothing else in the pipeline does.
+
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
 python tools/fetch_pdk.py
@@ -186,6 +209,15 @@ known answer), `synth` (99 generated circuits that write their own answer keys),
 and `puzzle`. **No stage ran on the puzzle before it passed on a target whose
 answer was already known.**
 
+### Reproducing the headline
+
+The recovered string and the trace that produced it are committed under
+`out/puzzle/`, so the claim on this page can be read without running anything.
+Re-deriving it is a different matter: the intermediate netlist and graph for the
+puzzle are not committed, so a fresh clone runs stages 1 to 3 first. The evidence
+packet is not committed either — `python tools/review_packet.py` regenerates it,
+and the copy it writes is stamped with the commit it was measured at.
+
 ## Honest limits
 
 - **The register partition on the target is unresolved.** 72 of the 92
@@ -203,6 +235,27 @@ answer was already known.**
 - **The evidence packet is regenerated, not committed at every commit.** Its
   stamp names the commit it was measured at; when that is behind HEAD it says
   so, rather than implying freshness.
+
+## On model assistance
+
+This was built with an AI assistant, and the repository says so in three places
+rather than leaving it to be discovered: most of its commits carry a
+`Co-Authored-By` trailer, [`CLAUDE.md`](CLAUDE.md) sits in the root as the
+standing instructions, and this section exists.
+
+The puzzle's own rule permits it for code and forbids it for two things — the
+puzzle files and the writeup. **The working split used here was stricter than
+the rule.** The assistant built the stages and the gates and validated them
+against `warmup` and the synthetic corpus, whose answers were already known. It
+never opened `puzzle.gds` or the sample waveform, and every run against the
+`puzzle` target was the author's. The split is written out as a table in
+`CLAUDE.md` and was held to for the project's whole length.
+
+**One rule mattered more than the split:** no language model runs *inside* the
+pipeline. Every stage is a deterministic program — geometry, graph algorithms,
+structural matching, SAT and SMT. A detector is an algorithm, never a prompt.
+That is why the gates mean anything: they check programs, and programs can be
+re-run by anyone.
 
 ## Lectures
 
