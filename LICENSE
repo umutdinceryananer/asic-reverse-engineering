@@ -1,0 +1,39 @@
+MIT License
+
+Copyright (c) 2026 Umut Dinçer Yananer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+This licence covers the work written for this project: `tools/`, `docs/`,
+`docker/`, and the files at the repository root.
+
+It does not cover the third-party content this repository carries alongside
+that work, which keeps its own terms:
+
+  pdk/      The SkyWater sky130 standard cell library, Apache License 2.0,
+            from google/skywater-pdk-libs-sky130_fd_sc_hd at ac7fb61f, and the
+            same cells as built by open_pdks at 8afc8346. The vendored subset
+            here is geometry, abstracts, liberty and behavioural models; it
+            carries no licence file of its own, so refer to the upstream.
+
+  puzzle/   The Jane Street 2026 ASIC puzzle's published material, from
+            janestreet/asic-puzzle-2026. Reproduced here so this repository
+            stays readable independently of that upstream. All rights remain
+            with Jane Street.

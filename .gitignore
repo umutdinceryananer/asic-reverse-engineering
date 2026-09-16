@@ -1,10 +1,8 @@
 # Python
 .venv/
+.venv-linux/
 __pycache__/
 *.pyc
-
-# Extraction, simulation and analysis artifacts
-out/
 
 # Simulation products
 *.vvp
@@ -16,14 +14,19 @@ out/
 .DS_Store
 Thumbs.db
 
-# Downloaded PDK cell library, fetched by tools/fetch_pdk.py
-pdk/
-
 # Generated corpus RTL. Reproducible from tools/stage5_corpus.py, and the
-# generators are the artifact worth reviewing, not their output.
+# generators are the artifact worth reading, not their output.
 synth/
-.venv-linux/
 synth_tie/
 
-# Turkish lecture notes. Kept locally, out of the public repository.
-docs/lectures/
+# ---------------------------------------------------------------------------
+# Two directories below are ignored here and tracked anyway, on purpose.
+#
+# `out/` and `pdk/` are derived: the first by running the pipeline, the second
+# by tools/fetch_pdk.py and tools/fetch_open_pdks.py. They were committed in
+# bee6d70 because the machine that produced them was being sold, and a pinned
+# snapshot of the evidence is worth more than a promise that it can be
+# regenerated. What is committed stays committed; these rules stop a later run
+# from sweeping in every new artifact it happens to write.
+out/
+pdk/

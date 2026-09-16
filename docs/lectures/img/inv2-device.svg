@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="192" height="296.5" viewBox="-27 -299 192 296.5">
+<defs>
+<style type="text/css">
+.l65d20 {fill:#00a000;stroke:#00a000;stroke-width:0.01;fill-opacity:0.55;}
+.l64d20 {fill:#d9d2e9;stroke:#d9d2e9;stroke-width:0.01;fill-opacity:0.55;}
+.l66d20 {fill:#d00000;stroke:#d00000;stroke-width:0.01;fill-opacity:0.55;}
+</style>
+</defs>
+<rect x="-27" y="-299" width="192" height="296.5" fill="#ffffff" stroke="none"/>
+<g id="sky130_fd_sc_hd_inv_2_device" transform="scale(1 -1)">
+<polygon id="000001EA7BEE4DC0" class="l65d20" points="14.5,23.5 14.5,88.5 123.5,88.5 123.5,23.5"/>
+<polygon id="000001EA7BEE4F10" class="l65d20" points="14.5,148.5 14.5,248.5 123.5,248.5 123.5,148.5"/>
+<polygon id="000001EA7BEE4F80" class="l64d20" points="-19,130.5 -19,291 157,291 157,130.5"/>
+<polygon id="000001EA7BEE4FF0" class="l66d20" points="40.5,10.5 40.5,99.5 10.5,99.5 10.5,132.5 40.5,132.5 40.5,261.5 55.5,261.5 55.5,132.5 82.5,132.5 82.5,261.5 97.5,261.5 97.5,10.5 82.5,10.5 82.5,99.5 55.5,99.5 55.5,10.5"/>
+</g>
+</svg>

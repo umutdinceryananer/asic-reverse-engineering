@@ -1,0 +1,26 @@
+# What GitHub's language statistics should reflect: the code written for this
+# project, not the libraries and inputs it carries alongside it.
+#
+# Without these rules the bar reads "Verilog 70%", and that Verilog is
+# SkyWater's standard cell library — 2126 of the 2137 .v files in the tree were
+# written by somebody else. `linguist-vendored` keeps the files in the
+# repository and takes them out of the count.
+
+# The sky130 standard cell library, fetched by tools/fetch_pdk.py from
+# google/skywater-pdk-libs-sky130_fd_sc_hd@ac7fb61f, and the same cells as
+# open_pdks builds them, fetched by tools/fetch_open_pdks.py.
+pdk/**          linguist-vendored
+
+# The puzzle's published material, from janestreet/asic-puzzle-2026. Vendored
+# here rather than left as a submodule so this repository stays readable for
+# as long as it stands, and not only for as long as the upstream does.
+puzzle/**       linguist-vendored
+
+# Artifacts the pipeline produced: netlists, graphs, solver traces, the review
+# packet. Kept because the machine that made them has been sold and they are
+# the evidence, but they are output rather than source.
+out/**          linguist-generated
+
+# Generated corpus RTL, when a checkout has it. Reproducible from
+# tools/stage5_corpus.py, which is the artifact worth reading.
+synth/**        linguist-generated

@@ -1,363 +1,226 @@
 # gds-teardown
 
-Recovering an ASIC's function from its layout — a submission for the
-[Jane Street 2026 ASIC puzzle](https://blog.janestreet.com/can-you-reverse-engineer-an-asic/).
+**Recovering what a chip computes from a picture of the chip.**
 
-The puzzle hands you a GDS file (a chip layout: polygons on metal layers) and
-asks for the string the circuit emits when driven with the right input. **The
-deliverable of this repository is the pipeline, not the answer.** Every stage
-is a deterministic program — layout and EDA tools, graph algorithms, structural
-matching, equivalence checking, SAT and SMT — and the answer is only its first
-test case.
+No source code. No netlist. No labels. Just the mask layout — the polygons a
+foundry would use to print silicon — and a question: *what does this thing do,
+and what do you have to feed it to make it say something?*
 
-> **Private until 4 September 2026** (competition deadline). Public afterwards.
+This repository is the pipeline that answered that question, built for the
+[Jane Street 2026 ASIC reverse-engineering puzzle](https://blog.janestreet.com/can-you-reverse-engineer-an-asic/).
 
-## What the puzzle gives you, and what it asks for
+---
 
-| Given | Asked for |
-|---|---|
-| `puzzle.gds` — the full mask set: metal, routing, active layers | A gate-level netlist recovered from the layout |
-| `example_inputs.vcd` — two sample input/output runs, neither of which wins | An account of what the circuit computes |
-| A worked warm-up, shipped with its Verilog, its synthesised netlist and its GDS | The input that raises `success`, and the string it yields |
+## The answer
 
-No RTL, no netlist, no labels. The warm-up is two shift registers feeding an
-adder and a comparator, raising `success` when the operands sum to 496 — it
-exercises both combinational and sequential extraction, so a flow calibrated
-against it is calibrated against the real thing.
+```
+(* TWO STARS *)
+```
 
-Two hints are published, quoted verbatim in [CLAUDE.md](CLAUDE.md) with their
-source. Both are load-bearing here: one authorises a placement-locality
-criterion in stage 4, the other scopes stage 6's initial state from 2^92
-possibilities to 2^4.
+Fifteen bytes, read one per clock cycle off the chip's 8-bit output bus at
+cycles 124–138, after a 121-bit input sequence that nothing in the puzzle tells
+you and no human guessed.
 
-## The pipeline in one paragraph
+And hidden in the layout itself, spelled in Morse code by 36 rectangles on an
+unused mask layer:
 
-Stage 1 reads the GDS and recognises every standard-cell placement by geometric
-fingerprint. Stage 2 traces the routing into a netlist, with an independent
-union-find extractor as a cross-check. Stage 3 normalises that netlist into a
-graph annotated from liberty — clock roots, reset roots, cones, flop roles.
-Stage 4 groups flip-flops into registers, orders their bits, and composes cone
-functions. Stage 5 synthesises a corpus of 99 known circuits (197 netlists) so
-stage 4 can be *scored* rather than trusted. Stage 6 inverts the circuit:
-bounded model checking over the recovered graph finds an input sequence that
-raises `success`, proven robust across start states. Stage 7 replays that trace
-through stage 2's netlist in a real simulator and reads the output bus back,
-byte by byte.
+```
+PER ARENAM AD ASTRA        "through sand to the stars"
+```
 
-| Stage | What it does | In → out | Tool and document |
-|---|---|---|---|
-| 1 | Cell recognition | GDS → `instances.json` | `stage1_cells.py`, [docs/01](docs/01-cell-recognition.md) |
-| 2 | Connectivity extraction | GDS + instances → `netlist.{json,v}` | `stage2_nets.py`, [docs/02](docs/02-connectivity.md) |
-| 3 | Normalisation and annotation | netlist → `graph.{json,v}` | `stage3_graph.py`, [docs/03](docs/03-normalisation.md) |
-| 4 | Detectors: registers, bit order, cones | graph → `registers.json`, `cone.json` | `stage4_registers.py`, `stage4_cone.py`, [docs/04](docs/04-detectors.md) |
-| 5 | Synthetic corpus (the answer keys) | generators → `synth/`, `out/synth/` | `stage5_corpus.py`, [docs/05](docs/05-synthetic-corpus.md) |
-| 6 | Inversion, by bounded model checking | graph → `solution.json` | `stage6_invert.py`, [docs/06](docs/06-inversion.md) |
-| 7 | Output extraction | solution + netlist → `output.json` | `stage7_output.py`, [docs/07](docs/07-output.md) |
+The chip turns out to be a message ROM. Feed it all zeros and it prints
+`EMPTY SKY`. All ones gives `BIG BANG`. The sample inputs shipped with the
+puzzle give `TRY AGAIN`. Only the recovered sequence gives `(* TWO STARS *)` —
+and raises the `success` flag the puzzle asks for.
 
-Stage 3 is the seam that makes the rest possible: it is where a pile of cells
-becomes a graph that carries *meaning* — which net is a clock, which flop resets
-where, what each cell computes. Stages 4, 6 and 7 all read `graph.json` and
-none of them re-parses a netlist.
+## What actually happened here
 
-### Three targets, one interface
+Three sentences for anyone, hardware background or not:
 
-Every stage takes a target as an argument and never a hard-coded path.
+1. **A chip layout is just coloured polygons.** 9,875 of them in this file.
+   Somewhere in there are 1,618 logic gates wired into a circuit, but nothing
+   says which polygon is which gate or where any wire goes.
+2. **Seven programs turn those polygons back into a circuit** — recognising
+   gates by their geometric fingerprints, tracing the metal wiring into a
+   netlist, and working out what each piece does.
+3. **Then a solver plays the circuit backwards.** Given "make this output go
+   high", it computes the 121 input bits that do it — and a simulator replays
+   them to read the answer off the output pins.
 
-| Target | Ground truth | Purpose |
+The interesting part is not that it worked. It is **how hard the repository
+works to prove it worked**, which is what the rest of this page is about.
+
+## The pipeline
+
+| Stage | What it does | In → out |
 |---|---|---|
-| `warmup` | Full RTL, reference netlist and post-place-and-route DEF | Calibrates and gates stages 1–3, 6, 7 |
-| `synth` | Generated by construction — the corpus writes its own answer keys | Scores stages 4 and 7 |
-| `puzzle` | Two sample vectors only | The real run |
+| 1 | Recognise every standard cell by geometric fingerprint | GDS → `instances.json` |
+| 2 | Trace the routing into a netlist, with a second extractor checking the first | GDS → `netlist.v` |
+| 3 | Annotate the netlist into a graph: clocks, resets, logic cones, flop roles | netlist → `graph.json` |
+| 4 | Group flip-flops into registers, order their bits, compose the success condition | graph → `registers.json` |
+| 5 | Synthesise 99 circuits whose answers are known, to *score* stage 4 rather than trust it | → `out/synth/` |
+| 6 | Bounded model checking: solve for the input sequence that raises `success` | graph → `solution.json` |
+| 7 | Replay that trace in a real simulator and read the output bus, byte by byte | → `output.json` |
 
-**No stage runs on `puzzle` before it passes on a target with ground truth.** A
-stage that has not been validated produces output that looks correct and cannot
-be checked, which is worse than no output.
+Each stage is documented in [`docs/`](docs/), numbered to match.
 
-## Verification culture
+### The numbers on the target
 
-The pipeline's real product is its gates. The rules they follow, each paid for
-by a defect that slipped past their absence — the full register is
-[docs/problems.md](docs/problems.md), 57 entries with symptom, root cause, and
-whether the fix is understood or only worked around:
+| | |
+|---|---|
+| GDS placements read | 9,875 |
+| Standard cells recovered | 1,618 |
+| Flip-flops | 92 |
+| Input sequence solved for | 121 serial bits, BMC depth 124 |
+| Start states the trace is proven over | all 2^92 — the solver refuses a trace that works only from one |
+| Replay through the independent simulator | 0 mismatches, 0 unknown |
+| Bytes recovered | 15, at cycles 124–138 |
+
+## Why you should not believe any of that
+
+Because a reverse-engineering pipeline that is subtly wrong produces output that
+looks exactly like output that is right. Every safeguard below exists because
+something got past its absence — the full register is
+[`docs/problems.md`](docs/problems.md), **57 entries**, each with symptom, root
+cause, and whether the fix is understood or merely worked around.
 
 - **A passing test that was never able to fail is not evidence.** Every gate is
-  demonstrated against a known-bad input at least once; most carry a
-  `--selftest` that plants corruptions and counts the catches. And *every
-  corruption caught* is not *every rule covered* — `verify_corpus.py --selftest`
-  counts coverage from the rules' side too, which is how it found its own blind
-  spot.
+  demonstrated against a deliberately broken input at least once. Most carry a
+  `--selftest` that plants corruptions and counts how many were caught.
 - **A corruption that was never able to corrupt is not a demonstration.** The
-  other half of the same rule, and the reason three planted defects had to be
-  moved off the warm-up: it is small and uniform enough that some corruptions
-  had nothing to disturb.
+  other half of the same rule — three planted defects had to be moved off the
+  warm-up target, because it was too simple for them to disturb anything.
 - **A score a trivial implementation also achieves is not evidence.** Null
   models are printed beside every score, in the same run.
-- **A solver result is a claim about the model, not the circuit.** Stage 6's
-  traces are replayed through stage 2's netlist under the PDK's own cell
-  models — a path that shares no code and no file with the solver. Demonstrated:
-  one altered liberty function, solver still says pass, replay says fail.
-- **Independent derivation over re-reading.** Connectivity has two extractors;
-  annotations are derived forwards and backwards; the clustering metrics are
-  recomputed by an implementation sharing no code; the decoded output is read
-  back by a second, deliberately separate escape parser.
-- **Recorded expectations.** Scores are checked against committed recordings and
-  fail on movement in *either* direction. Re-recording is a decision with a
-  reason in the commit message, never a side effect.
-- **Open the primary artifact before reasoning from a secondary one.** The most
-  expensive error in this project was declaring the sample VCD output-free on
-  the strength of one README sentence.
+- **A solver result is a claim about the model, not about the circuit.** Stage
+  6's answer is replayed through stage 2's netlist under the chip vendor's own
+  gate models — a path sharing no code and no file with the solver. Demonstrated
+  by corrupting one gate definition: the solver still said pass, the replay
+  caught it.
+- **Independent derivation over re-reading.** Connectivity has two extractors.
+  Annotations are derived forwards and backwards. The clustering metrics are
+  recomputed by an implementation sharing no code. The decoded output is read
+  back by a second, separate parser.
 
-### The evidence packet
+`tools/review_packet.py` runs the lot — **41 rows: 40 gates and one report** —
+and writes a reviewable evidence file with every gate's status, runtime and full
+output, stamped with the commit it was measured at. It refuses to write at all
+if it cannot substantiate its own tables.
 
-```bash
-python tools/review_packet.py            # runs everything, writes out/review.md
-python tools/review_packet.py --preflight # just: is Docker up, are images built
-```
+**One gate is red on purpose.** `verify_blocks.py` scores stage 4's register
+grouping against the true answer, and the committed criterion gets it wrong. Six
+criteria were measured instead of one being chosen, they disagree, and the
+disagreement is reported rather than hidden. Solving the puzzle did not resolve
+it, and the repository does not pretend otherwise.
 
-`out/review.md` is the reviewable artifact: every gate, its status, its runtime,
-its full output, and the commit it was measured at. It refuses to write if it
-cannot substantiate its own tables — the registry of which tool reads which
-ground-truth file, and the gate/report classification, are both re-derived from
-each tool's parsed source rather than trusted.
+### What the puzzle run itself cost
 
-It also tells a dead environment from a failing gate. A container row that
-cannot run is **blocked** — neither pass nor fail, counted separately, stated at
-the top — because a stopped Docker Desktop once presented itself as eleven
-failing gates.
+Stage 6's first contact with the real target found four defects the warm-up
+could never have exposed — including one where a plain dictionary assignment
+made driver conflicts invisible and the solver confidently reported
+*"pass, a trace was found"* **for a design that does not exist.** That is
+problem 55, and it is exactly why the replay check exists.
 
-At the current commit: **40 gates and one report, 39 passing, one deliberately
-red, zero blocked.** The figures quoted in this file are summaries;
-`out/review.md` is the source of truth and one command regenerates it.
+### It survived its own machine being sold
 
-### The one red gate is on purpose
+Mid-project the development Mac was sold. Everything was committed first, then
+the whole pipeline was rebuilt on Linux from a pre-written runbook
+([`docs/resurrection-runbook.md`](docs/resurrection-runbook.md)). Every
+extraction artifact regenerated **byte-identical** across macOS/Python 3.14 and
+Linux/Python 3.12, except three cases that are explained rather than excused.
 
-`verify_blocks.py` scores stage 4's register grouping against the hierarchy the
-warm-up's own DEF states — `sr_a` and `sr_b`, eight bits each. The committed
-criterion answers `[16]`. It stays red because **committing a grouping criterion
-is the author's decision**, and six criteria have been measured rather than one
-chosen; the disagreement between them is the residue, and the residue is where a
-person reads. [docs/04](docs/04-detectors.md) is that measurement.
+## The easter eggs
 
-The gate also scores **membership**, not just sizes: `[8, 8]` says nothing about
-*which* eight, there are 6435 such splits, and a deliberately interleaved null
-model that answers `[8, 8]` from no information at all is a permanent row in its
-table so the column can never be silent.
+The puzzle authors hid things, and the repository went looking with 15
+deterministic decoders, every one paired with a negative control:
 
-## Quick start
+- **The Morse row.** 36 rectangles on mask layer 200/0, two widths in a 1:3
+  ratio with 1/3/7-unit gaps — the timing convention of International Morse.
+  16 of 16 valid tokens: `PER ARENAM AD ASTRA`.
+- **The emblem.** 1,366 tiny metal squares on a 57 × 57 grid, identical in both
+  layouts, connected to nothing. Measured against the Jane Street GitHub
+  avatar: **91.29% pixel agreement.** The tempting "it's a QR code" reading was
+  killed by measurement, not by opinion.
+- **The message ROM**, found by simulation rather than by staring: `EMPTY SKY`,
+  `BIG BANG`, `TRY AGAIN`, `(* TWO STARS *)`.
 
-Prerequisites: Python 3.14 or later (`tools/fetch_open_pdks.py` uses
-`compression.zstd`), Git, and Docker.
-
-```bash
-git clone <this repo> && cd gds-teardown
-git submodule update --init          # upstream puzzle files into puzzle/
-
-python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
-.venv/bin/python -m pip install -r requirements.txt           # Linux, macOS
-
-python tools/fetch_pdk.py            # ~10 MB, sky130_fd_sc_hd, pinned commit
-python tools/fetch_open_pdks.py      # the same cells as open_pdks builds them,
-                                     # into a separate cache, for the
-                                     # fallback-cell hypothesis test
-```
-
-Only `gdstk` and `klayout` come from pip. Icarus Verilog and Yosys have no
-wheels, so they live in containers:
-
-```bash
-DOCKER_BUILDKIT=0 docker build --target sim -t gds-teardown-sim -f docker/Dockerfile docker/
-DOCKER_BUILDKIT=0 docker build --target eda -t gds-teardown-eda -f docker/Dockerfile docker/
-```
-
-`sim` carries Icarus and is all stage 2 needs; `eda` adds Yosys and z3 for stage
-3 onward. **`DOCKER_BUILDKIT=0` is required**: under BuildKit `apt-get` cannot
-reach the network on the machine this was built on, while the identical command
-works under `docker run`. Worked around, not diagnosed — see
-[docs/problems.md](docs/problems.md) 1.
-
-The base image is pinned by digest and each image records its own tool versions
-into a manifest baked at build time. The apt packages themselves are **recorded,
-not pinned** — `verify_toolchain.py` fails on drift, and the gate catching it
-*is* the mechanism.
-
-## Running it
-
-The whole warm-up path, end to end. Every line either produces an artifact or
-gates one:
-
-```bash
-python tools/verify_toolchain.py warmup    # the images' toolchain vs the recording
-python tools/stage1_cells.py    warmup
-python tools/stage2_nets.py     warmup
-python tools/compare_def.py     warmup     # 230/230 cells, 84/84 nets, vs the DEF
-python tools/stage2_unionfind.py warmup    # a second extractor agrees, 86/86
-python tools/sim/run.py         warmup     # all 65536 operand pairs, 0 mismatches
-python tools/stage3_graph.py    warmup
-python tools/sim/run.py warmup --netlist out/warmup/graph.v   # round trip
-python tools/stage3_crosscheck.py warmup   # annotations re-derived forwards
-python tools/verify_annotations.py warmup  # and checked against the RTL
-python tools/verify_equiv.py    warmup     # proven equal to the reference netlist
-python tools/stage5_corpus.py              # 99 circuits, 197 netlists -> synth/
-python tools/verify_corpus.py              # 12 rules, 762 uses, vs what stage 3 found
-python tools/stage4_registers.py warmup
-python tools/verify_cone.py     warmup     # proven equal to a + b == 496
-python tools/stage6_invert.py   warmup     # BMC finds the answer at depth 8
-python tools/sim/replay.py      warmup     # that trace, back through the netlist
-python tools/stage7_output.py   warmup --extend 6
-python tools/verify_output.py              # stage 7 vs strings declared in advance
-```
-
-Most gates have a `--selftest` that plants known-bad inputs and reports what it
-caught. The full command list, with what each gate checks and its recorded
-figures, is in [CLAUDE.md](CLAUDE.md) under *Running* and *Verification gates*.
-
-### The puzzle path
-
-The same tools, the same order, with `puzzle` as the target. These runs are the
-author's — see *Rules* below.
-
-```bash
-python tools/stage1_cells.py     puzzle
-python tools/stage2_nets.py      puzzle
-python tools/stage2_unionfind.py puzzle    # the only check with no ground truth
-python tools/sim/make_puzzle_stimulus.py   # the sample VCD -> per-cycle tables
-python tools/sim/run.py          puzzle    # 312 cycles, 0 mismatches
-python tools/stage3_graph.py     puzzle
-python tools/stage3_crosscheck.py puzzle
-python tools/stage4_registers.py puzzle
-python tools/stage4_cone.py      puzzle
-python tools/stage6_invert.py    puzzle --post-reset
-python tools/sim/replay.py       puzzle --solution out/puzzle/solution_post_reset.json
-python tools/stage7_output.py    puzzle --solution out/puzzle/solution_post_reset.json --extend 64
-```
-
-Run the replay **before** the extraction. Stage 7 will read a bus faithfully and
-report the wrong design's bytes if the trace does not reproduce.
-
-## What the pipeline has recovered
-
-Derived by the tools above, on the puzzle, by the author:
-
-- **1618 placements**, 728 logic cells and 92 flip-flops. 22 placements resolve
-  through a structural fallback tier rather than an exact fingerprint, and that
-  has a testable cause: the fetched PDK revision is not the one that drew the
-  puzzle, and the three cell types involved are among the nine that differ
-  between the upstream library and the same library as open_pdks builds it — on
-  exactly the layers stage 1 records.
-- **Ports** `clk`, `rst_n`, `enable`, `I` in; `success`, `O[7:0]` out. `I` is one
-  bit, so input is serial.
-- **16 clock branches** off `clkbuf_8` cells, all walking back to one root.
-  Grouping flops by clock *net* splits every register; grouping by clock *root*
-  does not.
-- **`success` is a registered output**, and its data cone reads 57 bits of stored
-  state with no primary input reaching it. That is why stage 6 is bounded model
-  checking and not a single SAT call.
-- **An emblem in both layouts**: 1366 identical met2 squares, connected to
-  nothing, measured and identified as the Jane Street logo. It explains all three
-  pin-less nets in each target.
+Most of what the decoders swept — text acrostics, bit-grids, mask labels, PNG
+chunks, trailing container bytes — returned **nothing**, and that null result is
+archived too. A search that only records its hits is not a search.
 
 ## Repository layout
 
 ```
-docs/            one document per stage (00–07), plus:
-  problems.md      57 defects: symptom, root cause, fix status
-  packages.md      the work-package map (who built what, in what order)
-  references.md    primary sources: the three official documents, both hints
-  solver-pipeline.md  the build spec: what gets built, and why in that order
-  jane-street-asic-roadmap.md  the schedule, phase budgets, gates
-  endgame.md       from build-freeze to submission
-  lectures/        00–09: step-by-step lessons in Turkish, written for a
-                   reader with no hardware background, after each stage's
-                   gates passed — never before
-tools/           every stage and every gate
-  common/          GDS, LEF, liberty and boolean-expression readers
-  sim/             one Icarus driver and one cycle model, shared by
-                   stage 2's gate, stage 6's replay and stage 7
-docker/          the sim (Icarus) and eda (Yosys + z3) images
-pdk/             fetched, pinned sky130 views: GDS, LEF, liberty, models
-puzzle/          upstream puzzle files (submodule): puzzle.gds,
-                 example_inputs.vcd, layout.png, and warmup/
-synth/           the generated corpus RTL
-out/             per-target artifacts: netlists, graphs, solutions, review.md
+tools/          the seven stages and every gate — 60 Python files, 21,891 lines
+  common/         GDS, LEF, liberty and boolean-expression readers
+  sim/            one simulation driver and one cycle model, shared
+docs/           one document per stage (00–07), plus:
+  problems.md     57 defects: symptom, root cause, fix status
+  references.md   primary sources, both published hints, the emblem measurement
+  resurrection-runbook.md   rebuilding the toolchain on a different OS
+  lectures/       00–09, in Turkish: the whole project taught from scratch
+                  to a reader with no hardware background
+out/            artifacts the pipeline produced, kept as evidence
+pdk/            the SkyWater sky130 cell library, pinned
+puzzle/         the puzzle's published material
+docker/         Icarus Verilog and Yosys images
 ```
 
-`pdk/`, `synth/` and `out/` are generated and git-ignored. All three are
-reproducible from the tools that write them.
+### Running it
 
-**Three PDK views, three jobs, and they must not be substituted for one
-another.** GDS is geometry, for stage 1's fingerprints. LEF is the physical
-abstract: pin directions and port rectangles. **Liberty is the only functional
-statement** — `clocked_on`, `next_state`, `clear`, `preset`, and `function` per
-output. Stage 3's roles come from liberty, never from a cell's name.
+```bash
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+python tools/fetch_pdk.py
 
-## Rules this repository binds itself to
+DOCKER_BUILDKIT=0 docker build --target sim -t gds-teardown-sim -f docker/Dockerfile docker/
+DOCKER_BUILDKIT=0 docker build --target eda -t gds-teardown-eda -f docker/Dockerfile docker/
 
-**No language model runs inside the pipeline.** Model assistance wrote much of
-the pipeline; it does not run in it. A detector is an algorithm, never a prompt.
+python tools/stage1_cells.py puzzle       # and so on, through stage 7
+python tools/review_packet.py             # run every gate, write the evidence
+```
 
-**The puzzle's AI rule, followed and then some.** The announcement asks that
-puzzle files not be fed into AI tools and writeups not be AI-generated, while
-explicitly permitting AI for scripts, code, and the warm-up. This project's
-split is stricter than the published rule:
-
-| The assistant does | The author does |
-|---|---|
-| Build every stage, detector and solver wrapper | Run the pipeline on `puzzle` |
-| Validate against `warmup` and `synth`, whose answers are known | Interpret the block partition |
-| Explain concepts, debug, refactor | Identify what the circuit computes |
-| | Derive the winning input |
-| | Write `docs/writeup.md` |
-
-The assistant never opened `puzzle/puzzle.gds` or `puzzle/example_inputs.vcd`.
-The writeup is the author's hand. The seam between what the pipeline determined
-and what needed a person is, deliberately, the observation the writeup is about.
-
-**Documents track their tools.** A number in a document is a measurement that
-happened once; nothing in a markdown file says whether it is still true.
-`verify_figures.py` runs the tools and checks the documents against them — the
-criteria tables automatically and *by value*, so a document may write `0.80`
-where the tool prints `0.8`, and the rest from a registry that fails until
-somebody re-records deliberately. It states its own limit: it checks the figures
-it was told about.
+The full command list, with what each gate checks, is in
+[`CLAUDE.md`](CLAUDE.md). Three targets share one interface: `warmup` (a worked
+example shipped with its own source, so the pipeline can be calibrated against a
+known answer), `synth` (99 generated circuits that write their own answer keys),
+and `puzzle`. **No stage ran on the puzzle before it passed on a target whose
+answer was already known.**
 
 ## Honest limits
 
-The things this repository knows it does not know, kept here rather than only in
-the commit history:
+- **The register partition on the target is unresolved.** 72 of the 92
+  flip-flops sit under one control signature. Six criteria disagree about how to
+  cut them, exact-match and information-theoretic scores rank those criteria in
+  *opposite* orders, and adding two circuits to the corpus reordered the ranking
+  again. Reported as a residue, not smoothed into an answer.
+- **Functional coverage was never measured.** The corpus can only name a block
+  if some circuit in it computes the same function, and no equivalence check was
+  run across the target. What *was* measured is a one-directional bound.
+- **The corpus is an answer key its own author wrote**, and its catalogue grew
+  in response to measurements against the target — which weakens held-out scores
+  in a known direction. The one circuit the author did not write found a gap the
+  written ones had missed.
+- **The evidence packet is regenerated, not committed at every commit.** Its
+  stamp names the commit it was measured at; when that is behind HEAD it says
+  so, rather than implying freshness.
 
-- **The register partition is unresolved on the puzzle.** 72 of the 92 flops sit
-  under one control signature, and refinement wants to cut them into eleven
-  groups of sizes 23, 22, 8, 4, 4, 4, 2, 2 and three singletons.
-  Exact match and NMI rank the six measured criteria in *opposite* orders, and
-  which one tops the NMI column is not stable — two circuits added for stage 7
-  reordered it. That is the residue, and it is where a person reads.
-- **Functional coverage is zero, and vocabulary overlap is not a substitute.**
-  No miter has been run against the corpus. What *has* been measured is a
-  one-directional bound: no puzzle cone depends on more distinct inputs than the
-  corpus's widest, so none is provably unnameable. That is not the same as
-  nameable.
-- **The corpus is an answer key its own author wrote.** Its catalogue was
-  extended four times in response to measurements against the target, which
-  weakens held-out scores in a known direction. The one entry whose Verilog this
-  author did not write — the warm-up's own RTL — found a gap every written one
-  had missed.
-- **Placement locality has n = 1.** It gets the warm-up exactly right, membership
-  included, without reading a wire. Nothing under `out/synth/` was ever placed,
-  so no corpus figure covers it and its second data point is the puzzle.
-- **The container tools do not stamp their own artifacts.** A stage 6 run by hand
-  leaves a `solution.json` with no toolchain manifest beside it.
-- **The BuildKit network failure is worked around, not understood.**
+## Lectures
 
-## Status
+[`docs/lectures/`](docs/lectures/) teaches the whole project from first
+principles, in **Turkish** — ten lessons, written after each stage's gates
+passed rather than before, so they describe verified facts and not intentions.
 
-All seven stages built and gated; 39 passing gates and one deliberately red in
-`out/review.md`. What remains is the author's: the puzzle runs, the
-interpretation of what the circuit computes, the winning input, and
-`docs/writeup.md`. Schedule in [docs/endgame.md](docs/endgame.md).
+## Licence and third-party content
+
+The work in `tools/`, `docs/`, `docker/` and the repository root is MIT
+licensed — see [`LICENSE`](LICENSE). Two directories carry other people's work
+under their own terms: `pdk/` is the SkyWater sky130 standard cell library
+(Apache 2.0), and `puzzle/` is Jane Street's published puzzle material. Both are
+vendored so this repository stays readable independently of its upstreams.
 
 ## Acknowledgements
 
-- Jane Street, for a puzzle whose layout is arranged to hint at its function.
-- The SkyWater sky130 open PDK, and open_pdks for a second build of it.
-- KLayout, gdstk, Yosys, Icarus Verilog, z3.
+Jane Street, for a puzzle whose layout is arranged to hint at its own function —
+and who hid *per arenam ad astra* in the sand, where somebody would have to
+decode it to find it. The SkyWater sky130 open PDK. KLayout, gdstk, Yosys,
+Icarus Verilog and z3.

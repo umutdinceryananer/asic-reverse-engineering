@@ -22,13 +22,12 @@ case.
 | 3, normalisation | **done**, round trip passes on both targets |
 | 4, detectors | steps 1 and 2 built, **register grouping fails the warm up's own hierarchy**. Naming not started |
 | 5, synthetic corpus | **done**, 99 circuits / 197 netlists, gated by `verify_corpus.py` |
-| 6, inversion | **machinery built and gated on `warmup`**: BMC out of `graph.json`, trace replayed in simulation. The puzzle run is the author's |
-| 7, output extraction | **machinery built and gated on `synth`**: the trace replayed, the output bus read, the bytes decoded. Gated against two corpus circuits whose string is declared before the run. The puzzle run is the author's |
+| 6, inversion | **done**: BMC out of `graph.json`, trace replayed in simulation. Gated on `warmup` at depth 8; the puzzle solved at depth 124, 121 serial bits, proven over every start state |
+| 7, output extraction | **done**: the trace replayed, the output bus read, the bytes decoded. Gated against two corpus circuits whose string is declared before the run; on the puzzle it read `(* TWO STARS *)` at cycles 124-138 |
 
-Lessons written: `docs/lectures/00`, `01`, `02`, `03`. The next is owed once
-stage 5's corpus exists and stage 4's detectors pass against it, and one is
-owed for stage 6 and one for stage 7 as well. Lessons are written after the
-gates, never before.
+Lessons written: `docs/lectures/00` through `09`, one per stage plus two for
+the machine move and the puzzle run itself. Lessons are written after the
+gates, never before, so each describes verified facts rather than intentions.
 
 ## Rules that bind this repository
 
@@ -88,7 +87,9 @@ them. The working split:
 This is also the spec's own structure: the seam between what the pipeline
 determined and what needed a person is the observation the writeup is about.
 
-**Keep the repository private until 4 September 2026.**
+**The repository was private until 4 September 2026**, the competition
+deadline, so that a public copy could not spoil the puzzle for anyone still
+working on it. That date has passed and it is public.
 
 ## Environment
 
