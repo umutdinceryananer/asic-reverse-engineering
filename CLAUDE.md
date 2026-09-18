@@ -1,4 +1,4 @@
-# gds-teardown
+# asic-reverse-engineering
 
 Recovering an ASIC's function from its layout, for the Jane Street 2026 puzzle.
 **This was a competition submission.** The deadline, 4 September 2026, has

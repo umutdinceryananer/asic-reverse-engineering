@@ -1,6 +1,6 @@
-# gds-teardown
+# ASIC Reverse Engineering
 
-[![gates](https://github.com/umutdinceryananer/gds-teardown/actions/workflows/gates.yml/badge.svg)](https://github.com/umutdinceryananer/gds-teardown/actions/workflows/gates.yml)
+[![gates](https://github.com/umutdinceryananer/asic-reverse-engineering/actions/workflows/gates.yml/badge.svg)](https://github.com/umutdinceryananer/asic-reverse-engineering/actions/workflows/gates.yml)
 
 **Recovering what a chip computes from a picture of the chip.**
 
